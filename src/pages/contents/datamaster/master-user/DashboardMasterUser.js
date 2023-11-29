@@ -1,12 +1,26 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-bs4";
 import axios from "axios";
+import Config from "../../../../config";
+import SweetAlertError from "../../../../components/SweetAlertError";
+import SweetAlertLoading from "../../../../components/SweetAlertLoading";
+import SweetAlertConfirmation from "../../../../components/SweetAlertConfirmation";
+import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
 
 const DashboardMasterUser = () => {
   const tableRef = React.useRef(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [holdConfirmation, setHoldConfirmation] = useState({
+    show: false,
+    id: null,
+    userid: null,
+    fc_hold: null
+  });
 
   useEffect(()=>{
     const fetchData = async () => {
@@ -17,9 +31,8 @@ const DashboardMasterUser = () => {
             Authorization: `Bearer ${token}`,
           },
         };
-        const response = await axios.get("http://127.0.0.1:8000/api/get-user", axiosConfig);
+        const response = await axios.get(Config.api.server1 + "get-user", axiosConfig);
         const userData = response.data.data;
-
         if ($.fn.DataTable.isDataTable("#dataTable")) {
           // If it is initialized, destroy it before reinitializing
           const existingTable = $(tableRef.current).DataTable();
@@ -58,6 +71,16 @@ const DashboardMasterUser = () => {
             { 
               data: "userid" 
             },
+            {
+              data: "fc_hold",
+              render : function(data, type, row){
+                if(data === 'T'){
+                  return '<span style="color: white; background-color: red; padding: 2px 5px; border-radius: 3px;">Hold</span>';
+                }else{
+                  return '<span style="color: white; background-color: green; padding: 2px 5px; border-radius: 3px;">Unhold</span>';
+                }
+              }
+            },
             { 
               data: "updated_at",
               render : function(data, type, row){
@@ -69,15 +92,16 @@ const DashboardMasterUser = () => {
             },
           ],
           rowCallback: function(row, data) {
+            const textHold = data.fc_hold === 'T' ? 'Unhold' : 'Hold';
             const actionBtns = `
               <button class="btn btn-sm btn-danger" id="deleteBtn">Delete</button>
-              <button class="btn btn-sm btn-warning" id="holdBtn">Hold</button>
+              <button class="btn btn-sm btn-warning" id="holdBtn">${textHold}</button>
               <button class="btn btn-sm btn-primary" id="editBtn">Edit</button>
             `;
-            $("td:eq(6)", row).html(actionBtns);
+            $("td:eq(7)", row).html(actionBtns);
 
             $("#deleteBtn", row).on("click", () => handleDelete(data.id));
-            $("#holdBtn", row).on("click", () => handleHold(data.id));
+            $("#holdBtn", row).on("click", () => showHoldConfirmation(data.id, data.userid, data.fc_hold));
             $("#editBtn", row).on("click", () => handleEdit(data.id));
           }
         },);
@@ -94,17 +118,78 @@ const DashboardMasterUser = () => {
     };
   },[])
 
+  const showHoldConfirmation = (id, userid, fc_hold) => {
+    setHoldConfirmation({
+      show: true,
+      id: id,
+      userid: userid,
+      fc_hold: fc_hold
+    });
+  };
+
+  const handleCloseHoldConfirmation = () => {
+    setHoldConfirmation({
+      show: false,
+      id: null,
+      userid: null,
+    });
+  };
+
   const handleDelete = (id) => {
     alert(`Delete data with id ${id}`);
   }
 
-  const handleHold = (id) => {
-    alert(`Hold data with id ${id}`);
+  const handleHoldConfirmation = async() => {
+    const token = localStorage.getItem('token');
+   
+    try {
+      const axiosConfig = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      // sweetalert
+      setLoading(true);
+      // status hold
+      const statusHold = holdConfirmation.fc_hold === 'T' ? 'unhold' : 'hold';
+      const response  = await axios.put(Config.api.server1 + statusHold, {
+        id: holdConfirmation.id,
+        userid: holdConfirmation.userid,
+        }, axiosConfig);
+      const userData = response.data.data;
+      // console.log(userData.fc_hold);
+
+      // console.log(userData.fc_hold);
+      if (response.data.success) {
+        setHoldConfirmation({
+          show: false,
+          id: null,
+          userid: null,
+        });
+       
+        setSuccess(true);
+        setLoading(false);
+        // resirect
+        window.location.href = '/master-user';
+      }else{
+        throw new Error(response.data.error);
+      }
+    } catch (error) {
+      setLoading(false);
+      setError(error.message);
+      throw new Error(error.message);
+    }finally{
+      setLoading(false);
+    }
   }
 
   const handleEdit = (id) => {
     alert(`Edit data with id ${id}`);
   }
+
+  const handleCloseErrorModal = () => {
+    setError(null);
+  };
   return (
     <>
       <div className="container-fluid">
@@ -143,11 +228,12 @@ const DashboardMasterUser = () => {
                   >
                     <thead>
                       <tr>
-                        <th>ID</th>
+                        <th>No</th>
                         <th>Division Code</th>
                         <th>Branch</th>
                         <th>Name</th>
                         <th>User ID</th>
+                        <th>Status</th>
                         <th>Updated At</th>
                         <th>Action</th>
                       </tr>
@@ -159,6 +245,7 @@ const DashboardMasterUser = () => {
                         <th>Branch</th>
                         <th>Name</th>
                         <th>User ID</th>
+                        <th>Status</th>
                         <th>Updated At</th>
                         <th>Action</th>
                       </tr>
@@ -170,6 +257,23 @@ const DashboardMasterUser = () => {
           </div>
         </div>
       </div>
+
+      <SweetAlertLoading show={loading} />
+      <SweetAlertError show={!!error} message={error} onClose={handleCloseErrorModal} />
+      <SweetAlertConfirmation show={
+        holdConfirmation.show}
+        content={`Are you sure you want to ${holdConfirmation.fc_hold === 'T' ? 'Unhold' : 'Hold'} this user?`}
+        onCancel={handleCloseHoldConfirmation}
+        onConfirm={handleHoldConfirmation} 
+        />
+      <SweetAlertSuccess 
+        show={success}
+        message="Hold operation completed successfully."
+        onClose={() => 
+          setSuccess(false)
+        }
+      
+      />
     </>
   );
 };

@@ -1,4 +1,7 @@
+import axios from "axios";
 import React, { useState } from "react";
+import $ from "jquery";
+import Config from "../../config";
 
 const Header = () => {
     const [style, setStyle] = useState("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
@@ -11,6 +14,33 @@ const Header = () => {
             setStyle("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion")
         }
     };
+
+    const handleLogout = async() => {
+    
+      try {
+        const token = localStorage.getItem("token");
+        const axiosConfig = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = await axios.post(Config.api.server1 + "logout",{}, axiosConfig);
+        if (response.data.success) {
+          localStorage.removeItem("token");
+          // redirect to login
+          window.location.href = "/login";
+        }else{
+          // close modal
+          $('#logoutModal').modal('hide');
+          //throw
+          throw new Error(response.data.error);
+        }
+
+      } catch (error) {
+        throw new Error(error.message);
+      }
+  
+    }
   return (
     <div>
       {/*  <!-- Topbar --> */}
@@ -301,6 +331,25 @@ const Header = () => {
         </ul>
       </nav>
       {/*  <!-- End of Topbar --> */}
+
+      <div className="modal fade" id="logoutModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                                <button className="close" type="button" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                            </div>
+                            <div className="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                                <a className="btn btn-primary" onClick={handleLogout}>Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
     </div>
   );
 };

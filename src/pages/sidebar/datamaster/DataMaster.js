@@ -23,7 +23,7 @@ const DataMaster = () => {
                                     <h6 className="collapse-header">Menu :</h6>
                                     <Link className="collapse-item" to="/master-user">Master User</Link>
                                     <a className="collapse-item" href="cards.html">Master Menu</a>
-                                    <a className="collapse-item" href="cards.html">Master Stock</a>
+                                    <Link className="collapse-item" to="/master-stock">Master Stock</Link>
                                     <a className="collapse-item" href="cards.html">Master Brand</a>
                                 </div>
                             </div>

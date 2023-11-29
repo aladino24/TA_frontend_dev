@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import DashboardMain from '../../dashboard/DashboardMain';
 import { BrowserRouter, Route, Router, Routes } from 'react-router-dom';
-import DashboardDataMaster from './DashboardMasterUser';
+import DashboardMasterUser from './DashboardMasterUser';
 
 function DashboardMasterUserMain() {
     return (
@@ -9,7 +9,7 @@ function DashboardMasterUserMain() {
             <DashboardMain>
                  {/* Halaman dinamis berdasarkan route */}
                 <Routes>
-                    <Route path="/" element={<DashboardDataMaster />} />
+                    <Route path="/" element={<DashboardMasterUser />} />
                 </Routes>
             </DashboardMain>
         </>
