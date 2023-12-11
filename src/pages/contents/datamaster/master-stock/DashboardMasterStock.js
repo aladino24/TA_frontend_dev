@@ -1,10 +1,27 @@
 import axios from "axios";
 import React, { useEffect, useRef } from "react";
 import Config from "../../../../config";
-import $ from "jquery";
+import $, { data } from "jquery";
+import Select from 'react-select'
+import { useState } from "react";
 
 const DashboardMasterStock = () => {
     const tableRef = useRef(null);
+    const [brandOptions, setBrandOptions] = useState([]);
+    const [selectedBrand, setSelectedBrand] = useState(null);
+    const [inputData, setInputData] = useState(
+        // $('#fc_branch').val(data.branch.fv_description);
+        // $('#fc_stockcode').val(data.fc_stockcode);
+        // $('#fc_nameshort').val(data.fc_nameshort);
+        // $('#fc_namelong').val(data.fc_namelong);
+        {
+            fc_stockcode: '',
+            fc_nameshort: '',
+            fc_namelong: '',
+            fc_branch: '',
+            fc_divisioncode: '',
+        }
+    );
 
     useEffect(()=> {
         const fetchData = async () => {
@@ -196,15 +213,21 @@ const DashboardMasterStock = () => {
     }, []);
 
     function detailEditStock(data){
+        const token = localStorage.getItem('token');
+       
         if(data){
-            console.log(data);
-            $('#fc_branch').val(data.branch.fv_description);
-            $('#fc_stockcode').val(data.fc_stockcode);
-            $('#fc_nameshort').val(data.fc_nameshort);
-            $('#fc_namelong').val(data.fc_namelong);
-
-         
-            const unityApiUrl = 'http://127.0.0.1:8001/api/get-unity';
+           setInputData(
+                {
+                    fc_divisioncode: data.fc_divisioncode,
+                    fc_branch: data.branch.fv_description,
+                    fc_stockcode: data.fc_stockcode,
+                    fc_nameshort: data.fc_nameshort,
+                    fc_namelong: data.fc_namelong,
+                }
+           );
+            // console.log(data);
+            const unityApiUrl = Config.api.server2 + 'get-unity';
+            const brandApiUrl = Config.api.server2 + 'master/brand';
             axios.get(unityApiUrl)
                 .then(response => {
                     const unityData = response.data.data;
@@ -217,7 +240,29 @@ const DashboardMasterStock = () => {
                 .catch(error => {
                     console.error('Error fetching Unity data:', error);
                 });
+            
+            
+            
+            axios.get(brandApiUrl, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then(response => {
+                    const brandData = response.data.data;
+                    const options = brandData.map(item => ({
+                    value: item.fc_brand,
+                    label: item.fc_brand,
+                    }));
+                    setBrandOptions(options);
+                    const selectedOption = options.find(option => option.value === data.fc_brand);
+                    setSelectedBrand(selectedOption);
+                })
+                .catch(error => {
+                    console.error('Error fetching Brand data:', error);
+                }); 
 
+               
         }
     }
 
@@ -373,13 +418,13 @@ const DashboardMasterStock = () => {
                                     <div className="col-4">
                                         <div className="form-group">
                                             <label>Branch</label>
-                                            <input type="text" className="form-control" name="fc_branch" id="fc_branch" value="" readOnly />
+                                            <input type="text" className="form-control" name="fc_branch" id="fc_branch" value={inputData.fc_branch} readOnly />
                                         </div>
                                     </div>
                                     <div className="col-8">
                                         <div className="form-group">
                                             <label>Stock Code</label>
-                                            <input type="text" className="form-control" name="fc_stockcode" id="fc_stockcode" value="" readOnly />
+                                            <input type="text" className="form-control" name="fc_stockcode" id="fc_stockcode" value={inputData.fc_stockcode} readOnly />
                                         </div>
                                     </div>
                                 </div>
@@ -387,13 +432,13 @@ const DashboardMasterStock = () => {
                                     <div className="col-4">
                                             <div className="form-group required">
                                                 <label>Nama Pendek</label>
-                                                <input type="text" className="form-control" name="fc_nameshort" id="fc_nameshort" value=""/>
+                                                <input type="text" className="form-control" name="fc_nameshort" id="fc_nameshort" value={inputData.fc_nameshort}/>
                                             </div>
                                     </div>
                                     <div className="col-5">
                                             <div className="form-group required">
                                                 <label>Nama Panjang</label>
-                                                <input type="text" className="form-control" name="fc_namelong" id="fc_namelong" value=""/>
+                                                <input type="text" className="form-control" name="fc_namelong" id="fc_namelong" value={inputData.fc_namelong}/>
                                             </div>
                                     </div>
                                     <div className="col-3">
@@ -409,9 +454,11 @@ const DashboardMasterStock = () => {
                                  <div className="col-3">
                                             <div className="form-group">
                                                 <label>Brand</label>
-                                                <select className="form-control" name="fc_namepack" id="fc_namepack">
-                                              
-                                                </select>
+                                                <Select
+                                                options={brandOptions}
+                                                value={selectedBrand}
+                                                onChange={(selectedOption) => setSelectedBrand(selectedOption)}
+                                                />
                                             </div>
                                     </div>
                                 </div>
