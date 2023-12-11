@@ -203,18 +203,25 @@ const DashboardMasterStock = () => {
             $('#fc_nameshort').val(data.fc_nameshort);
             $('#fc_namelong').val(data.fc_namelong);
 
-            const namepackSelect = document.getElementById('fc_namepack');
-            if (namepackSelect) {
-                // Loop through options and set the selected attribute
-                for (let i = 0; i < namepackSelect.options.length; i++) {
-                    const option = namepackSelect.options[i];
-                    if (option.value === data.namepack.fv_description) {
-                        option.selected = true;
-                    }
-                }
-            }
+         
+            const unityApiUrl = 'http://127.0.0.1:8001/api/get-unity';
+            axios.get(unityApiUrl)
+                .then(response => {
+                    const unityData = response.data.data;
+                    unityData.forEach(item => {
+                        const isSelected = item.fc_kode === data.fc_namepack;
+                        $('#fc_namepack').append(`<option ${isSelected ? 'selected' : ''} value="${item.fc_kode}">${item.fv_description}</option>`);
+                    });
+    
+                })
+                .catch(error => {
+                    console.error('Error fetching Unity data:', error);
+                });
+
         }
     }
+
+
     return (
         <div>
             <div className="container-fluid">
@@ -393,8 +400,17 @@ const DashboardMasterStock = () => {
                                             <div className="form-group">
                                                 <label>Namepack</label>
                                                 <select className="form-control" name="fc_namepack" id="fc_namepack">
-                                                    <option value="botol">botol</option>
-                                                    <option value=""></option>
+                                              
+                                                </select>
+                                            </div>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                 <div className="col-3">
+                                            <div className="form-group">
+                                                <label>Brand</label>
+                                                <select className="form-control" name="fc_namepack" id="fc_namepack">
+                                              
                                                 </select>
                                             </div>
                                     </div>

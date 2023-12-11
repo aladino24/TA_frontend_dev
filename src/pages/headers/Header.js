@@ -2,8 +2,10 @@ import axios from "axios";
 import React, { useState } from "react";
 import $ from "jquery";
 import Config from "../../config";
+import { useEffect } from "react";
 
 const Header = () => {
+    const [userName, setUserName] = useState('');
     const [style, setStyle] = useState("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
     const changeStyle1 = () => {
         if (style == "navbar-nav bg-gradient-primary sidebar sidebar-dark accordion")
@@ -14,6 +16,32 @@ const Header = () => {
             setStyle("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion")
         }
     };
+
+    useEffect(() => {
+      // Fetch data dari API dan atur state userName saat komponen dimuat
+      const fetchData = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const axiosConfig = {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+          const response = await axios.get(Config.api.server1 + 'check-token', axiosConfig);
+          const data = response.data.user;
+          setUserName(data.name);
+          // console.log(data);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+  
+      fetchData();
+    }, []);
+
+
+
+
 
     const handleLogout = async() => {
     
@@ -163,7 +191,7 @@ const Header = () => {
                   </div>
                 </div>
                 <div>
-                  <div className="small text-gray-500">December 2, 2019</div>
+                  <div className="small text-gray-z500">December 2, 2019</div>
                   Spending Alert: We've noticed unusually high spending for your
                   account.
                 </div>
@@ -292,7 +320,7 @@ const Header = () => {
               aria-expanded="false"
             >
               <span className="mr-2 d-none d-lg-inline text-gray-600 small">
-                Douglas McGee
+                {userName || 'Loading...'}
               </span>
               <img
                 className="img-profile rounded-circle"

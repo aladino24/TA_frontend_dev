@@ -22,9 +22,12 @@ const DataMaster = () => {
                                 <div className="bg-white py-2 collapse-inner rounded">
                                     <h6 className="collapse-header">Menu :</h6>
                                     <Link className="collapse-item" to="/master-user">Master User</Link>
+                                    <Link className="collapse-item" to="/master-role">Master Role</Link>
                                     <a className="collapse-item" href="cards.html">Master Menu</a>
                                     <Link className="collapse-item" to="/master-stock">Master Stock</Link>
-                                    <a className="collapse-item" href="cards.html">Master Brand</a>
+                                    <Link className="collapse-item" to="/master-brand">Master Brand</Link>
+                                    <a className="collapse-item" href="cards.html">Master Bank Acc</a>
+                                    <Link className="collapse-item" to="/master-distributor">Master Distributor</Link>
                                 </div>
                             </div>
                         </li>

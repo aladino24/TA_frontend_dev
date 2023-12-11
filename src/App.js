@@ -8,6 +8,7 @@ import axios from 'axios';
 import Config from './config';
 import DashboardMasterStock from './pages/contents/datamaster/master-stock/DashboardMasterStock';
 import DashboardMasterStockMain from './pages/contents/datamaster/master-stock/DashboardMasterStockMain';
+import DashboardMasterBrandMain from './pages/contents/datamaster/master-brand/DashboardMasterBrandMain';
 
 function App() {
   const [isLoggedIn, setLoggedIn] = useState(false);
@@ -66,6 +67,10 @@ function App() {
         <Route
           path="/master-stock"
           element={isLoggedIn ? <DashboardMasterStockMain /> : <Navigate to="/login" />}
+         />
+        <Route
+          path="/master-brand"
+          element={isLoggedIn ? <DashboardMasterBrandMain /> : <Navigate to="/login" />}
          />
       </Routes>
     </BrowserRouter>
