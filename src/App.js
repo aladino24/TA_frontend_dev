@@ -9,6 +9,7 @@ import Config from './config';
 import DashboardMasterStock from './pages/contents/datamaster/master-stock/DashboardMasterStock';
 import DashboardMasterStockMain from './pages/contents/datamaster/master-stock/DashboardMasterStockMain';
 import DashboardMasterBrandMain from './pages/contents/datamaster/master-brand/DashboardMasterBrandMain';
+import LandingPage from './pages/contents/landingpage/landingpage';
 
 function App() {
   const [isLoggedIn, setLoggedIn] = useState(false);
@@ -52,6 +53,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route
+          path="/"
+          element={<LandingPage />}
+        />
         <Route
           path="/login"
           element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login handleLogin={handleLogin} />}

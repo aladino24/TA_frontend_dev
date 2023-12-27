@@ -5,15 +5,22 @@ import $, { data } from "jquery";
 import Select from 'react-select'
 import { useState } from "react";
 import RadioButtons from "../../../../components/RadioButton";
+import SweetAlertError from "../../../../components/SweetAlertError";
+import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
+import SweetAlertLoading from "../../../../components/SweetAlertLoading";
+import ModalStock from "./ModalStock";
 
 const DashboardMasterStock = () => {
     const tableRef = useRef(null);
+    const [isModalAddOpen, setModalAddOpen] = useState(false);
+    const [namepackOptions, setNamepackOptions] = useState([]);
+    const [selectedNamepack, setSelectedNamepack] = useState("");
     const [brandOptions, setBrandOptions] = useState([]);
     const [groupByBrandOptions,setGroupByBrandOptions] = useState([]);
     const [selectedGroupByBrand, setSelectedGroupByBrand] = useState([]);
     const [subGroupByGroupOptions, setSubGroupByGroupOptions] = useState([]);
     const [selectedSubGroupByGroup, setSelectedSubGroupByGroup] = useState([]);
-    const [selectedBrand, setSelectedBrand] = useState(null);
+    const [selectedBrand, setSelectedBrand] = useState("");
     const [typeStock1Options, setTypeStock1Options] = useState([]);
     const [selectedTypeStock1, setSelectedTypeStock1] = useState([]);
     const [typeStock2Options, setTypeStock2Options] = useState([]);
@@ -27,9 +34,13 @@ const DashboardMasterStock = () => {
     const [repsupplierValue, setRepsupplierValue] = useState('');
     const [flDiscDate, setflDiscDate] = useState('');
     const [flDiscTime, setflDiscTime] = useState('');
+    const [showLoading, setShowLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
     const [inputData, setInputData] = useState(
         {
             fc_stockcode: '',
+            fc_barcode: '',
             fc_nameshort: '',
             fc_namelong: '',
             fc_branch: '',
@@ -60,14 +71,21 @@ const DashboardMasterStock = () => {
             fm_price_project: '',
             fm_price_dealer: '',
             fm_price_enduser: '',
-            fv_stockdescription: ''
+            fv_stockdescription: '',
+            fl_repsupplier: '',
+            fl_catnumber: '',
+            fl_serialnumber: '',
+            fl_expired: '',
+            fl_taxtype: '',
+            fl_batch: ''
         }
     );
+    
 
     useEffect(()=> {
         const fetchData = async () => {
+            const token = localStorage.getItem('token');
             try {
-                const token = localStorage.getItem('token');
                 const axiosConfig = {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -81,10 +99,10 @@ const DashboardMasterStock = () => {
                     existingTable.destroy();
                   }
 
-                const formattedData = responseData.map((user, index) => ({
+                const formattedData = responseData ? responseData.map((user, index) => ({
                     ...user,
                     no: index + 1,
-                  }));
+                  })) : [];
                   
                   const table = $(tableRef.current).DataTable({
                     responsive: true,
@@ -200,7 +218,10 @@ const DashboardMasterStock = () => {
                                 }
                             }
                         },
-                        {data: "fd_disc_begin"},{data: "fd_disc_end"},
+                        {
+                            data: "fd_disc_begin",
+                        },
+                        {data: "fd_disc_end"},
                         {data: "fm_disc_rp"},{data: "fm_disc_pr"},
                         { 
                             data: "fl_disc_time",
@@ -299,9 +320,24 @@ const DashboardMasterStock = () => {
         }
     }
 
+    const handleNamepackChange = (selectedOption) => {
+        setSelectedNamepack(selectedOption);
+        setInputData(prevInputData => {
+            return {
+                ...prevInputData,
+                fc_namepack: selectedOption.value,
+            }
+        })
+    }
 
     const handleBrandChange = (selectedOption) => {
         setSelectedBrand(selectedOption);
+        setInputData(prevInputData => {
+            return {
+                ...prevInputData,
+                fc_brand: selectedOption.value
+            }
+        })
         setSelectedGroupByBrand(null); // Menetapkan nilai grup menjadi null ketika merek diubah
         setSelectedSubGroupByGroup(null);
         fetchGroupsByBrand(selectedOption);
@@ -309,18 +345,37 @@ const DashboardMasterStock = () => {
 
     const handleGroupByBrandChange = (selectedOption) => {
         setSelectedGroupByBrand(selectedOption);
+        // setInputData
+        setInputData(prevInputData => {
+            return {
+                ...prevInputData,
+                fc_group: selectedOption.value,
+            }
+        })
         setSelectedSubGroupByGroup(null);
         fetchSubGroupByGroup(selectedOption);
     }
 
     const handleTypeStock1Change = (value) => {
         setSelectedTypeStock1(value);
+        setInputData(prevInputData => {
+            return {
+                ...prevInputData,
+                fc_typestock1: value,
+            }
+        })
         // fetchTypeStock1()
         // console.log(typeStockOptions);
     }
 
     const handleTypeStock2Change = (value) => {
         setSelectedTypeStock2(value);
+        setInputData(prevInputData => {
+            return {
+                ...prevInputData,
+                fc_typestock2: value,
+            }
+        })
         // fetchTypeStock2();
     }
 
@@ -330,37 +385,43 @@ const DashboardMasterStock = () => {
     
         if (data) {
             setInputData({
-                fc_divisioncode: data.fc_divisioncode,
-                fc_branch: data.branch.fv_description,
-                fc_stockcode: data.fc_stockcode,
-                fc_nameshort: data.fc_nameshort,
-                fc_namelong: data.fc_namelong,
-                fl_batch: data.fl_batch,
-                fc_catnumber: data.fc_catnumber,
-                fc_typestock1: data.fc_typestock1,
-                fc_typestock2: data.fc_typestock2,
-                fn_reorderlevel: data.fn_reorderlevel,
-                fn_maxonhand: data.fn_maxonhand,
-                fl_blacklist: data.fl_blacklist,
-                fm_purchase: data.fm_purchase,
-                fm_cogs: data.fm_cogs,
-                fm_salesprice: data.fm_salesprice,
-                fl_disc_date: data.fl_disc_date,
-                fl_disc_time: data.fl_disc_time,
-                fd_disc_begin: data.fd_disc_begin,
-                fd_disc_end: data.fd_disc_end,
-                fm_disc_rp: data.fm_disc_rp,
-                fm_disc_pr: data.fm_disc_pr,
-                ft_disc_begin: data.ft_disc_begin,
-                ft_disc_end: data.ft_disc_end,
-                fm_time_disc_rp: data.fm_time_disc_rp,
-                fm_time_disc_pr: data.fm_time_disc_pr,
-                fm_price_default: data.fm_price_default,
-                fm_price_distributor: data.fm_price_distributor,
-                fm_price_project: data.fm_price_project,
-                fm_price_dealer: data.fm_price_dealer,
-                fm_price_enduser: data.fm_price_enduser,
-                fv_stockdescription: data.fv_stockdescription
+                fc_divisioncode: data.fc_divisioncode || '',
+                fc_branch: (data.branch && data.branch.fv_description) || '',
+                fc_stockcode: data.fc_stockcode || '',
+                fc_barcode: data.fc_barcode || '',
+                fc_nameshort: data.fc_nameshort || '',
+                fc_namelong: data.fc_namelong || '',
+                fl_batch: data.fl_batch || '',
+                fc_catnumber: data.fc_catnumber || '',
+                fc_typestock1: data.fc_typestock1 || '',
+                fc_typestock2: data.fc_typestock2 || '',
+                fn_reorderlevel: data.fn_reorderlevel || '',
+                fn_maxonhand: data.fn_maxonhand || '',
+                fl_blacklist: data.fl_blacklist || '',
+                fm_purchase: data.fm_purchase || '',
+                fm_cogs: data.fm_cogs || '',
+                fm_salesprice: data.fm_salesprice || '',
+                fl_disc_date: data.fl_disc_date || '',
+                fl_disc_time: data.fl_disc_time || '',
+                fd_disc_begin: data.fd_disc_begin || '',
+                fd_disc_end: data.fd_disc_end || '',
+                fm_disc_rp: data.fm_disc_rp || '',
+                fm_disc_pr: data.fm_disc_pr || '',
+                ft_disc_begin: data.ft_disc_begin || '',
+                ft_disc_end: data.ft_disc_end || '',
+                fm_time_disc_rp: data.fm_time_disc_rp || '',
+                fm_time_disc_pr: data.fm_time_disc_pr || '',
+                fm_price_default: data.fm_price_default || '',
+                fm_price_distributor: data.fm_price_distributor || '',
+                fm_price_project: data.fm_price_project || '',
+                fm_price_dealer: data.fm_price_dealer || '',
+                fm_price_enduser: data.fm_price_enduser || '',
+                fv_stockdescription: data.fv_stockdescription || '',
+                fl_repsupplier: data.fl_repsupplier || '',
+                fl_catnumber: data.fl_catnumber || '',
+                fl_serialnumber: data.fl_serialnumber || '',
+                fl_expired: data.fl_expired || '',
+                fl_taxtype: data.fl_taxtype || '',
             });
     
             try {
@@ -403,19 +464,27 @@ const DashboardMasterStock = () => {
                 const typestock2Data = typestock2Response.data.data;
 
                 // Render UnityData options
-                unityData.forEach(item => {
-                    const isSelected = item.fc_kode === data.fc_namepack;
-                    $('#fc_namepack').append(`<option ${isSelected ? 'selected' : ''} value="${item.fc_kode}">${item.fv_description}</option>`);
-                });
+                // unityData.forEach(item => {
+                //     const isSelected = item.fc_kode === data.fc_namepack;
+                //     $('#fc_namepack').append(`<option ${isSelected ? 'selected' : ''} value="${item.fc_kode}">${item.fv_description}</option>`);
+                // });
+                const unityOptions = unityData.map(item => ({
+                    value: item.fc_kode,
+                    label: item.fv_description,
+                }))
+
+                setNamepackOptions(unityOptions);
+                const selectedNamepackOption = unityOptions.find(option => option.value === data.fc_namepack);
+                setSelectedNamepack(selectedNamepackOption);
     
                 // Set BrandOptions and SelectedBrand
-                const options = brandData.map(item => ({
+                const brandOptions = brandData.map(item => ({
                     value: item.fc_brand,
                     label: item.fc_brand,
                 }));
-                setBrandOptions(options);
-                const selectedOption = options.find(option => option.value === data.fc_brand);
-                setSelectedBrand(selectedOption);
+                setBrandOptions(brandOptions);
+                const selectedBrandOption = brandOptions.find(option => option.value === data.fc_brand);
+                setSelectedBrand(selectedBrandOption);
     
                 // Set GroupByBrandOptions and SelectedGroupByBrand
                 const groupByBrandOptions = groupByBrandData.map(item => ({
@@ -465,35 +534,86 @@ const DashboardMasterStock = () => {
     }
     
     const handleBatchChange = (value) => {
+        if (value !== batchValue) {
         setBatchValue(value);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_batch: value
+        }))
+       }
       };
 
     const handleExpiredChange = (value) => {
+        if (value !== expiredValue) {
         setExpiredValue(value);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_expired: value
+        }))
+     }
     }
 
     const handleSerialnumberChange = (value) => {
+        if (value !== serialnumberValue) {
         setSerialnumberValue(value);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_serialnumber: value
+        }))
+      }
     }
 
     const handleStatusCatNumberChange = (value) => {
+        if (value !== statusCatNumberValue) {
         setStatusCatNumberValue(value);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_catnumber: value
+        }))
+        }
     }
 
     const handleBlacklistChange = (value) => {
+        if (value !== blacklistValue) {
         setBlacklistValue(value);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_blacklist: value
+        }))
+        }
     }
 
     const handleTaxtypeChange = (value) => {
+        if (value !== taxtypeValue) {
         setTaxtypeValue(value);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_taxtype: value
+        }))
+     }
     }
     
     const handleRepsupplierChange = (value) => {
+        if (value !== repsupplierValue) {
         setRepsupplierValue(value);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_repsupplier: value
+        }))
+        }
     }
 
     const handleDiscDate = (value) => {
+        if (value !== flDiscDate) {
         setflDiscDate(value);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_disc_date: value
+        }))
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_disc_date: value
+         }));
         const placeDiskonTanggalElements = document.querySelectorAll('.place_diskon_tanggal');
         if (value === 'T') {
             placeDiskonTanggalElements.forEach(element => {
@@ -504,10 +624,16 @@ const DashboardMasterStock = () => {
                 element.setAttribute('hidden', true);
             });
         }
+        }
     }
 
     const handleDiscTime = (value) => {
+        if (value !== flDiscTime) {
         setflDiscTime(value);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_disc_time: value
+         }));
         const placeDiskonWaktuElements = document.querySelectorAll('.place_diskon_waktu');
         if(value === 'T'){
             placeDiskonWaktuElements.forEach(element => {
@@ -518,24 +644,83 @@ const DashboardMasterStock = () => {
                 element.setAttribute('hidden', true);
             });
         }
+     }
     }
 
-    // console.log(typeStock2Options);
+    // HANDLE SUBMIT
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        // console.log(inputData)
+        setShowLoading(true);
+         const token = localStorage.getItem('token');
+        try {
+            const apiUpdateStockUrl = Config.api.server2 + 'master/stock';
+         
+            const response = await axios({
+                method: 'put',
+                url: apiUpdateStockUrl,
+                data: inputData,
+                headers:{
+                    Authorization: `Bearer ${token}`,
+                }
+              });
+
+            // console.log(response);
+            setShowSuccess(true);
+        } catch (error) {
+            setShowError(true);
+            if (error.response) {
+                console.log('Response Data:', error.response.data);
+                console.log('Response Status:', error.response.status);
+                console.log('Response Headers:', error.response.headers);
+            } else if (error.request) {
+                console.log('Request made but no response received:', error.request);
+            } else {
+                console.log('Error during request setup:', error.message);
+            }
+            console.log('Config:', error.config);
+        }finally{
+            setShowLoading(false);
+        }
+    }
+
+    const handleSuccessAlertClose = () => {
+        setShowSuccess(false);
+        // Reload the page upon successful API response
+        window.location.reload();
+      };
+    
+      const handleErrorAlertClose = () => {
+        setShowError(false);
+      };
+
+      // MODAL ADD MASTER STOCK
+    const handleAddStock = () => {
+        setModalAddOpen(true);
+    };
+
+    const handleCloseAddStock = () => {
+        setModalAddOpen(false);
+    };
 
     return (
         <div>
             <div className="container-fluid">
                 {/*  <!-- Page Heading --> */}
                 <div className="d-sm-flex align-items-center justify-content-between mb-4">
-                <h1 className="h3 mb-0 text-gray-800">Master Stock</h1>
-                <a
-                    href="#"
-                    className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-                >
-                    <i className="fas fa-download fa-sm text-white-50"></i> Generate
-                    Report
-                </a>
+                    <h1 className="h3 mb-0 text-gray-800">Master Stock</h1>
+                    <div>
+                        <a
+                            href="#"
+                            className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+                        >
+                            <i className="fas fa-download fa-sm text-white-50"></i> Generate
+                            Report
+                        </a>
+                        <button  className="ml-2 btn btn-sm btn-success shadow-sm" onClick={handleAddStock}><i class="fa fa-plus"></i> Tambahkan Stock</button>
+                    </div>
                 </div>
+
 
             
                 <div className="row">
@@ -666,8 +851,9 @@ const DashboardMasterStock = () => {
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
+                        <form id="editForm" onSubmit={handleEdit}>
                         <div className="modal-body">
-                            <form id="editForm">
+                            
                                 <div className="row">
                                     {/* Add more input fields as needed */}
                                     <div className="col-4">
@@ -687,21 +873,49 @@ const DashboardMasterStock = () => {
                                     <div className="col-4">
                                             <div className="form-group required">
                                                 <label style={{ fontSize: '12px' }}>Nama Pendek</label>
-                                                <input type="text" className="form-control" name="fc_nameshort" id="fc_nameshort" value={inputData.fc_nameshort}/>
+                                                <input 
+                                                    type="text" 
+                                                    className="form-control" 
+                                                    name="fc_nameshort" 
+                                                    id="fc_nameshort" 
+                                                    value={inputData.fc_nameshort} 
+                                                    onChange={
+                                                        (e) => {
+                                                            setInputData(prevInputData => ({ 
+                                                                ...prevInputData, 
+                                                                fc_nameshort: e.target.value 
+                                                        }))}
+                                                    }/>
                                             </div>
                                     </div>
                                     <div className="col-5">
                                             <div className="form-group required">
                                                 <label style={{ fontSize: '12px' }}>Nama Panjang</label>
-                                                <input type="text" className="form-control" name="fc_namelong" id="fc_namelong" value={inputData.fc_namelong}/>
+                                                <input 
+                                                    type="text" 
+                                                    className="form-control" 
+                                                    name="fc_namelong" 
+                                                    id="fc_namelong" 
+                                                    value={inputData.fc_namelong}
+                                                    onChange={
+                                                        (e) => {
+                                                        setInputData(prevInputData => ({ 
+                                                            ...prevInputData, 
+                                                            fc_namelong: e.target.value 
+                                                      }))
+                                                    }}
+                                                />
                                             </div>
                                     </div>
                                     <div className="col-3">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Namepack</label>
-                                                <select className="form-control" name="fc_namepack" id="fc_namepack">
-                                              
-                                                </select>
+                                                <Select 
+                                                    options={namepackOptions}
+                                                    value={selectedNamepack}
+                                                    onChange={handleNamepackChange}
+                                                    required
+                                                />
                                             </div>
                                     </div>
                                 </div>
@@ -743,7 +957,10 @@ const DashboardMasterStock = () => {
                                     <div className="col-sm-6 col-md-3">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Batch</label>
-                                            <RadioButtons name="fl_batch" value={inputData.fl_batch === 'T' ? 'T' : 'F'} onChange={handleBatchChange} />
+                                            <RadioButtons 
+                                                name="fl_batch" 
+                                                value={inputData.fl_batch === 'T' ? 'T' : 'F'} 
+                                                onChange={handleBatchChange} />
                                         </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
@@ -787,7 +1004,19 @@ const DashboardMasterStock = () => {
                                     <div className="col-sm-6 col-md-3">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Detail CAT Number</label>
-                                                <input type="text" className="form-control" name="fc_catnumber" id="fc_catnumber" value={inputData.fc_catnumber}/>
+                                                <input 
+                                                    type="text" 
+                                                    className="form-control" 
+                                                    name="fc_catnumber" 
+                                                    id="fc_catnumber" 
+                                                    value={inputData.fc_catnumber}
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fc_catnumber: e.target.value
+                                                        }))
+                                                    }}
+                                                />
                                             </div>
                                     </div>
                                 </div>
@@ -821,13 +1050,37 @@ const DashboardMasterStock = () => {
                                     <div className="col-md-3">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Reorder Level</label>
-                                            <input type="number" className="form-control" name="fn_reorderlevel" id="fn_reorderlevel" value={inputData.fn_reorderlevel}/>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="fn_reorderlevel" 
+                                                id="fn_reorderlevel" 
+                                                value={inputData.fn_reorderlevel}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fn_reorderlevel: e.target.value
+                                                    }))
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-md-3">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Max On Hand</label>
-                                            <input type="number" className="form-control" name="fn_maxonhand" id="fn_maxonhand" value={inputData.fn_maxonhand}/>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="fn_maxonhand" 
+                                                id="fn_maxonhand" 
+                                                value={inputData.fn_maxonhand}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fn_maxonhand: e.target.value
+                                                    }))
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -835,19 +1088,58 @@ const DashboardMasterStock = () => {
                                     <div className="col-md-3">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Purchase</label>
-                                                <input type="number" className="form-control" name="fm_purchase" id="fm_purchase" value={inputData.fm_purchase} required/>
+                                                <input 
+                                                    type="number" 
+                                                    className="form-control" 
+                                                    name="fm_purchase" 
+                                                    id="fm_purchase" 
+                                                    value={inputData.fm_purchase} 
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fm_purchase: e.target.value
+                                                        }))
+                                                    }}
+                                                    required
+                                                />
                                             </div>
                                     </div>
                                     <div className="col-md-3">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>COGS</label>
-                                                <input type="number" className="form-control" name="fm_cogs" id="fm_cogs" value={inputData.fm_cogs} required/>
+                                                <input 
+                                                    type="number" 
+                                                    className="form-control" 
+                                                    name="fm_cogs" 
+                                                    id="fm_cogs" 
+                                                    value={inputData.fm_cogs} 
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fm_cogs: e.target.value
+                                                        }))
+                                                    }}
+                                                    required
+                                                />
                                             </div>
                                     </div>
                                     <div className="col-md-3">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Sales Price</label>
-                                                <input type="number" className="form-control" name="fm_salesprice" id="fm_salesprice" value={inputData.fm_salesprice} required/>
+                                                <input 
+                                                    type="number" 
+                                                    className="form-control" 
+                                                    name="fm_salesprice" 
+                                                    id="fm_salesprice" 
+                                                    value={inputData.fm_salesprice} 
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fm_salesprice: e.target.value
+                                                        }))
+                                                    }}
+                                                    required
+                                                />
                                             </div>
                                     </div>
                                 </div>
@@ -861,25 +1153,73 @@ const DashboardMasterStock = () => {
                                     <div className={`col-sm-6 col-md-2 col-lg-2 place_diskon_tanggal ${flDiscDate === 'F' ? 'hidden' : ''}`}>
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Tanggal Start</label>
-                                                <input type="date" className="form-control" name="fd_disc_begin" id="fd_disc_begin" value={inputData.fd_disc_begin} />
+                                                <input 
+                                                    type="date" 
+                                                    className="form-control" 
+                                                    name="fd_disc_begin" 
+                                                    id="fd_disc_begin" 
+                                                    value={inputData.fd_disc_begin} 
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fd_disc_begin: e.target.value
+                                                        }))
+                                                    }}
+                                                />
                                             </div>
                                     </div>  
                                     <div className={`col-sm-6 col-md-2 col-lg-2 place_diskon_tanggal ${flDiscDate === 'F' ? 'hidden' : ''}`}>
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Tanggal End</label>
-                                                <input type="date" className="form-control" name="fd_disc_end" id="fd_disc_end" value={inputData.fd_disc_end} />
+                                                <input 
+                                                    type="date" 
+                                                    className="form-control" 
+                                                    name="fd_disc_end" 
+                                                    id="fd_disc_end" 
+                                                    value={inputData.fd_disc_end} 
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fd_disc_end: e.target.value
+                                                        }))
+                                                    }}
+                                                />
                                             </div>
                                     </div>
                                     <div className={`col-sm-6 col-md-3 col-lg-3 place_diskon_tanggal ${flDiscDate === 'F' ? 'hidden' : ''}`}>
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Rupiah</label>
-                                            <input type="number" className="form-control" name="fm_disc_rp" id="fm_disc_rp" value={inputData.fm_disc_rp}/>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="fm_disc_rp" 
+                                                id="fm_disc_rp" 
+                                                value={inputData.fm_disc_rp}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_disc_rp: e.target.value
+                                                    }))
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                     <div className={`col-sm-6 col-md-3 col-lg-3 place_diskon_tanggal ${flDiscDate === 'F' ? 'hidden' : ''}`}>
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Persentase</label>
-                                            <input type="number" className="form-control" name="fm_disc_pr" id="fm_disc_pr" value={inputData.fm_disc_pr}/>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="fm_disc_pr" 
+                                                id="fm_disc_pr" 
+                                                value={inputData.fm_disc_pr}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_disc_pr: e.target.value
+                                                    }))
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -893,25 +1233,77 @@ const DashboardMasterStock = () => {
                                     <div className={`col-sm-6 col-md-2 col-lg-2 place_diskon_waktu ${flDiscTime === 'F' ? 'hidden' : ''}`}>
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Waktu Start</label>
-                                            <input type="time" className="form-control" name="ft_disc_begin" id="ft_disc_begin" maxlength="5" value={inputData.ft_disc_begin}/>
+                                            <input 
+                                                type="time" 
+                                                className="form-control" 
+                                                name="ft_disc_begin" 
+                                                id="ft_disc_begin" 
+                                                maxLength="5" 
+                                                value={inputData.ft_disc_begin}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        ft_disc_begin: e.target.value
+                                                    }))
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                     <div className={`col-sm-6 col-md-2 col-lg-2 place_diskon_waktu ${flDiscTime === 'F' ? 'hidden' : ''}`}>
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Waktu End</label>
-                                            <input type="time" className="form-control" name="ft_disc_end" id="ft_disc_end" maxlength="5" value={inputData.ft_disc_end}/>
+                                            <input 
+                                                type="time" 
+                                                className="form-control" 
+                                                name="ft_disc_end" 
+                                                id="ft_disc_end" 
+                                                maxLength="5" 
+                                                value={inputData.ft_disc_end}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        ft_disc_end: e.target.value
+                                                    }))
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                     <div className={`col-sm-6 col-md-3 col-lg-3 place_diskon_waktu ${flDiscTime === 'F' ? 'hidden' : ''}`}>
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Rupiah</label>
-                                            <input type="number" className="form-control" name="fm_time_disc_rp" id="fm_time_disc_rp" value={inputData.fm_time_disc_rp}/>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="fm_time_disc_rp" 
+                                                id="fm_time_disc_rp" 
+                                                value={inputData.fm_time_disc_rp}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_time_disc_rp: e.target.value
+                                                    }))
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                     <div className={`col-sm-6 col-md-3 col-lg-3 place_diskon_waktu ${flDiscTime === 'F' ? 'hidden' : ''}`}>
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Persentase</label>
-                                            <input type="number" className="form-control" name="fm_time_disc_pr" id="fm_time_disc_pr" value={inputData.fm_time_disc_pr}/>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="fm_time_disc_pr" 
+                                                id="fm_time_disc_pr" 
+                                                value={inputData.fm_time_disc_pr}
+                                                onChange={
+                                                    (e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fm_time_disc_pr: e.target.value
+                                                        }))
+                                                    }
+                                                }
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -919,31 +1311,91 @@ const DashboardMasterStock = () => {
                                     <div className="col-sm-6 col-md-2 col-lg-2">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Price</label>
-                                            <input type="number" className="form-control" name="fm_price_default" id="fm_price_default" value={inputData.fm_price_default}/>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="fm_price_default" 
+                                                id="fm_price_default" 
+                                                value={inputData.fm_price_default}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_price_default: e.target.value
+                                                    }))
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-sm-6 col-md-2 col-lg-2">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Price Distributor</label>
-                                            <input type="number" className="form-control" name="fm_price_distributor" id="fm_price_distributor" value={inputData.fm_price_distributor}/>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="fm_price_distributor" 
+                                                id="fm_price_distributor" 
+                                                value={inputData.fm_price_distributor}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_price_distributor: e.target.value
+                                                    }))
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-sm-6 col-md-2 col-lg-2">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Price Project</label>
-                                            <input type="number" className="form-control" name="fm_price_project" id="fm_price_project" value={inputData.fm_price_project}/>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="fm_price_project" 
+                                                id="fm_price_project" 
+                                                value={inputData.fm_price_project}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_price_project: e.target.value
+                                                    }))
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-sm-6 col-md-2 col-lg-2">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Price Dealer</label>
-                                            <input type="number" className="form-control" name="fm_price_dealer" id="fm_price_dealer" value={inputData.fm_price_dealer}/>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="fm_price_dealer" 
+                                                id="fm_price_dealer" 
+                                                value={inputData.fm_price_dealer}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_price_dealer: e.target.value
+                                                    }))
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-sm-6 col-md-2 col-lg-2">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Price Enduser</label>
-                                            <input type="number" className="form-control" name="fm_price_enduser" id="fm_price_enduser" value={inputData.fm_price_enduser}/>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="fm_price_enduser" 
+                                                id="fm_price_enduser" 
+                                                value={inputData.fm_price_enduser}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_price_enduser: e.target.value
+                                                    }))
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -951,25 +1403,54 @@ const DashboardMasterStock = () => {
                                     <div className="col-sm-12 col-md-12 col-lg-12">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Description</label>
-                                            <textarea className="form-control" name="fv_stockdescription" id="fv_stockdescription" rows="3" value={inputData.fv_stockdescription}></textarea>
+                                            <textarea 
+                                                className="form-control" 
+                                                name="fv_stockdescription" 
+                                                id="fv_stockdescription" 
+                                                rows="3" 
+                                                value={inputData.fv_stockdescription}
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fv_stockdescription: e.target.value
+                                                    }))
+                                                }}
+                                            ></textarea>
                                         </div>
                                     </div>
                                 </div>
                                 {/* Add more input fields as needed */}
-                            </form>
+                            
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-dismiss="modal">
                                 Close
                             </button>
-                            <button type="button" className="btn btn-primary" id="saveChangesBtn">
+                            <button type="submit" className="btn btn-primary" id="saveChangesBtn">
                                 Save Changes
                             </button>
                         </div>
+                        </form>
                     </div>
                 </div>
             </div>
+        
+        {/* <ModalStock isOpen={isModalAddOpen} onClose={handleCloseAddStock} /> */}
 
+        {/* SweetAlert components */}
+       <SweetAlertLoading show={showLoading} />
+
+        <SweetAlertSuccess
+        show={showSuccess}
+        message="Update successful!"
+        onClose={handleSuccessAlertClose}
+        />
+
+        <SweetAlertError
+        show={showError}
+        message="Update failed. Please try again."
+        onClose={handleErrorAlertClose}
+        />
     </div>
     );
 };
