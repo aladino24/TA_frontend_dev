@@ -695,13 +695,13 @@ const DashboardMasterStock = () => {
       };
 
       // MODAL ADD MASTER STOCK
-    const handleAddStock = () => {
-        setModalAddOpen(true);
-    };
+    // const handleAddStock = () => {
+    //     setModalAddOpen(true);
+    // };
 
-    const handleCloseAddStock = () => {
-        setModalAddOpen(false);
-    };
+    // const handleCloseAddStock = () => {
+    //     setModalAddOpen(false);
+    // };
 
     return (
         <div>
@@ -717,7 +717,7 @@ const DashboardMasterStock = () => {
                             <i className="fas fa-download fa-sm text-white-50"></i> Generate
                             Report
                         </a>
-                        <button  className="ml-2 btn btn-sm btn-success shadow-sm" onClick={handleAddStock}><i className="fa fa-plus"></i> Tambahkan Stock</button>
+                        <button className="ml-2 btn btn-sm btn-success shadow-sm" data-toggle="modal" data-target="#addModal"><i class="fa fa-plus"></i> Tambahkan Stock</button>
                     </div>
                 </div>
 
@@ -1435,7 +1435,7 @@ const DashboardMasterStock = () => {
                 </div>
             </div>
         
-        {/* <ModalStock isOpen={isModalAddOpen} onClose={handleCloseAddStock} /> */}
+        <ModalStock id="addModal" isOpen={isModalAddOpen} />
 
         {/* SweetAlert components */}
        <SweetAlertLoading show={showLoading} />
