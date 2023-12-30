@@ -30,7 +30,7 @@ const SidebarMain = () => {
                 {/*  <!-- Sidebar - Brand --> */}
                 <a className="sidebar-brand d-flex align-items-center justify-content-center" href="#">
                     <div className="sidebar-brand-icon rotate-n-15">
-                    <i class="fa fa-medkit" aria-hidden="true"></i>
+                    <i className="fa fa-medkit" aria-hidden="true"></i>
                     </div>
                     <div className="sidebar-brand-text mx-3">MedLink</div>
                     <div className="text-center d-none d-md-inline">

@@ -125,9 +125,9 @@ const DashboardMasterStock = () => {
                             data: 'fc_hold',
                             render: function(data, type, row) {
                                 if(data === 'T'){
-                                    return `<span class="badge badge-success">Yes</span>`;
+                                    return `<span className="badge badge-success">Yes</span>`;
                                 }else{
-                                    return `<span class="badge badge-danger">No</span>`;
+                                    return `<span className="badge badge-danger">No</span>`;
                                 }
                             }
                         },
@@ -135,9 +135,9 @@ const DashboardMasterStock = () => {
                             data: 'fl_batch',
                             render: function(data, type, row) {
                                 if(data === 'T'){
-                                    return `<span class="badge badge-success">Yes</span>`;
+                                    return `<span className="badge badge-success">Yes</span>`;
                                 }else{
-                                    return `<span class="badge badge-danger">No</span>`;
+                                    return `<span className="badge badge-danger">No</span>`;
                                 }
                             }
                         },
@@ -145,9 +145,9 @@ const DashboardMasterStock = () => {
                             data: 'fl_expired',
                             render: function(data, type, row) {
                                 if(data === 'T'){
-                                    return `<span class="badge badge-success">Yes</span>`;
+                                    return `<span className="badge badge-success">Yes</span>`;
                                 }else{
-                                    return `<span class="badge badge-danger">No</span>`;
+                                    return `<span className="badge badge-danger">No</span>`;
                                 }
                             }
                         },
@@ -155,9 +155,9 @@ const DashboardMasterStock = () => {
                             data: "fl_serialnumber",
                             render: function(data, type, row) {
                                 if(data === 'T'){
-                                    return `<span class="badge badge-success">Yes</span>`;
+                                    return `<span className="badge badge-success">Yes</span>`;
                                 }else{
-                                    return `<span class="badge badge-danger">No</span>`;
+                                    return `<span className="badge badge-danger">No</span>`;
                                 }
                             }
                         },
@@ -165,9 +165,9 @@ const DashboardMasterStock = () => {
                             data: "fl_catnumber",
                             render: function(data, type, row) {
                                 if(data === 'T'){
-                                    return `<span class="badge badge-success">Yes</span>`;
+                                    return `<span className="badge badge-success">Yes</span>`;
                                 }else{
-                                    return `<span class="badge badge-danger">No</span>`;
+                                    return `<span className="badge badge-danger">No</span>`;
                                 }
                             }
                         },
@@ -176,9 +176,9 @@ const DashboardMasterStock = () => {
                             data: "fl_blacklist",
                             render: function(data, type, row) {
                                 if(data === 'T'){
-                                    return `<span class="badge badge-success">Yes</span>`;
+                                    return `<span className="badge badge-success">Yes</span>`;
                                 }else{
-                                    return `<span class="badge badge-danger">No</span>`;
+                                    return `<span className="badge badge-danger">No</span>`;
                                 }
                             }
                         },
@@ -186,9 +186,9 @@ const DashboardMasterStock = () => {
                             data: "fl_taxtype",
                             render: function(data, type, row) {
                                 if(data === 'T'){
-                                    return `<span class="badge badge-success">Yes</span>`;
+                                    return `<span className="badge badge-success">Yes</span>`;
                                 }else{
-                                    return `<span class="badge badge-danger">No</span>`;
+                                    return `<span className="badge badge-danger">No</span>`;
                                 }
                             }
                         },
@@ -196,9 +196,9 @@ const DashboardMasterStock = () => {
                             data: "fl_repsupplier",
                             render: function(data, type, row) {
                                 if(data === 'T'){
-                                    return `<span class="badge badge-success">Yes</span>`;
+                                    return `<span className="badge badge-success">Yes</span>`;
                                 }else{
-                                    return `<span class="badge badge-danger">No</span>`;
+                                    return `<span className="badge badge-danger">No</span>`;
                                 }
                             }
                         },
@@ -212,9 +212,9 @@ const DashboardMasterStock = () => {
                             data: "fl_disc_date",
                             render: function(data, type, row) {
                                 if(data === 'T'){
-                                    return `<span class="badge badge-success">Yes</span>`;
+                                    return `<span className="badge badge-success">Yes</span>`;
                                 }else{
-                                    return `<span class="badge badge-danger">No</span>`;
+                                    return `<span className="badge badge-danger">No</span>`;
                                 }
                             }
                         },
@@ -227,9 +227,9 @@ const DashboardMasterStock = () => {
                             data: "fl_disc_time",
                             render: function(data, type, row) {
                                 if(data === 'T'){
-                                    return `<span class="badge badge-success">Yes</span>`;
+                                    return `<span className="badge badge-success">Yes</span>`;
                                 }else{
-                                    return `<span class="badge badge-danger">No</span>`;
+                                    return `<span className="badge badge-danger">No</span>`;
                                 }
                             }
                         },{data: "ft_disc_begin"},
@@ -241,8 +241,8 @@ const DashboardMasterStock = () => {
                     ],
                     rowCallback: function(row, data) {
                         const actionBtns = `
-                        <button class="btn btn-sm btn-warning" id="holdBtn">Hold</button>
-                        <button class="btn btn-sm btn-primary" id="editBtn">Edit</button>
+                        <button className="btn btn-sm btn-warning" id="holdBtn">Hold</button>
+                        <button className="btn btn-sm btn-primary" id="editBtn">Edit</button>
                         `;
                         $("td:eq(43)", row).html(actionBtns);
                     }
@@ -717,7 +717,7 @@ const DashboardMasterStock = () => {
                             <i className="fas fa-download fa-sm text-white-50"></i> Generate
                             Report
                         </a>
-                        <button  className="ml-2 btn btn-sm btn-success shadow-sm" onClick={handleAddStock}><i class="fa fa-plus"></i> Tambahkan Stock</button>
+                        <button  className="ml-2 btn btn-sm btn-success shadow-sm" onClick={handleAddStock}><i className="fa fa-plus"></i> Tambahkan Stock</button>
                     </div>
                 </div>
 
