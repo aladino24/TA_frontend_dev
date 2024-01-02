@@ -1,9 +1,29 @@
-import React from "react";
+import React, { useEffect } from "react";
 import RadioButtons from "../../../../components/RadioButton";
 import Select from 'react-select'
 import { useState } from "react";
+import Config from "../../../../config";
+import axios from "axios";
+import { event } from "jquery";
 
 const ModalStock = (props) => {
+    const [namepackOptions, setNamepackOptions] = useState([]);
+    const [brandOptions, setBrandOptions] = useState([]);
+    const [selectedBrand, setSelectedBrand] = useState("");
+    const [groupByBrandOptions,setGroupByBrandOptions] = useState([]);
+    const [selectedGroupByBrand, setSelectedGroupByBrand] = useState([]);
+    const [subGroupByGroupOptions, setSubGroupByGroupOptions] = useState([]);
+    const [selectedSubGroupByGroup, setSelectedSubGroupByGroup] = useState([]);
+    const [batchValue, setBatchValue] = useState('');
+    const [expiredValue, setExpiredValue] = useState('');
+    const [serialNumberValue, setSerialNumberValue] = useState('');
+    const [statusCatNumberValue, setStatusCatNumberValue] = useState('');
+    const [blacklistValue, setBlacklistValue] = useState('');
+    const [taxtypeValue, setTaxtypeValue] = useState('');
+    const [repsupplierValue, setRepsupplierValue] = useState('');
+    const [discDateValue, setDiscDateValue] = useState('');
+    const [discTimeValue, setDiscTimeValue] = useState('');
+    
     const [inputData, setInputData] = useState(
         {
             fc_stockcode: '',
@@ -40,21 +60,160 @@ const ModalStock = (props) => {
             fm_price_enduser: '',
             fv_stockdescription: '',
             fl_repsupplier: '',
+            fc_brand: '',
             fl_catnumber: '',
             fl_serialnumber: '',
             fl_expired: '',
             fl_taxtype: '',
-            fl_batch: ''
         }
     );
-    const namepackOptions = [
-            { value: '1', label: '1' },
-            { value: '2', label: '2' },
-    ];
-    const handleBatchChange = () => {
-        console.log("Your favorite flavor is now Sweet");
+    // const namepackOptions = [
+    //         { value: '1', label: '1' },
+    //         { value: '2', label: '2' },
+    // ];
+   
+
+    // const handleBatchChangeCopy = (value) => {
+    //     console.log(value);
+    //   };
+    
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const unityApiUrl = Config.api.server2 + 'get-unity';
+                const brandApiUrl = Config.api.server2 + 'get-brand';
+                const groupByBrandApiUrl = Config.api.server2 + 'stock-group-by-unity';
+
+                const [
+                    getBranchResponse,
+                    unityResponse,
+                    brandResponse,
+                    groupByBrandResponse, 
+
+                ] = await Promise.all([
+                    axios.get(Config.api.server1 + "check-token", {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }),
+                    axios.get(unityApiUrl),
+                    axios.get(brandApiUrl),
+                    axios.get(groupByBrandApiUrl, {
+                        params: {
+                            fc_brand: inputData.fc_brand,
+                        }
+                    }),
+                ]);
+
+                const branchData = getBranchResponse.data.user.branch;
+                const unityData = unityResponse.data.data;
+                const brandData = brandResponse.data.data;
+
+                setInputData(prevInputData => ({
+                    ...prevInputData,
+                    fc_branch: branchData,
+                }));
+
+                const unityOptions = unityData.map((item) => ({
+                    value: item.fc_kode,
+                    label: item.fv_description,
+                }));
+                setNamepackOptions(unityOptions);
+
+                const brandOptions = brandData.map((item) => ({
+                    value: item.fc_brand,
+                    label: item.fc_brand,
+                }));
+                setBrandOptions(brandOptions);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchData();
+
+    }, []);
+
+    const fetchGroupsByBrand = async (selectedBrand) => {
+        try {
+            // const token = localStorage.getItem('token');
+            const groupByBrandApiUrl = Config.api.server2 + 'stock-group-by-unity';
+
+            const response = await axios.get(groupByBrandApiUrl, {
+                params: {
+                    fc_brand: selectedBrand.value,
+                }
+            });
+
+            const groupByBrandData = response.data.data;
+
+            const options = groupByBrandData.map(item => ({
+                value: item.fc_group,
+                label: item.fc_group,
+            }));
+            setGroupByBrandOptions(options);
+        } catch (error) {
+            console.error('Error fetching groups:', error);
+        }
+    };
+
+    const fetchSubGroupByGroup = async (selectedGroup) => {
+        try {
+            // const token = localStorage.getItem('token');
+            const subGroupByGroupApiUrl = Config.api.server2 + 'stock-subgroup-by-group';
+
+            const response = await axios.get(subGroupByGroupApiUrl, {
+                params: {
+                    fc_group: selectedGroup.value,
+                }
+            });
+
+            const subGroupByGroupData = response.data.data;
+
+            const options = subGroupByGroupData.map(item => ({
+                value: item.fc_subgroup,
+                label: item.fc_subgroup,
+            }));
+            setSubGroupByGroupOptions(options);
+        } catch (error) {
+            console.error('Error fetching subgroups:', error);
+        }
     }
-    console.log("Modal isOpen:", props.isOpen);
+
+    const handleNamepackChange = (event) => {
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fc_namepack: event.value,
+        }));
+    };
+    
+    const handleBrandChange = (event) => {
+        setSelectedBrand(event);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fc_brand: event.value,
+        }));
+        setSelectedGroupByBrand(null); // Menetapkan nilai grup menjadi null ketika merek diubah
+        setSelectedSubGroupByGroup(null);
+        fetchGroupsByBrand(event);
+    };
+
+    
+
+    const handleGroupByBrandChange = (event) => {
+        setSelectedGroupByBrand(event);
+        // setInputData
+        setInputData(prevInputData => {
+            return {
+                ...prevInputData,
+                fc_group: event.value,
+            }
+        })
+        setSelectedSubGroupByGroup(null);
+        fetchSubGroupByGroup(event);
+    }
+  
     return (
        <>
             <div
@@ -88,13 +247,30 @@ const ModalStock = (props) => {
                                     <div className="col-4">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Branch</label>
-                                            <input type="text" className="form-control" name="fc_branch" id="fc_branch" value="A001" readOnly />
+                                            <input 
+                                                type="text" 
+                                                className="form-control" 
+                                                name="fc_branch" 
+                                                id="fc_branch" 
+                                                value={inputData.fc_branch} readOnly 
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-8">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Stock Code</label>
-                                            <input type="text" className="form-control" name="fc_stockcode" id="fc_stockcode" value="Test 123" readOnly />
+                                            <input 
+                                                type="text" 
+                                                className="form-control" 
+                                                name="fc_stockcode" 
+                                                id="fc_stockcode" 
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fc_stockcode: e.target.value,
+                                                    }));
+                                                }} 
+                                            />
                                         </div>
                                     </div>
                             </div>
@@ -107,7 +283,13 @@ const ModalStock = (props) => {
                                                     className="form-control" 
                                                     name="fc_nameshort" 
                                                     id="fc_nameshort" 
-                                                    />
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fc_nameshort: e.target.value,
+                                                        }))
+                                                    }}
+                                                />
                                             </div>
                                     </div>
                                     <div className="col-5">
@@ -118,6 +300,12 @@ const ModalStock = (props) => {
                                                     className="form-control" 
                                                     name="fc_namelong" 
                                                     id="fc_namelong" 
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fc_namelong: e.target.value,
+                                                        }))
+                                                    }}
                                                 />
                                             </div>
                                     </div>
@@ -126,6 +314,7 @@ const ModalStock = (props) => {
                                                 <label style={{ fontSize: '12px' }}>Namepack</label>
                                                 <Select 
                                                     options={namepackOptions}
+                                                    onChange={handleNamepackChange}
                                                     required
                                                 />
                                     </div>
@@ -136,7 +325,9 @@ const ModalStock = (props) => {
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Brand</label>
                                                 <Select
-                                                    options={namepackOptions}
+                                                    options={brandOptions}
+                                                    name="fc_brand"
+                                                    onChange={handleBrandChange}
                                                     required
                                                 />
                                             </div>
@@ -145,7 +336,9 @@ const ModalStock = (props) => {
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Group</label>
                                                 <Select 
-                                                options={namepackOptions}
+                                                options={groupByBrandOptions}
+                                                value={selectedGroupByBrand}
+                                                onChange={handleGroupByBrandChange}
                                                 required
                                                 />
                                             </div>
@@ -154,7 +347,9 @@ const ModalStock = (props) => {
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Sub Group</label>
                                                 <Select 
-                                                    options={namepackOptions}
+                                                     options={subGroupByGroupOptions}
+                                                    value={selectedSubGroupByGroup}
+                                                    onChange={(event) => setSelectedSubGroupByGroup(event)}
                                                 />
                                             </div>
                                     </div>
@@ -164,27 +359,78 @@ const ModalStock = (props) => {
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Batch</label>
                                             <RadioButtons 
-                                                name="fl_batch"
-                                                onChange={handleBatchChange} 
+                                                name="fl_batch_add"
+                                                onChange={
+                                                    (value) => {
+                                                        if(value !== batchValue){
+                                                            setInputData(prevInputData => ({
+                                                                ...prevInputData,
+                                                                fl_batch: value,
+                                                            })
+                                                        );
+                                                         setBatchValue(value);
+                                                        }
+                                                    }
+                                                } 
                                             />
                                         </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Expired Date</label>
-                                            <RadioButtons name="fl_expired" onChange={handleBatchChange}/>
+                                            <RadioButtons 
+                                                name="fl_expired_add" 
+                                                onChange={
+                                                    (value) => {
+                                                        if(value !== expiredValue){
+                                                            setInputData(prevInputData => ({
+                                                                ...prevInputData,
+                                                                fl_expired: value,
+                                                            })
+                                                        );
+                                                         setExpiredValue(value);
+                                                        }
+                                                    }
+                                                }
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Serial Number</label>
-                                            <RadioButtons name="fl_serialnumber"  onChange={handleBatchChange} />
+                                            <RadioButtons 
+                                                name="fl_serialnumber_add"  
+                                                onChange={
+                                                    (value) => {
+                                                        if(value !== serialNumberValue){
+                                                            setInputData(prevInput => ({
+                                                                ...prevInput,
+                                                                fl_serialnumber:value
+                                                            }));
+                                                            setSerialNumberValue(value);
+                                                        }
+                                                    }
+                                                } 
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Status Cat Number</label>
-                                            <RadioButtons name="fl_catnumber"  onChange={handleBatchChange} />
+                                            <RadioButtons 
+                                                name="fl_catnumber_add"  
+                                                onChange={
+                                                    (value) => {
+                                                        if(value !== statusCatNumberValue){
+                                                            setInputData(prevInput => ({
+                                                                ...prevInput,
+                                                                fl_catnumber:value
+                                                            }));
+                                                            setStatusCatNumberValue(value);
+                                                        }
+                                                    }
+                                                } 
+                                            />
                                         </div>
                                     </div>
                             </div>
@@ -192,19 +438,58 @@ const ModalStock = (props) => {
                                     <div className="col-sm-6 col-md-3">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Blacklist</label>
-                                                <RadioButtons name="fl_blacklist" onChange={handleBatchChange} />
+                                                <RadioButtons 
+                                                    name="fl_blacklist_add" 
+                                                    onChange={
+                                                        (value) => {
+                                                            if(value !== blacklistValue){
+                                                                setInputData(prevInput => ({
+                                                                    ...prevInput,
+                                                                    fl_blacklist:value
+                                                                }));
+                                                                setBlacklistValue(value);
+                                                            }
+                                                        }
+                                                    } 
+                                                />
                                             </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Tax Type</label>
-                                                <RadioButtons name="fl_taxtype" onChange={handleBatchChange} />
+                                                <RadioButtons 
+                                                    name="fl_taxtype_add" 
+                                                    onChange={
+                                                        (value) => {
+                                                            if(value !== taxtypeValue){
+                                                                setInputData(prevInput => ({
+                                                                    ...prevInput,
+                                                                    fl_taxtype:value
+                                                                }));
+                                                                setTaxtypeValue(value);
+                                                            }
+                                                        }
+                                                    } 
+                                                />
                                             </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Report Supplier</label>
-                                                <RadioButtons name="fl_repsupplier" onChange={handleBatchChange} />
+                                                <RadioButtons 
+                                                    name="fl_repsupplier_add" 
+                                                    onChange={
+                                                        (value) => {
+                                                            if(value !== repsupplierValue){
+                                                                setInputData(prevInput => ({
+                                                                    ...prevInput,
+                                                                    fl_repsupplier:value
+                                                                }));
+                                                                setRepsupplierValue(value);
+                                                            }
+                                                        }
+                                                    } 
+                                                />
                                             </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
@@ -306,7 +591,20 @@ const ModalStock = (props) => {
                                     <div className="col-sm-6 col-md-2">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Diskon Tanggal</label>
-                                                <RadioButtons name="fl_disc_date"  onChange={handleBatchChange} />
+                                                <RadioButtons 
+                                                    name="fl_disc_date_add"  
+                                                    onChange={
+                                                        (value) => {
+                                                            if(value !== discDateValue){
+                                                                setInputData(prevInput => ({
+                                                                    ...prevInput,
+                                                                    fl_disc_date:value
+                                                                }));
+                                                                setDiscDateValue(value);
+                                                            }
+                                                        }
+                                                    } 
+                                                />
                                             </div>
                                     </div>
                                     <div className={`col-sm-6 col-md-2 col-lg-2 place_diskon_tanggal hidden}`}>
@@ -358,7 +656,20 @@ const ModalStock = (props) => {
                                     <div className="col-sm-6 col-md-2">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Diskon Waktu</label>
-                                                <RadioButtons name="fl_disc_time"  onChange={handleBatchChange} />
+                                                <RadioButtons 
+                                                    name="fl_disc_time_add"  
+                                                    onChange={
+                                                        (value) => {
+                                                            if(value !== discTimeValue){
+                                                                setInputData(prevInput => ({
+                                                                    ...prevInput,
+                                                                    fl_disc_time:value
+                                                                }));
+                                                                setDiscTimeValue(value);
+                                                            }
+                                                        }
+                                                    } 
+                                                />
                                             </div>
                                     </div>
                                     <div className={`col-sm-6 col-md-2 col-lg-2 place_diskon_waktu hidden}`}>
