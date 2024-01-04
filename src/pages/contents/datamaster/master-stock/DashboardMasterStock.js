@@ -118,7 +118,7 @@ const DashboardMasterStock = () => {
                     ],
                     columns: [
                         {data: "no"},{data: "fc_divisioncode"},
-                        {data: "fc_branch"},{data: "fc_stockcode"},
+                        {data: "branch.fv_description"},{data: "fc_stockcode"},
                         {data: "fc_barcode"},{data: "fc_nameshort"},
                         {data: 'fc_namelong'},
                         {
@@ -665,8 +665,14 @@ const DashboardMasterStock = () => {
                 }
               });
 
-            console.log(response);
-            setShowSuccess(true);
+            // console.log(response);
+            if (response.data.status === 200) {
+                setShowSuccess(true);
+                setShowLoading(false);
+            } else {
+                setShowError(true);
+                setShowLoading(false);
+            }
         } catch (error) {
             setShowError(true);
             if (error.response) {

@@ -3,6 +3,9 @@ import RadioButtons from "../../../../components/RadioButton";
 import Select from 'react-select'
 import { useState } from "react";
 import Config from "../../../../config";
+import SweetAlertError from "../../../../components/SweetAlertError";
+import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
+import SweetAlertLoading from "../../../../components/SweetAlertLoading";
 import axios from "axios";
 import { event } from "jquery";
 
@@ -23,11 +26,18 @@ const ModalStock = (props) => {
     const [repsupplierValue, setRepsupplierValue] = useState('');
     const [discDateValue, setDiscDateValue] = useState('');
     const [discTimeValue, setDiscTimeValue] = useState('');
+    const [typeStock1Options, setTypeStock1Options] = useState([]);
+    const [typeStock2Options, setTypeStock2Options] = useState([]);
+    const [showLoading, setShowLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
+    const [flDiscDate, setflDiscDate] = useState('');
+    const [flDiscTime, setflDiscTime] = useState('');
     
     const [inputData, setInputData] = useState(
         {
             fc_stockcode: '',
-            fc_barcode: '',
+            fc_barcode: 'fc_barcode',
             fc_nameshort: '',
             fc_namelong: '',
             fc_branch: '',
@@ -85,13 +95,16 @@ const ModalStock = (props) => {
                 const unityApiUrl = Config.api.server2 + 'get-unity';
                 const brandApiUrl = Config.api.server2 + 'get-brand';
                 const groupByBrandApiUrl = Config.api.server2 + 'stock-group-by-unity';
+                const typestock1ApiUrl = Config.api.server2 + 'get-data-where-field-id-get/TransaksiType/fc_trx/GOODSMATERY';
+                const typestock2ApiUrl = Config.api.server2 + 'get-data-where-field-id-get/TransaksiType/fc_trx/GOODSTRANS';
 
                 const [
-                    getBranchResponse,
+                    getSessionDataResponse,
                     unityResponse,
                     brandResponse,
                     groupByBrandResponse, 
-
+                    typestock1Response,
+                    typestock2Response
                 ] = await Promise.all([
                     axios.get(Config.api.server1 + "check-token", {
                         headers: {
@@ -105,15 +118,26 @@ const ModalStock = (props) => {
                             fc_brand: inputData.fc_brand,
                         }
                     }),
+                    axios.get(typestock1ApiUrl),
+                    axios.get(typestock2ApiUrl),
                 ]);
 
-                const branchData = getBranchResponse.data.user.branch;
+                const sessionBranchData = getSessionDataResponse.data.user.branch;
+                const sessionDivisionCodeData = getSessionDataResponse.data.user.divisioncode;
                 const unityData = unityResponse.data.data;
                 const brandData = brandResponse.data.data;
+                const groupByBrandData = groupByBrandResponse.data.data;
+                const typestock1Data = typestock1Response.data.data;
+                const typestock2Data = typestock2Response.data.data;
 
                 setInputData(prevInputData => ({
                     ...prevInputData,
-                    fc_branch: branchData,
+                    fc_branch: sessionBranchData,
+                }));
+
+                setInputData(prevInputData => ({
+                    ...prevInputData,
+                    fc_divisioncode: sessionDivisionCodeData,
                 }));
 
                 const unityOptions = unityData.map((item) => ({
@@ -127,6 +151,21 @@ const ModalStock = (props) => {
                     label: item.fc_brand,
                 }));
                 setBrandOptions(brandOptions);
+
+                const typestock1Options = typestock1Data.map(item => ({
+                    value: item.fc_kode,
+                    label: item.fv_description,
+                }));
+
+                setTypeStock1Options(typestock1Options);
+
+                const typestock2Options = typestock2Data.map(item => ({
+                    value: item.fc_kode,
+                    label: item.fv_description,
+                }));
+
+                setTypeStock2Options(typestock2Options);
+                // console.log(typestock2Data);
             } catch (error) {
                 console.error(error);
             }
@@ -213,17 +252,115 @@ const ModalStock = (props) => {
         setSelectedSubGroupByGroup(null);
         fetchSubGroupByGroup(event);
     }
+
+    const handleDiscDate = (value) => {
+        if (value !== flDiscDate) {
+        setflDiscDate(value);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_disc_date: value
+        }))
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_disc_date: value
+         }));
+        const placeDiskonTanggalElements = document.querySelectorAll('.place_diskon_tanggal');
+        if (value === 'T') {
+            placeDiskonTanggalElements.forEach(element => {
+                element.removeAttribute('hidden');
+            });
+        } else {
+            placeDiskonTanggalElements.forEach(element => {
+                element.setAttribute('hidden', true);
+            });
+        }
+        }
+    }
+
+    const handleDiscTime = (value) => {
+        if (value !== flDiscTime) {
+        setflDiscTime(value);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fl_disc_time: value
+         }));
+        const placeDiskonWaktuElements = document.querySelectorAll('.place_diskon_waktu');
+        if(value === 'T'){
+            placeDiskonWaktuElements.forEach(element => {
+                element.removeAttribute('hidden');
+            });
+        }else{
+            placeDiskonWaktuElements.forEach(element => {
+                element.setAttribute('hidden', true);
+            });
+        }
+     }
+    }
+
+    const handleSubmit = async(e) => {
+        e.preventDefault();
+
+        // console.log(inputData);
+        setShowLoading(true);
+        const token = localStorage.getItem('token');
+        try {
+            const apiInsertStockUrl = Config.api.server2 + 'master/stock';
+
+            const response = await axios({
+                method: 'post',
+                url: apiInsertStockUrl,
+                data: inputData,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            // console.log(response);
+            // console.log(response.data.status === 200);
+            if (response.data.status === 200) {
+                setShowSuccess(true);
+                setShowLoading(false);
+            } else {
+                setShowError(true);
+                setShowLoading(false);
+            }
+        } catch (error) {
+            setShowError(true);
+            setShowLoading(false);
+            if (error.response) {
+                console.log('Response Data:', error.response.data);
+                console.log('Response Status:', error.response.status);
+                console.log('Response Headers:', error.response.headers);
+            } else if (error.request) {
+                console.log('Request made but no response received:', error.request);
+            } else {
+                console.log('Error during request setup:', error.message);
+            }
+            console.log('Config:', error.config);
+
+        }finally{
+            setShowLoading(false);
+        }
+    }
+
+     const handleSuccessAlertClose = () => {
+        setShowSuccess(false);
+        // Reload the page upon successful API response
+        window.location.reload();
+      };
+    
+      const handleErrorAlertClose = () => {
+        setShowError(false);
+      };
   
     return (
        <>
             <div
             className="modal fade"
-            id="addModal"
+            id={props.id}
             tabIndex="-1"
             role="dialog"
             aria-labelledby="editModalLabel"
-            aria-hidden={!props.isOpen}
-        >
+            aria-hidden={!props.isOpen}>
             <div className="modal-dialog modal-lg" role="document">
                 <div className="modal-content">
                     <div className="modal-header">
@@ -240,7 +377,7 @@ const ModalStock = (props) => {
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form>
+                    <form onSubmit={handleSubmit}>
                         <div className="modal-body">
                              <div className="row">
                                     {/* Add more input fields as needed */}
@@ -500,6 +637,14 @@ const ModalStock = (props) => {
                                                     className="form-control" 
                                                     name="fc_catnumber" 
                                                     id="fc_catnumber" 
+                                                    onChange={
+                                                        (e) => {
+                                                            setInputData(prevInput => ({
+                                                                ...prevInput,
+                                                                fc_catnumber:e.target.value
+                                                            }));
+                                                        }
+                                                    }
                                                 />
                                             </div>
                                     </div>
@@ -509,8 +654,16 @@ const ModalStock = (props) => {
                                         <div className="form-group">
                                              <label style={{ fontSize: '12px' }}>Tipe Stock 1</label>
                                                 <Select
-                                                    options={namepackOptions}
+                                                    options={typeStock1Options}
                                                     name="fc_typestock1"
+                                                    onChange={
+                                                        (event) => {
+                                                            setInputData(prevInputData => ({
+                                                                ...prevInputData,
+                                                                fc_typestock1: event.value
+                                                            }))
+                                                        }
+                                                    }
                                                     required
                                                 />
 
@@ -520,8 +673,16 @@ const ModalStock = (props) => {
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Tipe Stock 2</label>
                                                 <Select
-                                                    options={namepackOptions}
-                                                    name="fc_typestock2"
+                                                    options={typeStock2Options}
+                                                    name="fc_typestock2_add"
+                                                    onChange={
+                                                        (event) => {
+                                                            setInputData(prevInputData => ({
+                                                                ...prevInputData,
+                                                                fc_typestock2: event.value
+                                                            }))
+                                                        }
+                                                    }
                                                     required
                                                 />
                                         </div>
@@ -534,6 +695,12 @@ const ModalStock = (props) => {
                                                 className="form-control" 
                                                 name="fn_reorderlevel" 
                                                 id="fn_reorderlevel"
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fn_reorderlevel: e.target.value
+                                                    }))
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -545,6 +712,12 @@ const ModalStock = (props) => {
                                                 className="form-control" 
                                                 name="fn_maxonhand" 
                                                 id="fn_maxonhand" 
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fn_maxonhand: e.target.value
+                                                    }))
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -558,6 +731,12 @@ const ModalStock = (props) => {
                                                     className="form-control" 
                                                     name="fm_purchase" 
                                                     id="fm_purchase" 
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fm_purchase: e.target.value
+                                                        }))
+                                                    }}
                                                     required
                                                 />
                                             </div>
@@ -570,6 +749,12 @@ const ModalStock = (props) => {
                                                     className="form-control" 
                                                     name="fm_cogs" 
                                                     id="fm_cogs"
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fm_cogs: e.target.value
+                                                        }))
+                                                    }}
                                                     required
                                                 />
                                             </div>
@@ -582,6 +767,12 @@ const ModalStock = (props) => {
                                                     className="form-control" 
                                                     name="fm_salesprice" 
                                                     id="fm_salesprice" 
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fm_salesprice: e.target.value
+                                                        }))
+                                                    }}
                                                     required
                                                 />
                                             </div>
@@ -593,17 +784,8 @@ const ModalStock = (props) => {
                                                 <label style={{ fontSize: '12px' }}>Diskon Tanggal</label>
                                                 <RadioButtons 
                                                     name="fl_disc_date_add"  
-                                                    onChange={
-                                                        (value) => {
-                                                            if(value !== discDateValue){
-                                                                setInputData(prevInput => ({
-                                                                    ...prevInput,
-                                                                    fl_disc_date:value
-                                                                }));
-                                                                setDiscDateValue(value);
-                                                            }
-                                                        }
-                                                    } 
+                                                    value={inputData.fl_disc_date === 'T' ? 'T' : 'F'}
+                                                    onChange={(value) => handleDiscDate(value)} 
                                                 />
                                             </div>
                                     </div>
@@ -613,8 +795,14 @@ const ModalStock = (props) => {
                                                 <input 
                                                     type="date" 
                                                     className="form-control" 
-                                                    name="fd_disc_begin" 
+                                                    name="fd_disc_begin_add" 
                                                     id="fd_disc_begin"
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fd_disc_begin: e.target.value
+                                                        }))
+                                                    }}
                                                 />
                                             </div>
                                     </div>  
@@ -624,8 +812,14 @@ const ModalStock = (props) => {
                                                 <input 
                                                     type="date" 
                                                     className="form-control" 
-                                                    name="fd_disc_end" 
+                                                    name="fd_disc_end_add" 
                                                     id="fd_disc_end" 
+                                                    onChange={(e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fd_disc_end: e.target.value
+                                                        }))
+                                                    }}
                                                 />
                                             </div>
                                     </div>
@@ -635,8 +829,14 @@ const ModalStock = (props) => {
                                             <input 
                                                 type="number" 
                                                 className="form-control" 
-                                                name="fm_disc_rp" 
+                                                name="fm_disc_rp_add" 
                                                 id="fm_disc_rp" 
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_disc_rp: e.target.value
+                                                    }))
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -646,8 +846,14 @@ const ModalStock = (props) => {
                                             <input 
                                                 type="number" 
                                                 className="form-control" 
-                                                name="fm_disc_pr" 
-                                                id="fm_disc_pr" 
+                                                name="fm_disc_pr_add" 
+                                                id="fm_disc_pr"
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_disc_pr: e.target.value
+                                                    }))
+                                                }} 
                                             />
                                         </div>
                                     </div>
@@ -657,18 +863,9 @@ const ModalStock = (props) => {
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Diskon Waktu</label>
                                                 <RadioButtons 
-                                                    name="fl_disc_time_add"  
-                                                    onChange={
-                                                        (value) => {
-                                                            if(value !== discTimeValue){
-                                                                setInputData(prevInput => ({
-                                                                    ...prevInput,
-                                                                    fl_disc_time:value
-                                                                }));
-                                                                setDiscTimeValue(value);
-                                                            }
-                                                        }
-                                                    } 
+                                                    name="fl_disc_time_add" 
+                                                    value={inputData.fl_disc_time === 'T' ? 'T' : 'F'} 
+                                                    onChange={(value) => handleDiscTime(value)} 
                                                 />
                                             </div>
                                     </div>
@@ -678,9 +875,15 @@ const ModalStock = (props) => {
                                             <input 
                                                 type="time" 
                                                 className="form-control" 
-                                                name="ft_disc_begin" 
+                                                name="ft_disc_begin_add" 
                                                 id="ft_disc_begin" 
-                                                maxLength="5" 
+                                                maxLength="5"
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        ft_disc_begin: e.target.value
+                                                    }))
+                                                }} 
                                             />
                                         </div>
                                     </div>
@@ -690,9 +893,15 @@ const ModalStock = (props) => {
                                             <input 
                                                 type="time" 
                                                 className="form-control" 
-                                                name="ft_disc_end" 
+                                                name="ft_disc_end_add" 
                                                 id="ft_disc_end" 
                                                 maxLength="5" 
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        ft_disc_end: e.target.value
+                                                    }))
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -702,8 +911,14 @@ const ModalStock = (props) => {
                                             <input 
                                                 type="number" 
                                                 className="form-control" 
-                                                name="fm_time_disc_rp" 
+                                                name="fm_time_disc_rp_add" 
                                                 id="fm_time_disc_rp" 
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_time_disc_rp: e.target.value
+                                                    }))
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -713,8 +928,16 @@ const ModalStock = (props) => {
                                             <input 
                                                 type="number" 
                                                 className="form-control" 
-                                                name="fm_time_disc_pr" 
+                                                name="fm_time_disc_pr_add" 
                                                 id="fm_time_disc_pr" 
+                                                onChange={
+                                                    (e) => {
+                                                        setInputData(prevInputData => ({
+                                                            ...prevInputData,
+                                                            fm_time_disc_pr: e.target.value
+                                                        }))
+                                                    }
+                                                }
                                             />
                                         </div>
                                     </div>
@@ -726,8 +949,14 @@ const ModalStock = (props) => {
                                             <input 
                                                 type="number" 
                                                 className="form-control" 
-                                                name="fm_price_default" 
+                                                name="fm_price_default_add" 
                                                 id="fm_price_default"
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_price_default: e.target.value
+                                                    }))
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -737,8 +966,14 @@ const ModalStock = (props) => {
                                             <input 
                                                 type="number" 
                                                 className="form-control" 
-                                                name="fm_price_distributor" 
+                                                name="fm_price_distributor_add" 
                                                 id="fm_price_distributor"
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_price_distributor: e.target.value
+                                                    }))
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -748,8 +983,14 @@ const ModalStock = (props) => {
                                             <input 
                                                 type="number" 
                                                 className="form-control" 
-                                                name="fm_price_project" 
+                                                name="fm_price_project_add" 
                                                 id="fm_price_project" 
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_price_project: e.target.value
+                                                    }))
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -759,8 +1000,14 @@ const ModalStock = (props) => {
                                             <input 
                                                 type="number" 
                                                 className="form-control" 
-                                                name="fm_price_dealer" 
+                                                name="fm_price_dealer_add" 
                                                 id="fm_price_dealer"
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_price_dealer: e.target.value
+                                                    }))
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -770,8 +1017,14 @@ const ModalStock = (props) => {
                                             <input 
                                                 type="number" 
                                                 className="form-control" 
-                                                name="fm_price_enduser" 
+                                                name="fm_price_enduser_add" 
                                                 id="fm_price_enduser" 
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fm_price_enduser: e.target.value
+                                                    }))
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -785,15 +1038,43 @@ const ModalStock = (props) => {
                                                 name="fv_stockdescription" 
                                                 id="fv_stockdescription" 
                                                 rows="3" 
+                                                onChange={(e) => {
+                                                    setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fv_stockdescription: e.target.value
+                                                    }))
+                                                }}
                                             ></textarea>
                                         </div>
                                     </div>
                                 </div>
                         </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-dismiss="modal">
+                                Close
+                            </button>
+                            <button type="submit" className="btn btn-primary" id="saveChangesBtn">
+                                Save Changes
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
+
+        <SweetAlertLoading show={showLoading} />
+
+        <SweetAlertSuccess
+        show={showSuccess}
+        message="Update successful!"
+        onClose={handleSuccessAlertClose}
+        />
+
+        <SweetAlertError
+        show={showError}
+        message="Update failed. Please try again."
+        onClose={handleErrorAlertClose}
+        />
        </>
     );
 }

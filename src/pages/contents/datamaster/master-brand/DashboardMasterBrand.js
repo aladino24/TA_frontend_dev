@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useRef } from "react";
 import Config from "../../../../config";
 import $ from "jquery";
+import ModalBrand from "./ModalBrand";
 
 const DashboardMasterBrand = () => {
     const tableRef = useRef(null);
@@ -42,7 +43,7 @@ const DashboardMasterBrand = () => {
                             data: "fc_divisioncode"
                         },
                         {
-                            data: "fc_branch"
+                            data: "branch.fv_description"
                         },
                         {
                             data: "fc_brand"
@@ -88,6 +89,9 @@ const DashboardMasterBrand = () => {
             <div className="container-fluid">
                 <div className="d-sm-flex align-items-center justify-content-between mb-4">
                     <h1 className="h3 mb-0 text-gray-900">Master Brand</h1>
+                    <div>
+                    <button className="ml-2 btn btn-sm btn-success shadow-sm" data-toggle="modal" data-target="#addModalBrand"><i className="fa fa-plus"></i> Tambahkan Brand</button>
+                    </div>
                 </div>
                 <div className="row">
                     <div className="col-lg-12">
@@ -130,6 +134,7 @@ const DashboardMasterBrand = () => {
                     </div>
                 </div>
             </div>
+            <ModalBrand id="addModalBrand" />
         </>
     );
 }
