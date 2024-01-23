@@ -509,6 +509,8 @@ const ModalStock = (props) => {
                                                         }
                                                     }
                                                 } 
+                                                options1="Yes"
+                                                options2="No"
                                             />
                                         </div>
                                     </div>
@@ -529,6 +531,8 @@ const ModalStock = (props) => {
                                                         }
                                                     }
                                                 }
+                                                options1="Yes"
+                                                options2="No"
                                             />
                                         </div>
                                     </div>
@@ -548,6 +552,8 @@ const ModalStock = (props) => {
                                                         }
                                                     }
                                                 } 
+                                                options1="Yes"
+                                                options2="No"
                                             />
                                         </div>
                                     </div>
@@ -567,6 +573,8 @@ const ModalStock = (props) => {
                                                         }
                                                     }
                                                 } 
+                                                options1="Yes"
+                                                options2="No"
                                             />
                                         </div>
                                     </div>
@@ -588,6 +596,8 @@ const ModalStock = (props) => {
                                                             }
                                                         }
                                                     } 
+                                                    options1="Yes"
+                                                    options2="No"
                                                 />
                                             </div>
                                     </div>
@@ -607,6 +617,8 @@ const ModalStock = (props) => {
                                                             }
                                                         }
                                                     } 
+                                                    options1="Yes"
+                                                      options2="No"
                                                 />
                                             </div>
                                     </div>
@@ -626,6 +638,8 @@ const ModalStock = (props) => {
                                                             }
                                                         }
                                                     } 
+                                                    options1="Yes"
+                                                    options2="No"
                                                 />
                                             </div>
                                     </div>
@@ -785,7 +799,9 @@ const ModalStock = (props) => {
                                                 <RadioButtons 
                                                     name="fl_disc_date_add"  
                                                     value={inputData.fl_disc_date === 'T' ? 'T' : 'F'}
-                                                    onChange={(value) => handleDiscDate(value)} 
+                                                    onChange={(value) => handleDiscDate(value)}
+                                                    options1="Yes"
+                                                    options2="No" 
                                                 />
                                             </div>
                                     </div>
@@ -866,6 +882,8 @@ const ModalStock = (props) => {
                                                     name="fl_disc_time_add" 
                                                     value={inputData.fl_disc_time === 'T' ? 'T' : 'F'} 
                                                     onChange={(value) => handleDiscTime(value)} 
+                                                    options1="Yes"
+                                                    options2="No"
                                                 />
                                             </div>
                                     </div>

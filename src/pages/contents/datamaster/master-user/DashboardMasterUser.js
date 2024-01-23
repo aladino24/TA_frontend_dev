@@ -9,6 +9,7 @@ import SweetAlertError from "../../../../components/SweetAlertError";
 import SweetAlertLoading from "../../../../components/SweetAlertLoading";
 import SweetAlertConfirmation from "../../../../components/SweetAlertConfirmation";
 import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
+import ModalUser from "./ModalUser";
 
 const DashboardMasterUser = () => {
   const tableRef = React.useRef(null);
@@ -66,10 +67,16 @@ const DashboardMasterUser = () => {
               data: "branch" 
             },
             { 
-              data: "name" 
+              data: "username" 
             },
             { 
               data: "userid" 
+            },
+            {
+              data: "fc_groupuser",
+            },
+            {
+              data: "fc_membercode",
             },
             {
               data: "fc_hold",
@@ -80,6 +87,9 @@ const DashboardMasterUser = () => {
                   return '<span style="color: white; background-color: green; padding: 2px 5px; border-radius: 3px;">Unhold</span>';
                 }
               }
+            },
+            { 
+              data: "fd_expired" 
             },
             { 
               data: "updated_at",
@@ -98,7 +108,7 @@ const DashboardMasterUser = () => {
               <button class="btn btn-sm btn-warning" id="holdBtn">${textHold}</button>
               <button class="btn btn-sm btn-primary" id="editBtn">Edit</button>
             `;
-            $("td:eq(7)", row).html(actionBtns);
+            $("td:eq(10)", row).html(actionBtns);
 
             $("#deleteBtn", row).on("click", () => handleDelete(data.id));
             $("#holdBtn", row).on("click", () => showHoldConfirmation(data.id, data.userid, data.fc_hold));
@@ -197,12 +207,7 @@ const DashboardMasterUser = () => {
         <div className="d-sm-flex align-items-center justify-content-between mb-4">
           <h1 className="h3 mb-0 text-gray-800">Master User</h1>
           <div>
-            <a
-              href="#"
-              className="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm mr-2"
-            >
-              <i className="fas fa-download fa-sm text-white-50"></i> Tambah User
-            </a>
+          <button className="mr-2 btn btn-sm btn-success shadow-sm" data-toggle="modal" data-target="#addUser"><i className="fa fa-plus"></i> Tambahkan User</button>
             <a
               href="#"
               className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
@@ -233,7 +238,10 @@ const DashboardMasterUser = () => {
                         <th>Branch</th>
                         <th>Name</th>
                         <th>User ID</th>
-                        <th>Status</th>
+                        <th>Group User</th>
+                        <th>Customer</th>
+                        <th>Hold</th>
+                        <th>Expired</th>
                         <th>Updated At</th>
                         <th>Action</th>
                       </tr>
@@ -245,7 +253,9 @@ const DashboardMasterUser = () => {
                         <th>Branch</th>
                         <th>Name</th>
                         <th>User ID</th>
-                        <th>Status</th>
+                        <th>Group User</th>
+                        <th>Hold</th>
+                        <th>Expired</th>
                         <th>Updated At</th>
                         <th>Action</th>
                       </tr>
@@ -257,6 +267,8 @@ const DashboardMasterUser = () => {
           </div>
         </div>
       </div>
+
+      <ModalUser id="addUser" />
 
       <SweetAlertLoading show={loading} />
       <SweetAlertError show={!!error} message={error} onClose={handleCloseErrorModal} />

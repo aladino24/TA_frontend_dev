@@ -29,7 +29,7 @@ const Header = () => {
                 }
           const response = await axios.get(Config.api.server1 + 'check-token', axiosConfig);
           const data = response.data.user;
-          setUserName(data.name);
+          setUserName(data.username);
           // console.log(data);
         } catch (error) {
           console.error('Error fetching data:', error);

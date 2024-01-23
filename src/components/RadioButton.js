@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './css/RadioButton.css'; // Import file CSS
 
-const RadioButtons = ({ name, value, onChange }) => {
+const RadioButtons = ({ name, value, onChange, options1, options2 }) => {
   const [answer, setAnswer] = useState('');
 
   useEffect(() => {
@@ -30,7 +30,7 @@ const RadioButtons = ({ name, value, onChange }) => {
         checked={answer === 'T'}
         onChange={handleRadioChange}
       />
-      <label htmlFor={`${name}-yes`}>Yes</label>
+      <label htmlFor={`${name}-yes`}>{`${options1}`}</label>
 
       <input
         type="radio"
@@ -40,7 +40,7 @@ const RadioButtons = ({ name, value, onChange }) => {
         checked={answer === 'F'}
         onChange={handleRadioChange}
       />
-      <label htmlFor={`${name}-no`}>No</label>
+      <label htmlFor={`${name}-no`}>{`${options2}`}</label>
     </div>
   );
 };

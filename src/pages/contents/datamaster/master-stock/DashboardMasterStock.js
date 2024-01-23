@@ -966,25 +966,46 @@ const DashboardMasterStock = () => {
                                             <RadioButtons 
                                                 name="fl_batch" 
                                                 value={inputData.fl_batch === 'T' ? 'T' : 'F'} 
-                                                onChange={handleBatchChange} />
+                                                onChange={handleBatchChange} 
+                                                options1="Yes"
+                                                options2="No"
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Expired Date</label>
-                                            <RadioButtons name="fl_expired" value={inputData.fl_expired === 'T' ? 'T' : 'F'} onChange={handleExpiredChange} />
+                                            <RadioButtons 
+                                                name="fl_expired" 
+                                                value={inputData.fl_expired === 'T' ? 'T' : 'F'} 
+                                                onChange={handleExpiredChange} 
+                                                options1="Yes"
+                                                options2="No"
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Serial Number</label>
-                                            <RadioButtons name="fl_serialnumber" value={inputData.fl_serialnumber === 'T' ? 'T' : 'F'} onChange={handleSerialnumberChange} />
+                                            <RadioButtons 
+                                                name="fl_serialnumber" 
+                                                value={inputData.fl_serialnumber === 'T' ? 'T' : 'F'} 
+                                                onChange={handleSerialnumberChange} 
+                                                options1="Yes"
+                                                options2="No"
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
                                         <div className="form-group">
                                             <label style={{ fontSize: '12px' }}>Status Cat Number</label>
-                                            <RadioButtons name="fl_catnumber" value={inputData.fl_catnumber === 'T' ? 'T' : 'F'} onChange={handleStatusCatNumberChange} />
+                                            <RadioButtons 
+                                                name="fl_catnumber" 
+                                                value={inputData.fl_catnumber === 'T' ? 'T' : 'F'} 
+                                                onChange={handleStatusCatNumberChange} 
+                                                options1="Yes"
+                                                options2="No"
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -992,19 +1013,36 @@ const DashboardMasterStock = () => {
                                     <div className="col-sm-6 col-md-3">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Blacklist</label>
-                                                <RadioButtons name="fl_blacklist" value={inputData.fl_blacklist === 'T' ? 'T' : 'F'} onChange={handleBlacklistChange} />
+                                                <RadioButtons 
+                                                    name="fl_blacklist" value={inputData.fl_blacklist === 'T' ? 'T' : 'F'} 
+                                                    onChange={handleBlacklistChange} 
+                                                    options1="Yes"
+                                                    options2="No"
+                                                />
                                             </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Tax Type</label>
-                                                <RadioButtons name="fl_taxtype" value={inputData.fl_taxtype === 'T' ? 'T' : 'F'} onChange={handleTaxtypeChange} />
+                                                <RadioButtons 
+                                                    name="fl_taxtype" 
+                                                    value={inputData.fl_taxtype === 'T' ? 'T' : 'F'} 
+                                                    onChange={handleTaxtypeChange} 
+                                                    options1="Yes"
+                                                    options2="No"
+                                                />
                                             </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Report Supplier</label>
-                                                <RadioButtons name="fl_repsupplier" value={inputData.fl_repsupplier === 'T' ? 'T' : 'F'} onChange={handleRepsupplierChange} />
+                                                <RadioButtons 
+                                                    name="fl_repsupplier" 
+                                                    value={inputData.fl_repsupplier === 'T' ? 'T' : 'F'} 
+                                                    onChange={handleRepsupplierChange} 
+                                                    options1="Yes"
+                                                    options2="No"
+                                                />
                                             </div>
                                     </div>
                                     <div className="col-sm-6 col-md-3">
@@ -1153,7 +1191,13 @@ const DashboardMasterStock = () => {
                                     <div className="col-sm-6 col-md-2">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Diskon Tanggal</label>
-                                                <RadioButtons name="fl_disc_date" value={inputData.fl_disc_date === 'T' ? 'T' : 'F'} onChange={(value) => handleDiscDate(value)} />
+                                                <RadioButtons 
+                                                    name="fl_disc_date" 
+                                                    value={inputData.fl_disc_date === 'T' ? 'T' : 'F'} 
+                                                    onChange={(value) => handleDiscDate(value)} 
+                                                    options1="Yes"
+                                                    options2="No"
+                                                />
                                             </div>
                                     </div>
                                     <div className={`col-sm-6 col-md-2 col-lg-2 place_diskon_tanggal ${flDiscDate === 'F' ? 'hidden' : ''}`}>
@@ -1233,7 +1277,13 @@ const DashboardMasterStock = () => {
                                     <div className="col-sm-6 col-md-2">
                                             <div className="form-group">
                                                 <label style={{ fontSize: '12px' }}>Diskon Waktu</label>
-                                                <RadioButtons name="fl_disc_time" value={inputData.fl_disc_time === 'T' ? 'T' : 'F'} onChange={(value) => handleDiscTime(value)} />
+                                                <RadioButtons 
+                                                    name="fl_disc_time" 
+                                                    value={inputData.fl_disc_time === 'T' ? 'T' : 'F'} 
+                                                    onChange={(value) => handleDiscTime(value)} 
+                                                    options1="Yes"
+                                                    options2="No"
+                                                />
                                             </div>
                                     </div>
                                     <div className={`col-sm-6 col-md-2 col-lg-2 place_diskon_waktu ${flDiscTime === 'F' ? 'hidden' : ''}`}>
