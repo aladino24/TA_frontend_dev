@@ -259,11 +259,7 @@ const ModalStock = (props) => {
         setInputData(prevInputData => ({
             ...prevInputData,
             fl_disc_date: value
-        }))
-        setInputData(prevInputData => ({
-            ...prevInputData,
-            fl_disc_date: value
-         }));
+        }));
         const placeDiskonTanggalElements = document.querySelectorAll('.place_diskon_tanggal');
         if (value === 'T') {
             placeDiskonTanggalElements.forEach(element => {

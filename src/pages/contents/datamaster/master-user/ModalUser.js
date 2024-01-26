@@ -4,20 +4,32 @@ import { event } from "jquery";
 import Select from 'react-select'
 import Config from "../../../../config";
 import axios from "axios";
+import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
+import SweetAlertLoading from "../../../../components/SweetAlertLoading";
+import SweetAlertError from "../../../../components/SweetAlertError";
 
 const ModalUser = (props) => {
 
     const [branchOptions, setBranchOptions] = useState([]);
     const [groupUserOptions, setGroupUserOptions] = useState([]);
     const [passwordMatchError, setPasswordMatchError] = useState('');
+    const [flHold, setFlHold] = useState('');
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showLoading, setShowLoading] = useState(false);
+    const [showError, setShowError] = useState(false);
     const [inputData, setInputData] = useState({
-        divisioncode: "",
+        divisioncode: "SBY001",
         branch: "",
         userid: "",
         username: "",
         password: "",
-        confirmPassword: "",
-        fc_groupuser: ""
+        c_password: "",
+        fc_groupuser: "",
+        fl_level: "",
+        fl_hold: "",
+        fd_expired: "",
+        fv_ttdpath: "",
+        fv_description: "",
     });
 
 
@@ -85,7 +97,7 @@ const ModalUser = (props) => {
             ...prevInputData,
             password: event.target.value,
         }));
-        const matchError = inputData.password !== inputData.confirmPassword ? 'Password does not match' : '';
+        const matchError = inputData.password !== inputData.c_password ? 'Password does not match' : '';
         // console.log(inputData.password)
         // console.log(inputData.confirmPassword)
         setPasswordMatchError(matchError)
@@ -96,11 +108,98 @@ const ModalUser = (props) => {
         setInputData(
             prevInputData => ({
                 ...prevInputData,
-                confirmPassword: event.target.value
+                c_password: event.target.value
             })
         )
         setPasswordMatchError(matchError);
     }
+
+    const handleHoldChange = (value) => {
+        if (value !== flHold) {
+            setFlHold(value);
+            setInputData(prevInputData => ({
+                ...prevInputData,
+                fl_hold: value,
+            }));
+       } 
+    }
+
+    const handleFileChange = (event) => {
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fv_ttdpath: event.target.files[0],
+        }));
+        // console.log(event.target.files[0])
+    }
+
+    const handleSubmit = async(event) => {
+        event.preventDefault();
+
+        setShowLoading(true);
+        const token = localStorage.getItem("token");
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+            },
+        };
+        const formData = new FormData();
+        formData.append("divisioncode", inputData.divisioncode);
+        formData.append("branch", inputData.branch);
+        formData.append("userid", inputData.userid);
+        formData.append("username", inputData.username);
+        formData.append("password", inputData.password);
+        formData.append("c_password", inputData.c_password);
+        formData.append("fc_groupuser", inputData.fc_groupuser);
+        formData.append("fl_level", inputData.fl_level);
+        formData.append("fl_hold", inputData.fl_hold);
+        formData.append("fd_expired", inputData.fd_expired);
+        formData.append("fv_ttdpath", inputData.fv_ttdpath);
+        formData.append("fv_description", inputData.fv_description);
+
+        try {
+            const response = await axios.post(
+                Config.api.server1 + "register",
+                formData,
+                config
+            );
+            // console.log(response);
+            // alert("Data berhasil disimpan");
+            // window.location.reload();
+            if(response.status == 200){
+                setShowSuccess(true);
+                setShowLoading(false);
+            }else{
+                setShowError(true);
+                setShowLoading(false);
+            }
+        } catch (error) {
+            setShowError(true);
+            setShowLoading(false);
+            if (error.response) {
+                console.log('Response Data:', error.response.data);
+                console.log('Response Status:', error.response.status);
+                console.log('Response Headers:', error.response.headers);
+            } else if (error.request) {
+                console.log('Request made but no response received:', error.request);
+            } else {
+                console.log('Error during request setup:', error.message);
+            }
+            console.log('Config:', error.config);
+        }finally{
+            setShowLoading(false);
+        }
+    }
+
+    const handleSuccessAlertClose = () => {
+        setShowSuccess(false);
+        // Reload the page upon successful API response
+        window.location.reload();
+      };
+    
+      const handleErrorAlertClose = () => {
+        setShowError(false);
+      };
 
     return (
         <>
@@ -125,13 +224,13 @@ const ModalUser = (props) => {
                             <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
+                       <form onSubmit={handleSubmit}>
                         <div className="modal-body">
-
                             <div className="row">
                                 <div className="col-6">
                                 <div className="form-group"> 
                                         <label className="form-label">Division Code</label>
-                                        <input type="text" className="form-control" value={'SBY001'} readOnly/>
+                                        <input type="text" className="form-control" value={inputData.divisioncode} readOnly/>
                                 </div>
                                 </div>
                                 <div className="col-6">
@@ -204,8 +303,8 @@ const ModalUser = (props) => {
                                                 type="password" 
                                                 className="form-control" 
                                                 placeholder="Confirm Password"
-                                                name="confirmPassword"
-                                                id="confirmPassword"
+                                                name="c_password"
+                                                id="c_password"
                                                 onChange={handleConfirmPasswordChange}
                                             />
                                              {passwordMatchError && <p style={{ color: 'red' }}>{passwordMatchError}</p>}
@@ -225,7 +324,17 @@ const ModalUser = (props) => {
                                 <div className="col-6">
                                     <div className="form-group"> 
                                             <label className="form-label">Level</label>
-                                            <input type="number" className="form-control" />
+                                            <input 
+                                                type="number" 
+                                                name="fl_level" 
+                                                className="form-control" 
+                                                onChange={
+                                                    (e) => setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fl_level: e.target.value,
+                                                    }))
+                                                }
+                                            />
                                     </div>
                                 </div>
                             </div>
@@ -234,10 +343,8 @@ const ModalUser = (props) => {
                                     <div className="form-group"> 
                                             <label className="form-label">Hold</label>
                                             <RadioButtons 
-                                                name="fl_level" 
-                                                onChange={
-                                                    (e) => console.log(e)
-                                                }
+                                                name="fl_hold" 
+                                                onChange={(value) => handleHoldChange(value)}
                                                 options1="Active" 
                                                 options2="Non Active"
                                             />
@@ -246,7 +353,18 @@ const ModalUser = (props) => {
                                 <div className="col-6">
                                     <div className="form-group"> 
                                             <label className="form-label">Expired Date</label>
-                                            <input type="date" className="form-control"/>
+                                            <input 
+                                                type="date" 
+                                                className="form-control"
+                                                name="fd_expired"
+                                                id="fd_expired"
+                                                onChange={
+                                                    (e) => setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fd_expired: e.target.value,
+                                                    }))
+                                                }
+                                            />
                                     </div>
                                 </div>
                             </div>
@@ -260,7 +378,12 @@ const ModalUser = (props) => {
                                 <div className="col-6">
                                     <div className="form-group"> 
                                             <label className="form-label">Tanda Tangan</label>
-                                            <input type="file" className="form-control"/>
+                                            <input 
+                                                type="file" 
+                                                className="form-control"
+                                                name="fv_ttdpath"
+                                                onChange={handleFileChange}
+                                            />
                                     </div>
                                 </div>
                             </div>
@@ -269,7 +392,19 @@ const ModalUser = (props) => {
                                     <div className="form-group"> 
                                             <label className="form-label">Description</label>
                                             {/* Text area */}
-                                            <textarea className="form-control" rows="3"></textarea>
+                                            <textarea 
+                                                className="form-control" 
+                                                rows="3"
+                                                name="fv_description"
+                                                id="fv_description"
+                                                onChange={
+                                                    (e) => setInputData(prevInputData => ({
+                                                        ...prevInputData,
+                                                        fv_description: e.target.value,
+                                                    }))
+                                                }
+                                            >
+                                            </textarea>
                                     </div>
                                 </div>
                             </div>
@@ -282,13 +417,28 @@ const ModalUser = (props) => {
                             >
                             Close
                             </button>
-                            <button type="button" className="btn btn-primary">
+                            <button type="submit" className="btn btn-primary">
                             Save changes
                             </button>
                         </div>
+                      </form>
                     </div>
                 </div>
             </div>
+
+            <SweetAlertLoading show={showLoading} />
+
+            <SweetAlertSuccess
+            show={showSuccess}
+            message="Update successful!"
+            onClose={handleSuccessAlertClose}
+            />
+
+            <SweetAlertError
+            show={showError}
+            message="Update failed. Please try again."
+            onClose={handleErrorAlertClose}
+            />
         </>
     );
 }
