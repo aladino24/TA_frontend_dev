@@ -12,6 +12,7 @@ import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
 import ModalUser from "./ModalUser";
 import Select from 'react-select'
 import RadioButtons from "../../../../components/RadioButton";
+import SweetAlertDeleteConfirmation from "../../../../components/SweetAlertDeleteConfirmation";
 
 const DashboardMasterUser = () => {
   const tableRef = React.useRef(null);
@@ -31,6 +32,11 @@ const DashboardMasterUser = () => {
     id: null,
     userid: null,
     fl_hold: null
+  });
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
+    show: false,
+    id: null,
+    userid: null,
   });
   const [inputData, setInputData] = useState({
     id: "",
@@ -136,7 +142,7 @@ const DashboardMasterUser = () => {
             `;
             $("td:eq(10)", row).html(actionBtns);
 
-            $("#deleteBtn", row).on("click", () => handleDelete(data.id));
+            $("#deleteBtn", row).on("click", () => showDeleteConfirmation(data.id));
             $("#holdBtn", row).on("click", () => showHoldConfirmation(data.id, data.userid, data.fl_hold));
           }
         },);
@@ -160,12 +166,27 @@ const DashboardMasterUser = () => {
     };
   },[])
 
+  const showDeleteConfirmation = (id) => {
+    setDeleteConfirmation({
+      show: true,
+      id: id,
+    });
+  };
+
   const showHoldConfirmation = (id, userid, fl_hold) => {
     setHoldConfirmation({
       show: true,
       id: id,
       userid: userid,
       fl_hold: fl_hold
+    });
+  };
+
+  const handleCloseDeleteConfirmation = () => {
+    setDeleteConfirmation({
+      show: false,
+      id: null,
+      userid: null,
     });
   };
 
@@ -177,8 +198,40 @@ const DashboardMasterUser = () => {
     });
   };
 
-  const handleDelete = (id) => {
-    alert(`Delete data with id ${id}`);
+  const handleDeleteConfirmation = async() => {
+    const token = localStorage.getItem('token');
+
+    try {
+      const axiosConfig = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      setLoading(true);
+
+      const response = await axios.delete(Config.api.server1 + "delete-user" + "/" + deleteConfirmation.id, axiosConfig);
+
+      if(response.data.success){
+        setDeleteConfirmation({
+          show: false,
+          id: null,
+          userid: null,
+        });
+        setSuccess(true);
+        setLoading(false);
+        setMessage(response.data.message);
+      }else{
+        throw new Error(response.data.error);
+      }
+    } catch (error) {
+      setLoading(false);
+      setError(error.message);
+      throw new Error(error.message);
+    }finally{
+      setLoading(false);
+    }
+
   }
 
   const handleHoldConfirmation = async() => {
@@ -198,7 +251,7 @@ const DashboardMasterUser = () => {
         id: holdConfirmation.id,
         userid: holdConfirmation.userid,
         }, axiosConfig);
-      const userData = response.data.data;
+      // const userData = response.data.data;
       // console.log(userData.fl_hold);
 
       // console.log(userData.fl_hold);
@@ -501,7 +554,7 @@ const DashboardMasterUser = () => {
                                                 className="form-control" 
                                                 placeholder="Userid"
                                                 name="userid"
-                                                id="userid"
+                                                id="userid_edit"
                                                 value={inputData.userid}
                                                 onChange={
                                                   (e) => {
@@ -522,7 +575,7 @@ const DashboardMasterUser = () => {
                                                 className="form-control" 
                                                 placeholder="Username"
                                                 name="username"
-                                                id="username"
+                                                id="username_edit"
                                                 value={inputData.username}
                                                 onChange={
                                                   (e) => {
@@ -545,7 +598,7 @@ const DashboardMasterUser = () => {
                                                 className="form-control" 
                                                 placeholder="Password"
                                                 name="password"
-                                                id="password"
+                                                id="password_edit"
                                                 onChange={
                                                   (e) => {
                                                     setInputData({
@@ -565,7 +618,7 @@ const DashboardMasterUser = () => {
                                                 className="form-control" 
                                                 placeholder="Confirm Password"
                                                 name="c_password"
-                                                id="c_password"
+                                                id="c_password_edit"
                                                 onChange={
                                                   (e) => {
                                                     setInputData({
@@ -596,6 +649,7 @@ const DashboardMasterUser = () => {
                                             <input 
                                                 type="number" 
                                                 name="fl_level" 
+                                                id="fl_level_edit"
                                                 className="form-control" 
                                                 value={inputData.fl_level}
                                                 onChange={ 
@@ -616,7 +670,7 @@ const DashboardMasterUser = () => {
                                             <label className="form-label">Hold</label>
                                             <RadioButtons 
                                                 value={inputData.fl_hold === 'T' ? 'T' : 'F'}
-                                                name="fl_hold" 
+                                                name="fl_hold_edit" 
                                                 onChange={handleHoldChange}
                                                 options1="Active" 
                                                 options2="Non Active"
@@ -630,7 +684,7 @@ const DashboardMasterUser = () => {
                                                 type="date" 
                                                 className="form-control"
                                                 name="fd_expired"
-                                                id="fd_expired"
+                                                id="fd_expired_edit"
                                                 value={inputData.fd_expired}
                                                 onChange={
                                                   (e) => {
@@ -679,7 +733,7 @@ const DashboardMasterUser = () => {
                                                 className="form-control" 
                                                 rows="3"
                                                 name="fv_description"
-                                                id="fv_description"
+                                                id="fv_description_edit"
                                                 value={inputData.fv_description}
                                                 onChange={
                                                   (e) => {
@@ -712,7 +766,7 @@ const DashboardMasterUser = () => {
                 </div>
             </div>
 
-      {/* <ModalUser id="addUser" /> */}
+      <ModalUser id="addUser" />
 
       <SweetAlertLoading show={loading} />
       <SweetAlertError show={!!error} message={error} onClose={handleCloseErrorModal} />
@@ -722,6 +776,12 @@ const DashboardMasterUser = () => {
         onCancel={handleCloseHoldConfirmation}
         onConfirm={handleHoldConfirmation} 
         />
+      <SweetAlertDeleteConfirmation
+        show={deleteConfirmation.show}
+        content={`Are you sure you want to delete this user?`}
+        onCancel={handleCloseDeleteConfirmation}
+        onConfirm={handleDeleteConfirmation}
+      />
       <SweetAlertSuccess 
         show={success}
         message={message}
