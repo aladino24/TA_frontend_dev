@@ -39,7 +39,7 @@ const ModalUser = (props) => {
                 const token = localStorage.getItem("token");
 
                 const branchApiUrl = Config.api.server2 + "get-data-where-field-id-get/TransaksiType/fc_trx/BRANCH";
-                const groupUserApiUrl = Config.api.server2 + "get-data-where-field-id-get/TransaksiType/fc_trx/GROUPUSER";
+                const groupUserApiUrl = Config.api.server1 + "get-groupuser";
 
                 const [
                     branchResponse,
@@ -60,10 +60,9 @@ const ModalUser = (props) => {
                 setBranchOptions(branchOptions);
 
                 const groupUserOptions = groupUserData.map((group) => ({
-                    value: group.fc_kode,
-                    label: group.fv_description
+                    value: group.fc_groupcode,
+                    label: group.fc_groupname
                 }));
-
                 setGroupUserOptions(groupUserOptions);
 
             } catch (error) {

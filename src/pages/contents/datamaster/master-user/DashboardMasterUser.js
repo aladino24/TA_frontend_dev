@@ -300,7 +300,7 @@ const DashboardMasterUser = () => {
         const token = localStorage.getItem('token');
 
         const branchApiUrl = Config.api.server2 + "get-data-where-field-id-get/TransaksiType/fc_trx/BRANCH";
-        const groupUserApiUrl = Config.api.server2 + "get-data-where-field-id-get/TransaksiType/fc_trx/GROUPUSER";
+        const groupUserApiUrl = Config.api.server1 + "get-groupuser";
         const [
           branchResponse,
           groupUserResponse
@@ -321,8 +321,8 @@ const DashboardMasterUser = () => {
 
         const groupUserData = groupUserResponse.data.data;
         const groupUserOptions = groupUserData.map((groupUser) => ({ 
-          value: groupUser.fc_kode,
-          label: groupUser.fv_description,
+          value: groupUser.fc_groupcode,
+          label: groupUser.fc_groupname,
         }));
 
         setGroupUserOptions(groupUserOptions);
