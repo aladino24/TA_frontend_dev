@@ -105,7 +105,7 @@ const DashboardMasterUser = () => {
               data: "userid" 
             },
             {
-              data: "fc_groupuser",
+              data: "group_user.fc_groupname",
             },
             {
               data: "fc_membercode",
@@ -435,6 +435,14 @@ const DashboardMasterUser = () => {
     window.location.reload();
   };
 
+  const formatDateForInput = (timestamp) => {
+      const date = new Date(timestamp);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+  }
+
   return (
     <>
       <div className="container-fluid">
@@ -685,7 +693,7 @@ const DashboardMasterUser = () => {
                                                 className="form-control"
                                                 name="fd_expired"
                                                 id="fd_expired_edit"
-                                                value={inputData.fd_expired}
+                                                value={formatDateForInput(inputData.fd_expired)}
                                                 onChange={
                                                   (e) => {
                                                     setInputData({

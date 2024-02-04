@@ -26,7 +26,7 @@ const DataMaster = () => {
                                     <a className="collapse-item" href="cards.html">Master Menu</a>
                                     <Link className="collapse-item" to="/master-stock">Master Stock</Link>
                                     <Link className="collapse-item" to="/master-brand">Master Brand</Link>
-                                    <a className="collapse-item" href="cards.html">Master Bank Acc</a>
+                                    <Link className="collapse-item" to="/master-bank-acc">Master Bank Account</Link>
                                     <Link className="collapse-item" to="/master-distributor">Master Distributor</Link>
                                 </div>
                             </div>

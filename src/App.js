@@ -10,6 +10,8 @@ import DashboardMasterStock from './pages/contents/datamaster/master-stock/Dashb
 import DashboardMasterStockMain from './pages/contents/datamaster/master-stock/DashboardMasterStockMain';
 import DashboardMasterBrandMain from './pages/contents/datamaster/master-brand/DashboardMasterBrandMain';
 import LandingPage from './pages/contents/landingpage/landingpage';
+import DashboardMasterBankAcc from './pages/contents/datamaster/master-bank-acc/DashboardMasterBankAcc';
+import DashboardMasterBankAccMain from './pages/contents/datamaster/master-bank-acc/DashboardMasterBankAccMain';
 
 function App() {
   const [isLoggedIn, setLoggedIn] = useState(false);
@@ -77,6 +79,10 @@ function App() {
           path="/master-brand"
           element={isLoggedIn ? <DashboardMasterBrandMain /> : <Navigate to="/login" />}
          />
+         <Route
+          path="/master-bank-acc"
+          element={isLoggedIn ? <DashboardMasterBankAccMain /> : <Navigate to="/login" />}
+          />
       </Routes>
     </BrowserRouter>
   );
