@@ -32,6 +32,8 @@ const Header = () => {
           setUserName(data.username);
           // console.log(data);
         } catch (error) {
+          // destroy token
+          localStorage.removeItem('token');
           console.error('Error fetching data:', error);
         }
       };

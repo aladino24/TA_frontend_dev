@@ -38,6 +38,7 @@ function App() {
 
       if (response.data.success) {
         localStorage.setItem('token', response.data.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.data));
         setLoggedIn(true);
       } else {
         throw new Error(response.data.error);
