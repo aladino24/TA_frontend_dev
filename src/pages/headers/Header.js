@@ -34,6 +34,7 @@ const Header = () => {
         } catch (error) {
           // destroy token
           localStorage.removeItem('token');
+          localStorage.removeItem('user');
           console.error('Error fetching data:', error);
         }
       };

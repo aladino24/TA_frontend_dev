@@ -24,6 +24,28 @@ function App() {
         setLoggedIn(true);
       }
       setLoading(false);
+
+      try {
+        const token = localStorage.getItem('token');
+          const axiosConfig = {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+          const response = await axios.get(Config.api.server1 + 'check-token', axiosConfig);
+          if (response.status === 200) {
+            setLoggedIn(true);
+          }else{
+            // remove token from local storage
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setLoggedIn(false);
+          }
+      } catch (error) {
+        // console.log(error);
+        setLoading(false);
+        setLoggedIn(false);
+      }
     };
 
     checkLoginStatus();
