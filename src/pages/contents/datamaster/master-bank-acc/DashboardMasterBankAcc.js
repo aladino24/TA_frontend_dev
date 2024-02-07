@@ -4,10 +4,30 @@ import axios from "axios";
 import $ from "jquery";
 import Select from 'react-select'
 import ModalBankAcc from "./ModalBankAcc";
+import SweetAlertLoading from "../../../../components/SweetAlertLoading";
+import SweetAlertError from "../../../../components/SweetAlertError";
+import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
 
 const DashboardMasterBankAcc = () => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
+    const [message, setMessage] = useState('');
+    const [banknameOptions, setBanknameOptions] = useState([]);
+    const [selectedBankname, setSelectedBankname] = useState("");
+    const [selectedBankhold, setSelectedBankhold] = useState("");
+    const [selectedBanktype, setSelectedBanktype] = useState("");
+    const banktypeOptions = [
+        {value: "1", label: "1"},
+        {value: "2", label: "2"}
+    ];
+    const bankholdOptions = [
+        {value: "T", label: "Ya"},
+        {value: "F", label: "Tidak"}
+    ];
     const tableRef = useRef(null);
     const [inputData, setInputData] = useState({
+        id: "",
         fc_divisioncode: "",
         fc_branch: "",
         fv_bankname: "",
@@ -126,7 +146,7 @@ const DashboardMasterBankAcc = () => {
                 
                 
             } catch (error) {
-                
+                console.log(error);
             }
         };
 
@@ -138,9 +158,10 @@ const DashboardMasterBankAcc = () => {
           };
     }, []);
 
-    const detailBankAcc = (data) => {
+    const detailBankAcc = async(data) => {
         if(data){
             setInputData({
+                id: data.id,
                 fc_divisioncode: data.fc_divisioncode ? data.fc_divisioncode : "",
                 fc_branch: data.fc_branch ? data.fc_branch : "",
                 fv_bankname: data.fv_bankname ? data.fv_bankname : "",
@@ -152,13 +173,145 @@ const DashboardMasterBankAcc = () => {
                 fv_bankaddress2: data.fv_bankaddress2 ? data.fv_bankaddress2 : "",
                 fl_bankhold: data.fl_bankhold ? data.fl_bankhold : ""
             });
+
+            try {
+                const bankNameApiUrl = Config.api.server2 + "get-data-where-field-id-get/TransaksiType/fc_trx/BANKNAME";
+
+                const [
+                    bankNameResponse, 
+                    bankTypeResponse, 
+                    bankHoldResponse
+                ] = await Promise.all([
+                    axios.get(bankNameApiUrl),
+                ]);
+
+                const bankNameData = bankNameResponse.data.data;
+                
+                const bankNameOptions = bankNameData.map((data) => ({
+                    value: data.fv_description,
+                    label: data.fv_description,
+                }));
+                setBanknameOptions(bankNameOptions);
+                const selectedBankName = bankNameOptions.find((option) => option.value === data.fv_bankname);
+                setSelectedBankname(selectedBankName);
+
+                const bankTypeData = banktypeOptions.map((data) => ({
+                    value: data.value,
+                    label: data.label
+                }));
+                const selectedBankType = bankTypeData.find((option) => option.value === data.fc_banktype);
+                setSelectedBanktype(selectedBankType);
+
+                const bankHoldData = bankholdOptions.map((data) => ({
+                    value: data.value,
+                    label: data.label
+                }));
+
+                const selectedBankHold = bankHoldData.find((option) => option.value === data.fl_bankhold);
+                setSelectedBankhold(selectedBankHold);
+
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log(inputData);
+    const handleBanknameChange = (selectedOption) => {
+        setSelectedBankname(selectedOption);
+        setInputData({
+            ...inputData,
+            fv_bankname: selectedOption.value
+        });
     }
+
+    const handleBanktypeChange = (selectedOption) => {
+        setSelectedBanktype(selectedOption);
+        setInputData({
+            ...inputData,
+            fc_banktype: selectedOption.value
+        });
+    }
+
+    const handleBankHoldChange = (selectedOption) => {
+        setSelectedBankhold(selectedOption);
+        setInputData({
+            ...inputData,
+            fl_bankhold: selectedOption.value
+        });
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const token = localStorage.getItem("token");
+        setLoading(true);
+
+        const data = {
+            id: inputData.id,
+            fc_divisioncode: inputData.fc_divisioncode,
+            fc_branch: inputData.fc_branch,
+            fv_bankname: inputData.fv_bankname,
+            fc_banktype: inputData.fc_banktype,
+            fc_bankcode: inputData.fc_bankcode,
+            fv_bankbranch: inputData.fv_bankbranch,
+            fv_bankusername: inputData.fv_bankusername,
+            fv_bankaddress1: inputData.fv_bankaddress1,
+            fv_bankaddress2: inputData.fv_bankaddress2,
+            fl_bankhold: inputData.fl_bankhold
+        };
+
+        const apiUrl = Config.api.server2 + "master/bank-acc";
+
+        try {
+            const response = await axios({
+                method: "PUT",
+                url: apiUrl,
+                data: data,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if(response.data.success){
+                setLoading(false);
+                setSuccess(true);
+                setMessage(response.data.message);
+            }else{
+                setLoading(false);
+                setSuccess(false);
+                setMessage(response.data.message);
+            }
+        } catch (error) {
+            setError(true);
+            setLoading(false);
+            if (error.response) {
+                console.log('Response Data:', error.response.data);
+                console.log('Response Status:', error.response.status);
+                console.log('Response Headers:', error.response.headers);
+            } else if (error.request) {
+                console.log('Request made but no response received:', error.request);
+            } else {
+                console.log('Error during request setup:', error.message);
+            }
+            console.log('Config:', error.config);
+        }finally{
+            setLoading(false);
+        }
+
+
+    }
+
+    const handleCloseErrorModal = () => {
+        setError(null);
+      };
+    
+
+    const handleSuccessAlertClose = () => {
+        setSuccess(false);
+        // Reload the page upon successful API response
+        window.location.reload();
+      };
     return (
         <>
             <div className="container-fluid">
@@ -226,12 +379,12 @@ const DashboardMasterBankAcc = () => {
             id="editModalBankAcc"
             tabIndex="-1"
             role="dialog"
-            aria-labelledby="addModalBrandLabel">
+            aria-labelledby="addModalBankAccLabel">
             <div className="modal-dialog modal-lg" role="document">
                 <div className="modal-content">
                  <div className="modal-header">
                         <h5 className="modal-title" id="editModalLabel">
-                            Tambah Master Brand
+                            Edit Master Bank Account
                         </h5>
                         <button
                             type="button"
@@ -279,24 +432,12 @@ const DashboardMasterBankAcc = () => {
                         <div className="col-md-5">
                             <div className="form-group">
                                     <label htmlFor="fc_brand">Nama Bank</label>
-                                    {/* <input 
-                                        type="text" 
-                                        className="form-control" 
-                                        id="fv_bankname"
-                                        name="fv_bankname"  
-                                        onChange={
-                                            (e) => setInputData({
-                                                ...inputData,
-                                                fv_bankname: e.target.value
-                                            })
-                                        }
-                                    /> */}
                                      <Select 
-                                        // options={banknameOptions} 
+                                        options={banknameOptions} 
+                                        value={selectedBankname}
                                         name="fv_bankname"
-                                        onChange={
-                                            console.log('onChange')
-                                        }
+                                        id="fv_bankname_edit"
+                                        onChange={handleBanknameChange}
                                         required
                                     />
                             </div>
@@ -304,20 +445,13 @@ const DashboardMasterBankAcc = () => {
                          <div className="col-md-3">
                             <div className="form-group">
                                     <label htmlFor="fc_group">Tipe Bank</label>
-                                    {/* <input 
-                                        type="text" 
-                                        className="form-control" 
-                                        id="fc_group" 
-                                        name="fc_group" 
-                                        onChange={
-                                            console.log('onChange')
-                                        }
-                                    /> */}
                                     <Select 
-                                        // options={banktypeOptions} 
+                                        options={banktypeOptions} 
+                                        value={selectedBanktype}
                                         name="fc_banktype"
+                                        id="fc_banktype"
                                         onChange={
-                                            console.log('onChange')
+                                            handleBanktypeChange
                                         }
                                         required
                                     />
@@ -351,8 +485,12 @@ const DashboardMasterBankAcc = () => {
                                         className="form-control" 
                                         id="fv_bankusername" 
                                         name="fv_bankusername" 
+                                        value={inputData.fv_bankusername}
                                         onChange={
-                                            console.log('onChange')
+                                            (e) => setInputData({
+                                                ...inputData,
+                                                fv_bankusername: e.target.value
+                                            })
                                         }
                                     />
                             </div>
@@ -361,11 +499,12 @@ const DashboardMasterBankAcc = () => {
                             <div className="form-group">
                                     <label htmlFor="fc_group">Bank Terkunci</label>
                                     <Select 
-                                        // options={bankholdOptions} 
+                                        options={bankholdOptions} 
+                                        value={selectedBankhold}
                                         name="fl_bankhold"
                                         id="fl_bankhold"
                                         onChange={
-                                            console.log('onChange')
+                                            handleBankHoldChange
                                         }
                                         required
                                     />
@@ -378,9 +517,13 @@ const DashboardMasterBankAcc = () => {
                                          type="text" 
                                          className="form-control" 
                                          id="fv_bankbranch"
-                                         name="fv_bankbranch"  
+                                         name="fv_bankbranch" 
+                                         value={inputData.fv_bankbranch} 
                                          onChange={
-                                            console.log('onChange')
+                                            (e) => setInputData({
+                                                ...inputData,
+                                                fv_bankbranch: e.target.value
+                                            })
                                          }
                                         />
                              </div>
@@ -393,8 +536,12 @@ const DashboardMasterBankAcc = () => {
                                     className="form-control"
                                     id="fv_bankaddress1"
                                     name="fv_bankaddress1"
+                                    value={inputData.fv_bankaddress1}
                                     onChange={
-                                        console.log('onChange')
+                                        (e) => setInputData({
+                                            ...inputData,
+                                            fv_bankaddress1: e.target.value
+                                        })
                                     }
                                 />
                             </div>
@@ -406,8 +553,12 @@ const DashboardMasterBankAcc = () => {
                                     className="form-control"
                                     id="fv_bankaddress2"
                                     name="fv_bankaddress2"
+                                    value={inputData.fv_bankaddress2}
                                     onChange={
-                                        console.log('onChange')
+                                        (e) => setInputData({
+                                            ...inputData,
+                                            fv_bankaddress2: e.target.value
+                                        })
                                     }
                                 />
                             </div>
@@ -428,6 +579,21 @@ const DashboardMasterBankAcc = () => {
             </div>
 
             <ModalBankAcc id="addModalBankAcc" />
+
+            <SweetAlertLoading show={loading} />
+            <SweetAlertError show={!!error} message={error} onClose={handleCloseErrorModal} />
+            {/* <SweetAlertDeleteConfirmation
+                show={deleteConfirmation.show}
+                content={`Are you sure you want to delete this user?`}
+                onCancel={handleCloseDeleteConfirmation}
+                onConfirm={handleDeleteConfirmation}
+            /> */}
+            <SweetAlertSuccess 
+                show={success}
+                message={message}
+                onClose={handleSuccessAlertClose}
+            
+            />
         </>
     );
 }
