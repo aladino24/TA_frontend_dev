@@ -19,6 +19,7 @@ const Login = ({handleLogin}) => {
             await handleLogin(userid, password);
         } catch (error) {
             setError("Login failed. Please check your credentials");
+            setLoading(false);
         }finally{
             setLoading(false);
         }

@@ -7,12 +7,18 @@ import ModalBankAcc from "./ModalBankAcc";
 import SweetAlertLoading from "../../../../components/SweetAlertLoading";
 import SweetAlertError from "../../../../components/SweetAlertError";
 import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
+import SweetAlertDeleteConfirmation from "../../../../components/SweetAlertDeleteConfirmation";
 
 const DashboardMasterBankAcc = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
     const [message, setMessage] = useState('');
+    const [deleteConfirmation, setDeleteConfirmation] = useState({
+        show: false,
+        id: null,
+        userid: null,
+    });
     const [banknameOptions, setBanknameOptions] = useState([]);
     const [selectedBankname, setSelectedBankname] = useState("");
     const [selectedBankhold, setSelectedBankhold] = useState("");
@@ -134,7 +140,7 @@ const DashboardMasterBankAcc = () => {
                         `;
                         $("td:eq(11)", row).html(actionBtns);
 
-                        $("#deleteBtn", row).on("click", () => {});
+                        $("#deleteBtn", row).on("click", () => {showDeleteConfirmation(data)});
                     }
                 });
 
@@ -298,9 +304,69 @@ const DashboardMasterBankAcc = () => {
         }finally{
             setLoading(false);
         }
-
-
     }
+
+    const handleDeleteConfirmation = async () => {
+        const token = localStorage.getItem('token');
+        const id = deleteConfirmation.id;
+        const apiurl = Config.api.server2 + `master/bank-acc/${id}`;
+
+        setLoading(true);
+        try {
+            const response = await axios({
+                method: "delete",
+                url: apiurl,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+
+            if(response.data.success){
+                setDeleteConfirmation({
+                    show: false,
+                    id: null,
+                    userid: null,
+                  });
+                setSuccess(true);
+                setLoading(false);
+                setMessage(response.data.message);
+            }else{
+                setError(true);
+                setLoading(false);
+            }
+        } catch (error) {
+            setError(true);
+            setLoading(false);
+            if (error.response) {
+                console.log('Response Data:', error.response.data);
+                console.log('Response Status:', error.response.status);
+                console.log('Response Headers:', error.response.headers);
+            } else if (error.request) {
+                console.log('Request made but no response received:', error.request);
+            } else {
+                console.log('Error during request setup:', error.message);
+            }
+            console.log('Config:', error.config);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const showDeleteConfirmation = (data) => {
+        // console.log(data);
+        setDeleteConfirmation({
+            show: true,
+            id: data.id
+        });
+    }
+
+    const handleCloseDeleteConfirmation = () => {
+        setDeleteConfirmation({
+          show: false,
+          id: null,
+          userid: null,
+        });
+      };
 
     const handleCloseErrorModal = () => {
         setError(null);
@@ -582,12 +648,14 @@ const DashboardMasterBankAcc = () => {
 
             <SweetAlertLoading show={loading} />
             <SweetAlertError show={!!error} message={error} onClose={handleCloseErrorModal} />
-            {/* <SweetAlertDeleteConfirmation
+            <SweetAlertDeleteConfirmation
+
+            
                 show={deleteConfirmation.show}
                 content={`Are you sure you want to delete this user?`}
                 onCancel={handleCloseDeleteConfirmation}
                 onConfirm={handleDeleteConfirmation}
-            /> */}
+            />
             <SweetAlertSuccess 
                 show={success}
                 message={message}

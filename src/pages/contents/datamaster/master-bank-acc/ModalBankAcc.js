@@ -62,7 +62,7 @@ const ModalBankAcc = (props) => {
 
             const [
                 sessionDataResponse,
-                banknameResponse
+                banknameResponse,
             ] = await Promise.all([
                 axios.get(checkTokenApiUrl, {
                     headers: {
