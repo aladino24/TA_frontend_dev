@@ -1,7 +1,70 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import Config from "../../../../config";
 
 
 const ModalDistributor = (props) => {
+    const [inputData, setInputData] = useState({
+        fc_divisioncode: "",
+        fc_branch: "",
+        fc_distributorcode: "",
+        fc_distributorname: "",
+        fc_branchtype: "",
+        fc_distributorpicname: "",
+        fc_distributorpicphone: "",
+        fc_distributorpicpos: "",
+        fc_distributorlegalstatus: "",
+        fc_distributornationality: "",
+        fc_distributorforex: "",
+        fc_suppliertypebusiness: "",
+        fd_supplierjoindate: "",
+        fd_distributorexpired: "",
+        fl_distributorreseller: "",
+        fc_distributortaxcode: "",
+        fc_distributorNPWP: "",
+        fc_distributornpwp_name: "",
+        fc_distributor_npwpaddress1: "",
+        fc_distributoremail1: "",
+        fc_distributorbank1: "",
+        fc_distributornorek1: "",
+        fc_distributorvirtualac: "",
+        fm_distributorAR: "",
+        fn_distributorAgingAR: "",
+        fn_distributorlockTrans: "",
+        fv_distributordescription: ""
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+
+            try {
+                const token = localStorage.getItem("token");
+                const checkTokenApiUrl = Config.api.server1 + "check-token"; 
+
+                const [
+                    sessionDataResponse
+                ] = await Promise.all([
+                    axios.get(checkTokenApiUrl, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }),
+                ]);
+
+                const sessionBranchData = sessionDataResponse.data.user.branch;
+                setInputData(prevInputData => ({
+                    ...prevInputData,
+                    fc_branch: sessionBranchData,
+                }));
+                
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        fetchData();
+    },[]);
+
     return (
         <>
              <div
@@ -37,6 +100,8 @@ const ModalDistributor = (props) => {
                                                 className="form-control"
                                                 id="fc_branch"
                                                 name="fc_branch"
+                                                defaultValue={inputData.fc_branch}
+                                                readOnly
                                             />
                                         </div>
                                     </div>
@@ -61,6 +126,10 @@ const ModalDistributor = (props) => {
                                                 className="form-control"
                                                 id="fc_distributorname"
                                                 name="fc_distributorname"
+                                                onChange={(e) => setInputData({
+                                                        ...inputData,
+                                                        fc_distributorname: e.target.value
+                                                    })}
                                             />
                                         </div>
                                     </div>
@@ -79,12 +148,18 @@ const ModalDistributor = (props) => {
                                 <div className="row">
                                     <div className="col-md-4">
                                         <div className="form-group">
-                                            <label htmlFor="fc_distributorpicname">Distributor Picname</label>
+                                            <label htmlFor="fc_distributorpicname">Nama PIC Distributor</label>
                                             <input
                                                 type="text"
                                                 className="form-control"
                                                 id="fc_distributorpicname"
                                                 name="fc_distributorpicname"
+                                                onChange={
+                                                    (e) => setInputData({
+                                                        ...inputData,
+                                                        fc_distributorpicname: e.target.value
+                                                    })
+                                                }
                                             />
                                         </div>
                                     </div>
@@ -96,6 +171,12 @@ const ModalDistributor = (props) => {
                                                 className="form-control"
                                                 id="fc_distributorpicphone"
                                                 name="fc_distributorpicphone"
+                                                onChange={
+                                                    (e) => setInputData({
+                                                        ...inputData,
+                                                        fc_distributorpicphone: e.target.value
+                                                    })
+                                                }
                                             />
                                         </div>
                                     </div>
@@ -107,6 +188,12 @@ const ModalDistributor = (props) => {
                                                 className="form-control"
                                                 id="fc_distributorpicpos"
                                                 name="fc_distributorpicpos"
+                                                onChange={
+                                                    (e) => setInputData({
+                                                        ...inputData,
+                                                        fc_distributorpicpos: e.target.value
+                                                    })
+                                                }
                                             />
                                         </div>
                                     </div>
@@ -274,6 +361,65 @@ const ModalDistributor = (props) => {
                                                     />
                                         </div>
                                   </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-3">
+                                        <div className="form-group" >
+                                                    <label htmlFor="fc_distributorvirtualac">Virtual AC Distributor</label>
+                                                    <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            id="fc_distributorvirtualac"
+                                                            name="fc_distributorvirtualac"
+                                                        />
+                                            </div>
+                                    </div>
+                                    <div className="col-md-3">
+                                        <div className="form-group" >
+                                                    <label htmlFor="fm_distributorAR">Hutang Distributor</label>
+                                                    <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            id="fm_distributorAR"
+                                                            name="fm_distributorAR"
+                                                        />
+                                            </div>
+                                    </div>
+                                    <div className="col-md-3">
+                                        <div className="form-group" >
+                                                    <label htmlFor="fn_distributorAgingAR">Masa Hutang Supplier</label>
+                                                    <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            id="fn_distributorAgingAR"
+                                                            name="fn_distributorAgingAR"
+                                                        />
+                                            </div>
+                                    </div>
+                                    <div className="col-md-3">
+                                        <div className="form-group" >
+                                                    <label htmlFor="fn_distributorlockTrans">Kunci Transaksi</label>
+                                                    <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            id="fn_distributorlockTrans"
+                                                            name="fn_distributorlockTrans"
+                                                        />
+                                            </div>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-12">
+                                        <div className="form-group" >
+                                                    <label htmlFor="fv_distributordescription">Deskripsi</label>
+                                                    <textarea
+                                                        type="text"
+                                                        className="form-control"
+                                                        name="fv_distributordescription"
+                                                        id="fv_distributordescription"
+                                                    ></textarea>
+                                            </div>
+                                    </div>
                                 </div>
                             </div>
                             <div className="modal-footer">
