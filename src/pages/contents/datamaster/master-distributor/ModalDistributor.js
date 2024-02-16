@@ -1,9 +1,11 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Config from "../../../../config";
+import Select from 'react-select';
 
 
 const ModalDistributor = (props) => {
+    const [legalStatusOptions, setLegalStatusOptions] = useState([]);
     const [inputData, setInputData] = useState({
         fc_divisioncode: "",
         fc_branch: "",
@@ -40,22 +42,39 @@ const ModalDistributor = (props) => {
             try {
                 const token = localStorage.getItem("token");
                 const checkTokenApiUrl = Config.api.server1 + "check-token"; 
+                const legalStatusApiUrl = Config.api.server3 + "master/legal-status";
 
                 const [
-                    sessionDataResponse
+                    sessionDataResponse,
+                    legalStatusResponse
                 ] = await Promise.all([
                     axios.get(checkTokenApiUrl, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
                     }),
+                    axios.get(legalStatusApiUrl,{
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                     }
+                    )
                 ]);
 
                 const sessionBranchData = sessionDataResponse.data.user.branch;
+                const legalStatusData = legalStatusResponse.data.data;
+
                 setInputData(prevInputData => ({
                     ...prevInputData,
                     fc_branch: sessionBranchData,
                 }));
+
+                const legalOptions = legalStatusData.map((item) => ({
+                    value: item.fc_legalcode,
+                    label: item.fc_legalname + '(' + item.fc_legalcode + ')'
+                }));
+
+                setLegalStatusOptions(legalOptions)
                 
             } catch (error) {
                 console.log(error);
@@ -64,6 +83,10 @@ const ModalDistributor = (props) => {
 
         fetchData();
     },[]);
+
+    const handleLegalStatusChange = () => {
+        console.log('Change');
+    }
 
     return (
         <>
@@ -202,11 +225,18 @@ const ModalDistributor = (props) => {
                                     <div className="col-md-3">
                                         <div className="form-group">
                                             <label htmlFor="fc_distributorlegalstatus">Legal Status Distributor</label>
-                                            <input
+                                            {/* <input
                                                 type="text"
                                                 className="form-control"
                                                 id="fc_distributorlegalstatus"
                                                 name="fc_distributorlegalstatus"
+                                            /> */}
+                                             <Select 
+                                                options={legalStatusOptions} 
+                                                name="fc_distributorlegalstatus"
+                                                id="fc_distributorlegalstatus"
+                                                onChange={handleLegalStatusChange}
+                                                required
                                             />
                                         </div>
                                     </div>

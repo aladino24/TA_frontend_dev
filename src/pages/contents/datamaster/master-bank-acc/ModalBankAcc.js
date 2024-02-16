@@ -36,27 +36,6 @@ const ModalBankAcc = (props) => {
         const fetchData = async () => {
         try {
             const token = localStorage.getItem("token");
-            // const sessionData = Config.api.server1 + "check-token";
-            //     const response = await axios.get(sessionData, {
-            //         headers: {
-            //             Authorization: `Bearer ${token}`,
-            //         },
-            //     });
-           
-
-            //     // console.log(response.data.user.branch);
-            //     const sessionBranchData = response.data.user.branch;
-            //     const sessionDivisionCodeData = response.data.user.divisioncode;
-
-            //     setInputData(prevInputData => ({
-            //         ...prevInputData,
-            //         fc_branch: sessionBranchData,
-            //     }));
-
-            //     setInputData(prevInputData => ({
-            //         ...prevInputData,
-            //         fc_divisioncode: sessionDivisionCodeData,
-            //     }));
             const checkTokenApiUrl = Config.api.server1 + "check-token";
             const bankNameApiUrl = Config.api.server2 + "get-data-where-field-id-get/TransaksiType/fc_trx/BANKNAME";
 
