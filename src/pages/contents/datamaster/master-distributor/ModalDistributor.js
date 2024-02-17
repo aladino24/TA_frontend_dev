@@ -2,10 +2,20 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Config from "../../../../config";
 import Select from 'react-select';
-
+import RadioButtons from "../../../../components/RadioButton";
 
 const ModalDistributor = (props) => {
     const [legalStatusOptions, setLegalStatusOptions] = useState([]);
+    const [tipeBisnisOptions, setTipeBisnisOptions] = useState([]);
+    const [tipeCabangOptions, setTipeCabangOptions] = useState([]);
+    const [tipePajakOptions, setTipePajakOptions] = useState([]);
+    const nationalityOptions = [
+        { value: 'ID', label: 'Indonesia' },
+        { value: 'SG', label: 'Singapore' },
+        { value: 'MY', label: 'Malaysia' },
+        { value: 'TH', label: 'Thailand' },
+        { value: 'VN', label: 'Vietnam' },
+    ];
     const [inputData, setInputData] = useState({
         fc_divisioncode: "",
         fc_branch: "",
@@ -43,10 +53,16 @@ const ModalDistributor = (props) => {
                 const token = localStorage.getItem("token");
                 const checkTokenApiUrl = Config.api.server1 + "check-token"; 
                 const legalStatusApiUrl = Config.api.server3 + "master/legal-status";
+                const tipeBisnisApiUrl = Config.api.server3 + "master/type-business";
+                const tipeCabangApiUrl = Config.api.server3 + "master/branch-type";
+                const tipePajakApiUrl = Config.api.server3 + "master/tax-type";
 
                 const [
                     sessionDataResponse,
-                    legalStatusResponse
+                    legalStatusResponse,
+                    tipeBisnisResponse,
+                    tipeCabangResponse,
+                    tipePajakResponse
                 ] = await Promise.all([
                     axios.get(checkTokenApiUrl, {
                         headers: {
@@ -58,11 +74,32 @@ const ModalDistributor = (props) => {
                             Authorization: `Bearer ${token}`,
                         },
                      }
-                    )
+                    ),
+                    axios.get(tipeBisnisApiUrl,{
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                     }
+                    ),
+                    axios.get(tipeCabangApiUrl,{
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                     }
+                    ),
+                    axios.get(tipePajakApiUrl,{
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                     }
+                    ),
                 ]);
 
                 const sessionBranchData = sessionDataResponse.data.user.branch;
                 const legalStatusData = legalStatusResponse.data.data;
+                const tipeBisnisData = tipeBisnisResponse.data.data;
+                const tipeCabangData = tipeCabangResponse.data.data;
+                const tipePajakData = tipePajakResponse.data.data;
 
                 setInputData(prevInputData => ({
                     ...prevInputData,
@@ -75,6 +112,27 @@ const ModalDistributor = (props) => {
                 }));
 
                 setLegalStatusOptions(legalOptions)
+
+                const tipeBisnisOptions = tipeBisnisData.map((item) => ({
+                    value: item.fc_typebusinesscode,
+                    label: item.fc_typebusinessname
+                }));
+
+                setTipeBisnisOptions(tipeBisnisOptions);
+
+                const tipeCabangOptions = tipeCabangData.map((item) => ({
+                    value: item.fc_branchtypecode,
+                    label: item.fc_branchtypename
+                }));
+
+                setTipeCabangOptions(tipeCabangOptions);
+
+                const tipePajakOptions = tipePajakData.map((item) => ({
+                    value: item.fc_taxtypecode,
+                    label: item.fc_taxtypename
+                }));
+
+                setTipePajakOptions(tipePajakOptions);
                 
             } catch (error) {
                 console.log(error);
@@ -86,6 +144,28 @@ const ModalDistributor = (props) => {
 
     const handleLegalStatusChange = () => {
         console.log('Change');
+    }
+
+    const handleNationalityChange = (selectedOption) => {
+        setInputData({
+            ...inputData,
+            fc_distributornationality: selectedOption.label,
+            fc_distributorforex: selectedOption.value
+        });
+    }
+
+    const handleChangeDistributorReseller = (selectedOption) => {
+        setInputData({
+            ...inputData,
+            fl_distributorreseller: selectedOption.label
+        });
+    }
+
+    const handleTaxTypeChange = (selectedOption) => {
+        setInputData({
+            ...inputData,
+            fc_distributortaxcode: selectedOption.label
+        });
     }
 
     return (
@@ -159,11 +239,11 @@ const ModalDistributor = (props) => {
                                     <div className="col-md-6">
                                         <div className="form-group">
                                             <label htmlFor="fc_branchtype">Tipe Cabang Distributor</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="fc_branchtype"
+                                            <Select 
+                                                options={tipeCabangOptions}
                                                 name="fc_branchtype"
+                                                id="fc_branchtype"
+                                                required
                                             />
                                         </div>
                                     </div>
@@ -225,12 +305,6 @@ const ModalDistributor = (props) => {
                                     <div className="col-md-3">
                                         <div className="form-group">
                                             <label htmlFor="fc_distributorlegalstatus">Legal Status Distributor</label>
-                                            {/* <input
-                                                type="text"
-                                                className="form-control"
-                                                id="fc_distributorlegalstatus"
-                                                name="fc_distributorlegalstatus"
-                                            /> */}
                                              <Select 
                                                 options={legalStatusOptions} 
                                                 name="fc_distributorlegalstatus"
@@ -243,11 +317,14 @@ const ModalDistributor = (props) => {
                                     <div className="col-md-3">
                                         <div className="form-group">
                                             <label htmlFor="fc_distributornationality">Kebangsaan Distributor</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="fc_distributornationality"
+                                            <Select
+                                             options={nationalityOptions}
                                                 name="fc_distributornationality"
+                                                id="fc_distributornationality"
+                                                onChange={
+                                                    handleNationalityChange
+                                                }
+                                                required
                                             />
                                         </div>
                                     </div>
@@ -259,17 +336,19 @@ const ModalDistributor = (props) => {
                                                 className="form-control"
                                                 id="fc_distributorforex"
                                                 name="fc_distributorforex"
+                                                readOnly
+                                                value={inputData.fc_distributorforex}
                                             />
                                         </div>
                                     </div>
                                     <div className="col-md-3">
                                         <div className="form-group">
                                             <label htmlFor="fc_suppliertypebusiness">Tipe Bisnis Distributor</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="fc_suppliertypebusiness"
+                                            <Select
+                                                options={tipeBisnisOptions}
                                                 name="fc_suppliertypebusiness"
+                                                id="fc_suppliertypebusiness"
+                                                required
                                             />
                                         </div>
                                     </div>
@@ -279,7 +358,7 @@ const ModalDistributor = (props) => {
                                             <div className="form-group">
                                                 <label htmlFor="fd_supplierjoindate">Tanggal Join Distributor</label>
                                                 <input
-                                                    type="text"
+                                                    type="date"
                                                     className="form-control"
                                                     id="fd_supplierjoindate"
                                                     name="fd_supplierjoindate"
@@ -290,7 +369,7 @@ const ModalDistributor = (props) => {
                                             <div className="form-group">
                                                 <label htmlFor="fd_distributorexpired">Distributor Expired</label>
                                                 <input
-                                                    type="text"
+                                                    type="date"
                                                     className="form-control"
                                                     id="fd_distributorexpired"
                                                     name="fd_distributorexpired"
@@ -300,22 +379,24 @@ const ModalDistributor = (props) => {
                                     <div className="col-md-3">
                                             <div className="form-group">
                                                 <label htmlFor="fl_distributorreseller">Distributor Reseller</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
+                                                <RadioButtons
                                                     id="fl_distributorreseller"
                                                     name="fl_distributorreseller"
+                                                    options1="Active"
+                                                    options2="Non Active"
+                                                    onChange={handleChangeDistributorReseller}
                                                 />
                                             </div>
                                     </div>
                                     <div className="col-md-3">
                                             <div className="form-group">
                                                 <label htmlFor="fc_distributortaxcode">Kode Pajak Distributor</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="fc_distributortaxcode"
+                                                <Select
+                                                    options={tipePajakOptions}
                                                     name="fc_distributortaxcode"
+                                                    id="fc_distributortaxcode"
+                                                    onChange={handleTaxTypeChange}
+                                                    required
                                                 />
                                             </div>
                                     </div>
