@@ -1,7 +1,103 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useRef, useState } from "react";
+import Config from "../../../../config";
 import ModalDistributor from "./ModalDistributor";
+import $, { data } from "jquery";
 
 const DashboardMasterDistributor = () => {
+    const tableRef = useRef(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
+    const [message, setMessage] = useState('');
+    const [deleteConfirmation, setDeleteConfirmation] = useState({
+        show: false,
+        id: null,
+        userid: null,
+      });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const axiosConfig = {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                };
+                const response = await axios.get(
+                    Config.api.server3 + "master/datatables-distributor",
+                    axiosConfig
+                );
+
+                const responseData = response.data.data;
+                if ($.fn.DataTable.isDataTable("#dataTable")) {
+                    // If it is initialized, destroy it before reinitializing
+                    const existingTable = $(tableRef.current).DataTable();
+                    existingTable.destroy();
+                  }
+
+
+                const formattedData = responseData ? responseData.map((distributor, index) => ({
+                    ...distributor,
+                    no: index + 1,
+                  })) : [];
+
+                  const table = $(tableRef.current).DataTable({
+                    responsive: true,
+                    processing: true,
+                    serverSide: false, // Ubah menjadi true jika ingin implementasi server-side processing
+                    data: formattedData,
+                    columnDefs: [
+                      {
+                        width: "300px",
+                      },
+                    ],
+                    columns: [
+                        {data: "no"},
+                        {data: "fc_divisioncode"},
+                        {data: "branch.fv_description"},
+                        {data: "fc_distributorcode"},
+                        {data: "fc_distributorlegalstatus"},
+                        {data: "fc_distributorname1"},
+                        {data: "fc_distributorphone1"},
+                        {data: "fc_distributoremail1"},
+                        {data: "fc_distributornationality"},
+                        {data: "fc_distributorforex"},
+                        {data: "fc_distributortypebusiness"},
+                        {data: "fc_branchtype"},
+                        {data: "fl_distributorreseller"},
+                        {data: "fc_distributortaxcode"},
+                        {data: "fc_distributorNPWP"},
+                        {data: "fc_distributornpwp_name"},
+                        {data: "fc_distributor_npwpaddress1"},
+                        {data: null},
+                        {data: null},
+                        {data: null},
+                        {data: null},
+                        {data: null},
+                        {data: null},
+                        {data: null},
+                        {data: null},
+                        {data: null},
+                        {data: null},
+                    ],
+                    rowCallback: function(row, data) {
+                    }
+                  },);
+            } catch (error) {
+                setError(error);
+            }
+        }
+
+        fetchData();
+        return () => {
+            // Hancurkan DataTable saat komponen dilepas
+            const existingTable = $(tableRef.current).DataTable();
+            existingTable.destroy();
+          };
+    }, []);
     return (
         <>
             <div className="container-fluid">
@@ -17,6 +113,7 @@ const DashboardMasterDistributor = () => {
                     <div className="card-body">
                         <div className="table-responsive">
                         <table
+                            ref={tableRef}
                             className="table table-bordered"
                             id="dataTable"
                             width="100%"
