@@ -33,6 +33,7 @@ const DashboardMasterDistributor = () => {
             fl_distributorreseller: '',
             fc_distributortaxcode: '',
             fc_distributorNPWP: '',
+            fc_distributornpwp_name: '',
             fc_distributor_npwpaddress1: '',
             fm_distributorAR: '',
             fn_distributorAgingAR: '',
@@ -166,6 +167,7 @@ const DashboardMasterDistributor = () => {
                 fl_distributorreseller: data.fl_distributorreseller || '',
                 fc_distributortaxcode: data.fc_distributortaxcode || '',
                 fc_distributorNPWP: data.fc_distributorNPWP || '',
+                fc_distributornpwp_name: data.fc_distributornpwp_name || '',
                 fc_distributor_npwpaddress1: data.fc_distributor_npwpaddress1 || '',
                 fm_distributorAR: data.fm_distributorAR || '',
                 fn_distributorAgingAR: data.fn_distributorAgingAR || '',
@@ -396,12 +398,13 @@ const DashboardMasterDistributor = () => {
                                                 className="form-control"
                                                 id="fc_distributorpicname"
                                                 name="fc_distributorpicname"
-                                                // onChange={
-                                                //     (e) => setInputData({
-                                                //         ...inputData,
-                                                //         fc_distributorpicname: e.target.value
-                                                //     })
-                                                // }
+                                                value={inputData.fc_distributorpicname}
+                                                onChange={
+                                                    (e) => setInputData({
+                                                        ...inputData,
+                                                        fc_distributorpicname: e.target.value
+                                                    })
+                                                }
                                             />
                                         </div>
                                     </div>
@@ -413,12 +416,13 @@ const DashboardMasterDistributor = () => {
                                                 className="form-control"
                                                 id="fc_distributorpicphone"
                                                 name="fc_distributorpicphone"
-                                                // onChange={
-                                                //     (e) => setInputData({
-                                                //         ...inputData,
-                                                //         fc_distributorpicphone: e.target.value
-                                                //     })
-                                                // }
+                                                value={inputData.fc_distributorpicphone}
+                                                onChange={
+                                                    (e) => setInputData({
+                                                        ...inputData,
+                                                        fc_distributorpicphone: e.target.value
+                                                    })
+                                                }
                                             />
                                         </div>
                                     </div>
@@ -430,12 +434,13 @@ const DashboardMasterDistributor = () => {
                                                 className="form-control"
                                                 id="fc_distributorpicpos"
                                                 name="fc_distributorpicpos"
-                                                // onChange={
-                                                //     (e) => setInputData({
-                                                //         ...inputData,
-                                                //         fc_distributorpicpos: e.target.value
-                                                //     })
-                                                // }
+                                                value={inputData.fc_distributorpicpos}
+                                                onChange={
+                                                    (e) => setInputData({
+                                                        ...inputData,
+                                                        fc_distributorpicpos: e.target.value
+                                                    })
+                                                }
                                             />
                                         </div>
                                     </div>
@@ -475,14 +480,14 @@ const DashboardMasterDistributor = () => {
                                                 className="form-control"
                                                 id="fc_distributorforex"
                                                 name="fc_distributorforex"
-                                                // readOnly
-                                                // onChange={
-                                                //     (e) => setInputData({
-                                                //         ...inputData,
-                                                //         fc_distributorforex: e.target.value
-                                                //     })
-                                                // }
-                                                // value={inputData.fc_distributorforex}
+                                                readOnly
+                                                onChange={
+                                                    (e) => setInputData({
+                                                        ...inputData,
+                                                        fc_distributorforex: e.target.value
+                                                    })
+                                                }
+                                                value={inputData.fc_distributorforex}
                                             />
                                         </div>
                                     </div>
@@ -510,12 +515,13 @@ const DashboardMasterDistributor = () => {
                                                     className="form-control"
                                                     id="fd_distributorjoindate"
                                                     name="fd_distributorjoindate"
-                                                    // onChange={
-                                                    //     (e) => setInputData({
-                                                    //         ...inputData,
-                                                    //         fd_distributorjoindate: e.target.value
-                                                    //     })
-                                                    // }
+                                                    value={inputData.fd_distributorjoindate}
+                                                    onChange={
+                                                        (e) => setInputData({
+                                                            ...inputData,
+                                                            fd_distributorjoindate: e.target.value
+                                                        })
+                                                    }
                                                 />
                                             </div>
                                     </div>
@@ -527,12 +533,13 @@ const DashboardMasterDistributor = () => {
                                                     className="form-control"
                                                     id="fd_distributorexpired"
                                                     name="fd_distributorexpired"
-                                                    // onChange={
-                                                    //     (e) => setInputData({
-                                                    //         ...inputData,
-                                                    //         fd_distributorexpired: e.target.value
-                                                    //     })
-                                                    // }
+                                                    value={inputData.fd_distributorexpired}
+                                                    onChange={
+                                                        (e) => setInputData({
+                                                            ...inputData,
+                                                            fd_distributorexpired: e.target.value
+                                                        })
+                                                    }
                                                 />
                                             </div>
                                     </div>
@@ -570,12 +577,13 @@ const DashboardMasterDistributor = () => {
                                                     className="form-control"
                                                     id="fc_distributorNPWP"
                                                     name="fc_distributorNPWP"
-                                                    // onChange={
-                                                    //     (e) => setInputData({
-                                                    //         ...inputData,
-                                                    //         fc_distributorNPWP: e.target.value
-                                                    //     })
-                                                    // }
+                                                    value={inputData.fc_distributorNPWP}
+                                                    onChange={
+                                                        (e) => setInputData({
+                                                            ...inputData,
+                                                            fc_distributorNPWP: e.target.value
+                                                        })
+                                                    }
                                                 />
                                             </div>
                                     </div>
@@ -587,12 +595,13 @@ const DashboardMasterDistributor = () => {
                                                     className="form-control"
                                                     id="fc_distributornpwp_name"
                                                     name="fc_distributornpwp_name"
-                                                    // onChange={
-                                                    //     (e) => setInputData({
-                                                    //         ...inputData,
-                                                    //         fc_distributornpwp_name: e.target.value
-                                                    //     })
-                                                    // }
+                                                    value={inputData.fc_distributornpwp_name}
+                                                    onChange={
+                                                        (e) => setInputData({
+                                                            ...inputData,
+                                                            fc_distributornpwp_name: e.target.value
+                                                        })
+                                                    }
                                                 />
                                             </div>
                                     </div>
@@ -606,12 +615,13 @@ const DashboardMasterDistributor = () => {
                                                  className="form-control"
                                                  name="fc_distributor_npwpaddress1"
                                                  id="fc_distributor_npwpaddress1"
-                                                //  onChange={
-                                                //         (e) => setInputData({   
-                                                //             ...inputData,
-                                                //             fc_distributor_npwpaddress1: e.target.value
-                                                //         })
-                                                //  }
+                                                 value={inputData.fc_distributor_npwpaddress1}
+                                                 onChange={
+                                                        (e) => setInputData({   
+                                                            ...inputData,
+                                                            fc_distributor_npwpaddress1: e.target.value
+                                                        })
+                                                 }
                                                 ></textarea>
                                         </div>
                                     </div>
@@ -623,14 +633,15 @@ const DashboardMasterDistributor = () => {
                                                     className="form-control"
                                                     id="fc_distributoremail1"
                                                     name="fc_distributoremail1"
-                                                    // onChange={
-                                                    //     (e) => {
-                                                    //         setInputData({
-                                                    //             ...inputData, 
-                                                    //             fc_distributoremail1: e.target.value
-                                                    //      })
-                                                    //     }
-                                                    // }
+                                                    value={inputData.fc_distributoremail1}
+                                                    onChange={
+                                                        (e) => {
+                                                            setInputData({
+                                                                ...inputData, 
+                                                                fc_distributoremail1: e.target.value
+                                                         })
+                                                        }
+                                                    }
                                             />
                                         </div>
                                     </div>
@@ -642,14 +653,15 @@ const DashboardMasterDistributor = () => {
                                                     className="form-control"
                                                     id="fc_distributorphone1"
                                                     name="fc_distributorphone1"
-                                                    // onChange={
-                                                    //     (e) => {
-                                                    //         setInputData({
-                                                    //             ...inputData, 
-                                                    //             fc_distributorphone1: e.target.value
-                                                    //      })
-                                                    //     }
-                                                    // }
+                                                    value={inputData.fc_distributorphone1}
+                                                    onChange={
+                                                        (e) => {
+                                                            setInputData({
+                                                                ...inputData, 
+                                                                fc_distributorphone1: e.target.value
+                                                         })
+                                                        }
+                                                    }
                                             />
                                         </div>
                                     </div>
@@ -681,14 +693,15 @@ const DashboardMasterDistributor = () => {
                                                         className="form-control"
                                                         id="fc_distributornorek1"
                                                         name="fc_distributornorek1"
-                                                        // onChange={
-                                                        //     (e) => {
-                                                        //         setInputData ({
-                                                        //             ...inputData,
-                                                        //             fc_distributornorek1: e.target.value
-                                                        //         })
-                                                        //     }
-                                                        // }
+                                                        value={inputData.fc_distributornorek1}
+                                                        onChange={
+                                                            (e) => {
+                                                                setInputData ({
+                                                                    ...inputData,
+                                                                    fc_distributornorek1: e.target.value
+                                                                })
+                                                            }
+                                                        }
                                                 />
                                         </div>
                                   </div>
@@ -702,14 +715,15 @@ const DashboardMasterDistributor = () => {
                                                             className="form-control"
                                                             id="fc_distributorvirtualac"
                                                             name="fc_distributorvirtualac"
-                                                            // onChange={
-                                                            //     (e) => {
-                                                            //         setInputData({
-                                                            //             ...inputData,
-                                                            //             fc_distributorvirtualac: e.target.value
-                                                            //         })
-                                                            //     }
-                                                            // }
+                                                            value={inputData.fc_distributorvirtualac}
+                                                            onChange={
+                                                                (e) => {
+                                                                    setInputData({
+                                                                        ...inputData,
+                                                                        fc_distributorvirtualac: e.target.value
+                                                                    })
+                                                                }
+                                                            }
                                                     />
                                             </div>
                                     </div>
@@ -721,14 +735,15 @@ const DashboardMasterDistributor = () => {
                                                             className="form-control"
                                                             id="fm_distributorAR"
                                                             name="fm_distributorAR"
-                                                            // onChange={
-                                                            //     (e) => {
-                                                            //         setInputData ({
-                                                            //             ...inputData,
-                                                            //             fm_distributorAR: e.target.value
-                                                            //         })
-                                                            //     }
-                                                            // }
+                                                            value={inputData.fm_distributorAR}
+                                                            onChange={
+                                                                (e) => {
+                                                                    setInputData ({
+                                                                        ...inputData,
+                                                                        fm_distributorAR: e.target.value
+                                                                    })
+                                                                }
+                                                            }
                                                     />
                                             </div>
                                     </div>
@@ -740,14 +755,15 @@ const DashboardMasterDistributor = () => {
                                                             className="form-control"
                                                             id="fn_distributorAgingAR"
                                                             name="fn_distributorAgingAR"
-                                                            // onChange={
-                                                            //     (e) => {
-                                                            //         setInputData ({
-                                                            //             ...inputData,
-                                                            //             fn_distributorAgingAR: e.target.value
-                                                            //         })
-                                                            //     }
-                                                            // }
+                                                            value={inputData.fn_distributorAgingAR}
+                                                            onChange={
+                                                                (e) => {
+                                                                    setInputData ({
+                                                                        ...inputData,
+                                                                        fn_distributorAgingAR: e.target.value
+                                                                    })
+                                                                }
+                                                            }
                                                         />
                                             </div>
                                     </div>
@@ -773,14 +789,15 @@ const DashboardMasterDistributor = () => {
                                                         className="form-control"
                                                         name="fv_distributordescription"
                                                         id="fv_distributordescription"
-                                                        // onChange={
-                                                        //     (e) => {
-                                                        //         setInputData ({
-                                                        //             ...inputData,
-                                                        //             fv_distributordescription: e.target.value
-                                                        //         })
-                                                        //     }
-                                                        // }
+                                                        value={inputData.fv_distributordescription}
+                                                        onChange={
+                                                            (e) => {
+                                                                setInputData ({
+                                                                    ...inputData,
+                                                                    fv_distributordescription: e.target.value
+                                                                })
+                                                            }
+                                                        }
                                                     ></textarea>
                                             </div>
                                     </div>
