@@ -1,17 +1,38 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import Config from "../../../../config";
-// import RadioButtons from "../../../../components/RadioButton";
+import RadioButtons from "../../../../components/RadioButton";
 import Select from 'react-select'
 import ModalDistributor from "./ModalDistributor";
 import $, { data } from "jquery";
 
 const DashboardMasterDistributor = () => {
     const tableRef = useRef(null);
+    const [legalStatusOptions, setLegalStatusOptions] = useState([]);
+    const [selectedLegalStatus, setSelectedLegalStatus] = useState("");
+    const [tipeBisnisOptions, setTipeBisnisOptions] = useState([]);
+    const [selectedTipeBisnis, setSelectedTipeBisnis] = useState("");
+    const [tipeCabangOptions, setTipeCabangOptions] = useState([]);
+    const [selectedTipeCabang, setSelectedTipeCabang] = useState("");
+    const [tipePajakOptions, setTipePajakOptions] = useState([]);
+    const [selectedTipePajak, setSelectedTipePajak] = useState("");
+    const [bankOptions, setBankOptions] = useState([]);
+    const [selectedBank, setSelectedBank] = useState("");
+    const [lockTypeOptions, setLockTypeOptions] = useState([]);
+    const [selectedLockType, setSelectedLockType] = useState("");
+    const [selectedNationality, setSelectedNationality] = useState("");
+    const [distributorReseller , setDistributorReseller] = useState('');    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
     const [message, setMessage] = useState('');
+    const nationalityOptions = [
+        { value: 'ID', label: 'Indonesia' },
+        { value: 'SG', label: 'Singapore' },
+        { value: 'MY', label: 'Malaysia' },
+        { value: 'TH', label: 'Thailand' },
+        { value: 'VN', label: 'Vietnam' },
+    ];
     const [deleteConfirmation, setDeleteConfirmation] = useState({
         show: false,
         id: null,
@@ -84,7 +105,8 @@ const DashboardMasterDistributor = () => {
                     data: formattedData,
                     columnDefs: [
                       {
-                        width: "300px",
+                        target: 29,
+                        width: "500px",
                       },
                     ],
                     columns: [
@@ -117,12 +139,14 @@ const DashboardMasterDistributor = () => {
                         {data: "fc_distributorvirtualac"},
                         {data: "fc_distributornorek1"},
                         {data: "fv_distributordescription"},
-                        {data: null}
+                        {
+                            data: null,
+                        }
                     ],
                     rowCallback: function(row, data) {
                         const actionBtns = `
-                        <button class="btn btn-sm btn-warning" id="holdBtn">Hold</button>
-                        <button class="btn btn-sm btn-primary" id="editBtn">Edit</button>
+                        <button class="btn btn-sm btn-warning mr-2" id="editBtn">Edit</button>
+                        <button class="btn btn-sm btn-danger" id="deleteBtn">Delete</button>
                         `;
                         $("td:eq(29)", row).html(actionBtns);
                     }
@@ -150,7 +174,7 @@ const DashboardMasterDistributor = () => {
 
     async function detailEditDistributor(data) {
         const token = localStorage.getItem('token');
-      console.log(data)
+    //   console.log(data)
         if (data) {
             setInputData({
                 fc_divisioncode: data.fc_divisioncode || '',
@@ -184,20 +208,190 @@ const DashboardMasterDistributor = () => {
             });
     
             try {
-               
-    
+                    const token = localStorage.getItem("token");
+                    const checkTokenApiUrl = Config.api.server1 + "check-token"; 
+                    const legalStatusApiUrl = Config.api.server3 + "master/legal-status";
+                    const tipeBisnisApiUrl = Config.api.server3 + "master/type-business";
+                    const tipeCabangApiUrl = Config.api.server3 + "master/branch-type";
+                    const tipePajakApiUrl = Config.api.server3 + "master/tax-type";
+                    const bankApiUrl = Config.api.server2 + "get-data-where-field-id-get/TransaksiType/fc_trx/BANKNAME";
+                    const lockTypeApiUrl = Config.api.server2 + "get-data-where-field-id-get/TransaksiType/fc_trx/CUST_LOCKTYPE";
                 const [
-                   
+                    sessionDataResponse,
+                    legalStatusResponse,
+                    tipeBisnisResponse,
+                    tipeCabangResponse,
+                    tipePajakResponse,
+                    bankResponse,
+                    lockTypeResponse
                 ] = await Promise.all([
-                   
+                    axios.get(checkTokenApiUrl, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }),
+                    axios.get(legalStatusApiUrl,{
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                     }
+                    ),
+                    axios.get(tipeBisnisApiUrl,{
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                     }
+                    ),
+                    axios.get(tipeCabangApiUrl,{
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                     }
+                    ),
+                    axios.get(tipePajakApiUrl,{
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                     }
+                    ),
+                    axios.get(bankApiUrl),
+                    axios.get(lockTypeApiUrl)
                 ]);
     
-               
+                const sessionBranchData = sessionDataResponse.data.user.branch;
+                const sessionDivisionData = sessionDataResponse.data.user.divisioncode
+                const legalStatusData = legalStatusResponse.data.data;
+                const tipeBisnisData = tipeBisnisResponse.data.data;
+                const tipeCabangData = tipeCabangResponse.data.data;
+                const tipePajakData = tipePajakResponse.data.data;
+                const bankData = bankResponse.data.data;
+                const lockTypeData = lockTypeResponse.data.data;
+
+                setInputData(prevInputData => ({
+                    ...prevInputData,
+                    fc_branch: sessionBranchData,
+
+                }));
+
+                setInputData(prevInputData => ({
+                    ...prevInputData,
+                    fc_divisioncode: sessionDivisionData,
+
+                }));
+
+                const legalOptions = legalStatusData.map((item) => ({
+                    value: item.fc_legalcode,
+                    label: item.fc_legalname + '(' + item.fc_legalcode + ')'
+                }));
+
+                setLegalStatusOptions(legalOptions)
+                const selectedLegalStatus = legalOptions.find((item) => item.value === data.fc_distributorlegalstatus);
+                setSelectedLegalStatus(selectedLegalStatus);
+
+                const tipeBisnisOptions = tipeBisnisData.map((item) => ({
+                    value: item.fc_typebusinesscode,
+                    label: item.fc_typebusinessname
+                }));
+
+                setTipeBisnisOptions(tipeBisnisOptions);
+                const selectedTipeBisnis = tipeBisnisOptions.find((item) => item.label === data.fc_distributortypebusiness);
+                setSelectedTipeBisnis(selectedTipeBisnis);
+
+                const tipeCabangOptions = tipeCabangData.map((item) => ({
+                    value: item.fc_branchtypecode,
+                    label: item.fc_branchtypename
+                }));
+
+                setTipeCabangOptions(tipeCabangOptions);
+                const selectedTipeCabang = tipeCabangOptions.find((item) => item.label === data.fc_branchtype);
+                setSelectedTipeCabang(selectedTipeCabang);
+                // console.log(tipeCabangOptions);
+
+                const tipePajakOptions = tipePajakData.map((item) => ({
+                    value: item.fc_taxtypecode,
+                    label: item.fc_taxtypename
+                }));
+
+                setTipePajakOptions(tipePajakOptions);
+                const selectedTipePajak = tipePajakOptions.find((item) => item.label === data.fc_distributortaxcode);
+                setSelectedTipePajak(selectedTipePajak);
+
+                const bankOptions = bankData.map((item) => ({
+                    value: item.fv_description,
+                    label: item.fv_description
+                }));
+
+                setBankOptions(bankOptions);
+                const selectedBank = bankOptions.find((item) => item.value === data.fc_distributorbank1);
+                setSelectedBank(selectedBank);
+
+                const lockTypeOptions = lockTypeData.map((item) => ({
+                    value: item.fv_description,
+                    label: item.fv_description
+                }));
+
+                setLockTypeOptions(lockTypeOptions);
+                const selectedLockType = lockTypeOptions.find((item) => item.label === data.fn_distributorlockTrans);
+                setSelectedLockType(selectedLockType);
+
+                const selectedNationality = nationalityOptions.find((item) => item.label === data.fc_distributornationality);
+                setSelectedNationality(selectedNationality);
+                
             } catch (error) {
                 console.error('Error:', error);
                 // Handle errors here
             }
         }
+    }
+
+    const handleLegalStatusChange = (selectedOption) => {
+        setSelectedLegalStatus(selectedOption);
+        setInputData(prevInputData => ({
+            ...prevInputData,
+            fc_distributorlegalstatus: selectedOption.value
+        }));
+    }
+
+    const handleChangeDistributorReseller = (selectedOption) => {
+        if (selectedOption !== distributorReseller) {
+            setDistributorReseller(selectedOption);
+            setInputData({
+                ...inputData,
+                fl_distributorreseller: selectedOption
+            });
+        }
+    }
+
+    const handleBankChange = (selectedOption) => {
+            setSelectedBank(selectedOption);
+            setInputData({
+                ...inputData,
+                fc_distributorbank1: selectedOption.label
+            });
+    }
+
+    const handleTypeBranchChange = (selectedOption) => {
+        setSelectedTipeCabang(selectedOption);
+        if (selectedOption.label !== inputData.fc_branchtype) {
+            setInputData({
+                ...inputData,
+                fc_branchtype: selectedOption.label
+            });
+        }
+    }
+
+    const handleNationalityChange = (selectedOption) => {
+        setSelectedNationality(selectedOption);
+        setInputData({
+            ...inputData,
+            fc_distributornationality: selectedOption.label,
+            fc_distributorforex: selectedOption.value
+        });
+    }
+
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        console.log(inputData);
     }
     return (
         <>
@@ -318,7 +512,7 @@ const DashboardMasterDistributor = () => {
                             </button>
                         </div>
 
-                        <form onSubmit="">
+                        <form onSubmit={handleEdit}>
                             <div className="modal-body">
                                 <div className="row">
                                     <div className="col-md-6">
@@ -380,10 +574,11 @@ const DashboardMasterDistributor = () => {
                                         <div className="form-group">
                                             <label htmlFor="fc_branchtype">Tipe Cabang Distributor</label>
                                             <Select 
-                                                // options={tipeCabangOptions}
+                                                options={tipeCabangOptions}
                                                 name="fc_branchtype"
                                                 id="fc_branchtype"
-                                                // onChange={handleTypeBranchChange}
+                                                value={selectedTipeCabang}
+                                                onChange={handleTypeBranchChange}
                                                 required
                                             />
                                         </div>
@@ -450,10 +645,11 @@ const DashboardMasterDistributor = () => {
                                         <div className="form-group">
                                             <label htmlFor="fc_distributorlegalstatus">Legal Status Distributor</label>
                                              <Select 
-                                                // options={legalStatusOptions} 
+                                                options={legalStatusOptions} 
                                                 name="fc_distributorlegalstatus"
                                                 id="fc_distributorlegalstatus"
-                                                // onChange={handleLegalStatusChange}
+                                                value={selectedLegalStatus}
+                                                onChange={handleLegalStatusChange}
                                                 required
                                             />
                                         </div>
@@ -462,12 +658,11 @@ const DashboardMasterDistributor = () => {
                                         <div className="form-group">
                                             <label htmlFor="fc_distributornationality">Kebangsaan Distributor</label>
                                             <Select
-                                            //  options={nationalityOptions}
+                                                options={nationalityOptions}
                                                 name="fc_distributornationality"
                                                 id="fc_distributornationality"
-                                                // onChange={
-                                                //     handleNationalityChange
-                                                // }
+                                                value={selectedNationality}
+                                                onChange={handleNationalityChange}
                                                 required
                                             />
                                         </div>
@@ -495,9 +690,10 @@ const DashboardMasterDistributor = () => {
                                         <div className="form-group">
                                             <label htmlFor="fc_distributortypebusiness">Tipe Bisnis Distributor</label>
                                             <Select
-                                                // options={tipeBisnisOptions}
+                                                options={tipeBisnisOptions}
                                                 name="fc_distributortypebusiness"
                                                 id="fc_distributortypebusiness"
+                                                value={selectedTipeBisnis}
                                                 // onChange={
                                                 //     handleTypeBusinessChange
                                                 // }
@@ -546,22 +742,24 @@ const DashboardMasterDistributor = () => {
                                     <div className="col-md-3">
                                             <div className="form-group">
                                                 <label htmlFor="fl_distributorreseller">Distributor Reseller</label>
-                                                {/* <RadioButtons
+                                                <RadioButtons
                                                     id="fl_distributorreseller"
                                                     name="fl_distributorreseller"
+                                                    value={inputData.fl_distributorreseller === 'T' ? 'T' : 'F'}
                                                     options1="Active"
                                                     options2="Non Active"
-                                                    // onChange={handleChangeDistributorReseller}
-                                                /> */}
+                                                    onChange={handleChangeDistributorReseller}
+                                                />
                                             </div>
                                     </div>
                                     <div className="col-md-3">
                                             <div className="form-group">
                                                 <label htmlFor="fc_distributortaxcode">Kode Pajak Distributor</label>
                                                 <Select
-                                                    // options={tipePajakOptions}
+                                                    options={tipePajakOptions}
                                                     name="fc_distributortaxcode"
                                                     id="fc_distributortaxcode"
+                                                    value={selectedTipePajak}
                                                     // onChange={handleTaxTypeChange}
                                                     required
                                                 />
@@ -677,10 +875,11 @@ const DashboardMasterDistributor = () => {
                                                         name="fc_distributorbank1"
                                                     /> */}
                                                 <Select
-                                                    // options={bankOptions}
+                                                    options={bankOptions}
                                                     name="fc_distributorbank1"
                                                     id="fc_distributorbank1"
-                                                    // onChange={handleBankChange}
+                                                    value={selectedBank}
+                                                    onChange={handleBankChange}
                                                     required
                                                 />
                                         </div>
@@ -771,9 +970,10 @@ const DashboardMasterDistributor = () => {
                                         <div className="form-group" >
                                                     <label htmlFor="fn_distributorlockTrans">Kunci Transaksi</label>
                                                     <Select
-                                                        // options={lockTypeOptions}
+                                                        options={lockTypeOptions}
                                                          name="fn_distributorlockTrans"
                                                             id="fn_distributorlockTrans"
+                                                            value={selectedLockType}
                                                             // onChange={handleLockTypeChange}
                                                             required
                                                     />
