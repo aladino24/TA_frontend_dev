@@ -4,6 +4,10 @@ import Config from "../../../../config";
 import RadioButtons from "../../../../components/RadioButton";
 import Select from 'react-select'
 import ModalDistributor from "./ModalDistributor";
+import SweetAlertLoading from "../../../../components/SweetAlertLoading";
+import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
+import SweetAlertError from "../../../../components/SweetAlertError";
+import SweetAlertDeleteConfirmation from "../../../../components/SweetAlertDeleteConfirmation";
 import $, { data } from "jquery";
 
 const DashboardMasterDistributor = () => {
@@ -22,10 +26,10 @@ const DashboardMasterDistributor = () => {
     const [selectedLockType, setSelectedLockType] = useState("");
     const [selectedNationality, setSelectedNationality] = useState("");
     const [distributorReseller , setDistributorReseller] = useState('');    
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
-    const [message, setMessage] = useState('');
+    const [showLoading, setShowLoading] = useState(false);
+    const [showError, setShowError] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showMessage, setShowMessage] = useState("");
     const nationalityOptions = [
         { value: 'ID', label: 'Indonesia' },
         { value: 'SG', label: 'Singapore' },
@@ -35,7 +39,9 @@ const DashboardMasterDistributor = () => {
     ];
     const [deleteConfirmation, setDeleteConfirmation] = useState({
         show: false,
-        id: null,
+        fc_branch: null,
+        fc_divisioncode: null,
+        fc_distributorcode: null,
         userid: null,
       });
     const [inputData, setInputData]  = useState(
@@ -105,8 +111,8 @@ const DashboardMasterDistributor = () => {
                     data: formattedData,
                     columnDefs: [
                       {
-                        target: 29,
-                        width: "500px",
+                        targets: 29,
+                        width: "300px",
                       },
                     ],
                     columns: [
@@ -145,10 +151,12 @@ const DashboardMasterDistributor = () => {
                     ],
                     rowCallback: function(row, data) {
                         const actionBtns = `
-                        <button class="btn btn-sm btn-warning mr-2" id="editBtn">Edit</button>
+                        <button class="btn btn-sm btn-warning" id="editBtn">Edit</button>
                         <button class="btn btn-sm btn-danger" id="deleteBtn">Delete</button>
                         `;
                         $("td:eq(29)", row).html(actionBtns);
+
+                        $("#deleteBtn", row).on("click", () => {showDeleteConfirmation(data)});
                     }
                   },);
 
@@ -160,7 +168,7 @@ const DashboardMasterDistributor = () => {
                     window.$('#editModalDistributor').modal('show');
                   });
             } catch (error) {
-                setError(error);
+                setShowError(true);
             }
         }
 
@@ -208,6 +216,7 @@ const DashboardMasterDistributor = () => {
             });
     
             try {
+                    setShowLoading(true);   
                     const token = localStorage.getItem("token");
                     const checkTokenApiUrl = Config.api.server1 + "check-token"; 
                     const legalStatusApiUrl = Config.api.server3 + "master/legal-status";
@@ -336,9 +345,10 @@ const DashboardMasterDistributor = () => {
 
                 const selectedNationality = nationalityOptions.find((item) => item.label === data.fc_distributornationality);
                 setSelectedNationality(selectedNationality);
-                
+                setShowLoading(false)  ; 
             } catch (error) {
                 console.error('Error:', error);
+                setShowLoading(false);
                 // Handle errors here
             }
         }
@@ -391,8 +401,135 @@ const DashboardMasterDistributor = () => {
 
     const handleEdit = async (e) => {
         e.preventDefault();
-        console.log(inputData);
+        const token = localStorage.getItem('token');
+        setShowLoading(true);
+
+        try {
+            const apiUpdateDistributorUrl = Config.api.server3 + 'master/update-distributor';
+
+            const response = await axios({
+                method: 'put',
+                url: apiUpdateDistributorUrl,
+                data: inputData,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+
+            if (response.status === 200) {
+                setShowMessage(response.data.message);
+                setShowSuccess(true);
+                setShowLoading(false);
+            }else{
+                setShowMessage(response.data.message);
+                setShowError(true);
+                setShowLoading(false);
+            }
+        } catch (error) {
+            setShowError(true);
+            setShowLoading(false);
+            if (error.response) {
+                console.log('Response Data:', error.response.data);
+                console.log('Response Status:', error.response.status);
+                console.log('Response Headers:', error.response.headers);
+            } else if (error.request) {
+                console.log('Request made but no response received:', error.request);
+            } else {
+                console.log('Error during request setup:', error.message);
+            }
+            console.log('Config:', error.config);
+        }
     }
+
+    const handleSuccessAlertClose = () => {
+        setShowSuccess(false);
+        window.location.reload();
+    }
+
+    const handleErrorAlertClose = () => {
+        setShowError(false);
+    }
+
+    const showDeleteConfirmation = (data) => {
+        // console.log(data);
+        setDeleteConfirmation({
+            show: true,
+            fc_distributorcode: data.fc_distributorcode,
+            fc_branch: data.fc_branch,
+            fc_divisioncode: data.fc_divisioncode
+        });
+    }
+
+    const handleDeleteConfirmation = async () => {
+        const token = localStorage.getItem('token');
+        const fc_distributorcode = deleteConfirmation.fc_distributorcode;
+        const fc_branch = deleteConfirmation.fc_branch;
+        const fc_divisioncode = deleteConfirmation.fc_divisioncode;
+        const apiurl = Config.api.server3 + `master/delete-distributor`;
+
+        setDeleteConfirmation({
+            show: false,
+            fc_branch: null,
+            fc_divisioncode: null,
+            fc_distributorcode: null,
+            userid: null,
+          });
+        setShowLoading(true);
+        try {
+            const response = await axios({
+                method: "delete",
+                url: apiurl,
+                data : {
+                    fc_distributorcode: fc_distributorcode,
+                    fc_branch: fc_branch,
+                    fc_divisioncode: fc_divisioncode
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+
+            if(response.data.success){
+                setDeleteConfirmation({
+                    show: false,
+                    fc_branch: null,
+                    fc_divisioncode: null,
+                    fc_distributorcode: null,
+                    userid: null,
+                  });
+                setShowSuccess(true);
+                setShowLoading(false);
+                setShowMessage(response.data.message);
+            }else{
+                setShowMessage(response.data.message);
+                setShowError(true);
+                setShowLoading(false);
+            }
+        } catch (error) {
+            setShowError(true);
+            setShowLoading(false);
+            if (error.response) {
+                console.log('Response Data:', error.response.data);
+                console.log('Response Status:', error.response.status);
+                console.log('Response Headers:', error.response.headers);
+            } else if (error.request) {
+                console.log('Request made but no response received:', error.request);
+            } else {
+                console.log('Error during request setup:', error.message);
+            }
+            console.log('Config:', error.config);
+        } finally {
+            setShowLoading(false);
+        }
+    }
+
+    const handleCloseDeleteConfirmation = () => {
+        setDeleteConfirmation({
+          show: false,
+          id: null,
+          userid: null,
+        });
+      };
     return (
         <>
             <div className="container-fluid">
@@ -1015,7 +1152,25 @@ const DashboardMasterDistributor = () => {
                     </div>
                 </div>
             </div>
+            <SweetAlertLoading show={showLoading} />
+            <SweetAlertSuccess
+                show={showSuccess}
+                message={showMessage}
+                onClose={handleSuccessAlertClose}
+            />
 
+            <SweetAlertDeleteConfirmation 
+                show={deleteConfirmation.show}
+                content={`Are you sure you want to delete this data?`}
+                onCancel={handleCloseDeleteConfirmation}
+                onConfirm={handleDeleteConfirmation}
+            />
+
+            <SweetAlertError
+                    show={showError}
+                    message="Update distributor gagal!."
+                    onClose={handleErrorAlertClose}
+            />
             <ModalDistributor id="addModalDistributor" />
         </>
     );
