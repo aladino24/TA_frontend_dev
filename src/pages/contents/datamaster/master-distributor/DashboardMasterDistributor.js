@@ -77,33 +77,32 @@ const DashboardMasterDistributor = () => {
             fv_distributordescription: ''
         }
     );
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const axiosConfig = {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                };
-                const response = await axios.get(
-                    Config.api.server3 + "master/datatables-distributor",
-                    axiosConfig
-                );
+    const fetchData = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const axiosConfig = {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            const response = await axios.get(
+                Config.api.server3 + "master/datatables-distributor",
+                axiosConfig
+            );
 
-                const responseData = response.data.data;
-                if ($.fn.DataTable.isDataTable("#dataTable")) {
-                    // If it is initialized, destroy it before reinitializing
-                    const existingTable = $(tableRef.current).DataTable();
-                    existingTable.destroy();
-                  }
+            const responseData = response.data.data;
+            if ($.fn.DataTable.isDataTable("#dataTable")) {
+                // If it is initialized, destroy it before reinitializing
+                const existingTable = $(tableRef.current).DataTable();
+                existingTable.destroy();
+              }
 
 
-                const formattedData = responseData ? responseData.map((distributor, index) => ({
-                    ...distributor,
-                    no: index + 1,
-                  })) : [];
+            const formattedData = responseData ? responseData.map((distributor, index) => ({
+                ...distributor,
+                no: index + 1,
+              })) : [];
 
                   const table = $(tableRef.current).DataTable({
                     responsive: true,
@@ -163,8 +162,8 @@ const DashboardMasterDistributor = () => {
                         $("td:eq(30)", row).html(actionBtns);
 
                         $("#deleteBtn", row).on("click", () => {showDeleteConfirmation(data)});
-                    }
-                  },);
+                    },
+                    });
 
                   $(tableRef.current).on("click", "#editBtn", function () {
                     const rowData = table.row($(this).closest("tr")).data();
@@ -173,12 +172,14 @@ const DashboardMasterDistributor = () => {
                     //modal show
                     window.$('#editModalDistributor').modal('show');
                   });
+                  
             } catch (error) {
                 // setShowError(true);
                 console.log(error);
             }
         }
 
+    useEffect(() => {
         fetchData();
         return () => {
             // Hancurkan DataTable saat komponen dilepas
@@ -450,8 +451,9 @@ const DashboardMasterDistributor = () => {
     }
 
     const handleSuccessAlertClose = () => {
+        window.$('#editModalDistributor').modal('hide');
         setShowSuccess(false);
-        window.location.reload();
+        fetchData();
     }
 
     const handleErrorAlertClose = () => {
