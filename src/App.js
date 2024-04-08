@@ -1,19 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import './App.css';
-import Login from './Login';
-import Dashboard from './Dashboard';
-import DashboardMasterUserMain from './pages/contents/datamaster/master-user/DashboardMasterUserMain';
+import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
 import Config from './config';
-import DashboardMasterStock from './pages/contents/datamaster/master-stock/DashboardMasterStock';
-import DashboardMasterStockMain from './pages/contents/datamaster/master-stock/DashboardMasterStockMain';
-import DashboardMasterBrandMain from './pages/contents/datamaster/master-brand/DashboardMasterBrandMain';
-import LandingPage from './pages/contents/landingpage/landingpage';
-import DashboardMasterBankAcc from './pages/contents/datamaster/master-bank-acc/DashboardMasterBankAcc';
-import DashboardMasterBankAccMain from './pages/contents/datamaster/master-bank-acc/DashboardMasterBankAccMain';
-import DashboardMasterDistributor from './pages/contents/datamaster/master-distributor/DashboardMasterDistributor';
-import DashboardMasterDistributorMain from './pages/contents/datamaster/master-distributor/DashboardMasterDistributorMain';
+import RoutesConfig from './routes';
 
 function App() {
   const [isLoggedIn, setLoggedIn] = useState(false);
@@ -79,40 +68,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={<LandingPage />}
-        />
-        <Route
-          path="/login"
-          element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login handleLogin={handleLogin} />}
-        />
-        <Route
-          path="/dashboard"
-          element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/master-user"
-          element={isLoggedIn ? <DashboardMasterUserMain /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/master-stock"
-          element={isLoggedIn ? <DashboardMasterStockMain /> : <Navigate to="/login" />}
-         />
-        <Route
-          path="/master-brand"
-          element={isLoggedIn ? <DashboardMasterBrandMain /> : <Navigate to="/login" />}
-         />
-         <Route
-          path="/master-bank-acc"
-          element={isLoggedIn ? <DashboardMasterBankAccMain /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/master-distributor"
-            element={isLoggedIn ? <DashboardMasterDistributorMain /> : <Navigate to="/login" />}
-          />
-      </Routes>
+        <RoutesConfig isLoggedIn={isLoggedIn} />
     </BrowserRouter>
   );
 }
