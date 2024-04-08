@@ -497,6 +497,7 @@ const DashboardMasterUser = () => {
                         <th>Name</th>
                         <th>User ID</th>
                         <th>Group User</th>
+                        <th>Customer</th>
                         <th>Hold</th>
                         <th>Expired</th>
                         <th>Updated At</th>

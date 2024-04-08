@@ -37,7 +37,6 @@ const ModalDistributor = (props) => {
         fc_distributortypebusiness: "",
         fc_distributornationality: "",
         fc_distributorforex: "",
-        fc_distributortypebusiness: "",
         fd_distributorjoindate: "",
         fd_distributorexpired: "",
         fl_distributorreseller: "",
@@ -46,6 +45,7 @@ const ModalDistributor = (props) => {
         fc_distributornpwp_name: "",
         fc_distributor_npwpaddress1: "",
         fc_distributoremail1: "",
+        fc_distributoraddress: "",
         fc_distributorphone1: "",
         fc_distributorbank1: "",
         fc_distributornorek1: "",
@@ -772,6 +772,27 @@ const ModalDistributor = (props) => {
                                                             onChange={handleLockTypeChange}
                                                             required
                                                     />
+                                            </div>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-12">
+                                        <div className="form-group" >
+                                                    <label htmlFor="fc_distributoraddress">Alamat Distributor</label>
+                                                    <textarea
+                                                        type="text"
+                                                        className="form-control"
+                                                        name="fc_distributoraddress"
+                                                        id="fc_distributoraddress"
+                                                        onChange={
+                                                            (e) => {
+                                                                setInputData ({
+                                                                    ...inputData,
+                                                                    fc_distributoraddress: e.target.value
+                                                                })
+                                                            }
+                                                        }
+                                                    ></textarea>
                                             </div>
                                     </div>
                                 </div>

@@ -53,6 +53,7 @@ const DashboardMasterDistributor = () => {
             fc_distributorlegalstatus: '',
             fc_distributorphone1: '',
             fc_distributoremail1: '',
+            fc_distributoraddress: '',
             fc_distributornationality: '',
             fc_distributorforex: '',
             fc_branchtype: '',
@@ -111,9 +112,13 @@ const DashboardMasterDistributor = () => {
                     data: formattedData,
                     columnDefs: [
                       {
-                        targets: 29,
+                        targets: 30,
                         width: "300px",
                       },
+                      {
+                        width: '60%',
+                        targets: 8
+                      }
                     ],
                     columns: [
                         {data: "no"},
@@ -124,6 +129,7 @@ const DashboardMasterDistributor = () => {
                         {data: "fc_distributorname1"},
                         {data: "fc_distributorphone1"},
                         {data: "fc_distributoremail1"},
+                        {data: "fc_distributoraddress"},
                         {data: "fc_distributornationality"},
                         {data: "fc_distributorforex"},
                         {data: "fc_distributortypebusiness"},
@@ -154,7 +160,7 @@ const DashboardMasterDistributor = () => {
                         <button class="btn btn-sm btn-warning" id="editBtn">Edit</button>
                         <button class="btn btn-sm btn-danger" id="deleteBtn">Delete</button>
                         `;
-                        $("td:eq(29)", row).html(actionBtns);
+                        $("td:eq(30)", row).html(actionBtns);
 
                         $("#deleteBtn", row).on("click", () => {showDeleteConfirmation(data)});
                     }
@@ -168,7 +174,8 @@ const DashboardMasterDistributor = () => {
                     window.$('#editModalDistributor').modal('show');
                   });
             } catch (error) {
-                setShowError(true);
+                // setShowError(true);
+                console.log(error);
             }
         }
 
@@ -192,6 +199,7 @@ const DashboardMasterDistributor = () => {
                 fc_distributorlegalstatus: data.fc_distributorlegalstatus || '',
                 fc_distributorphone1: data.fc_distributorphone1 || '',
                 fc_distributoremail1: data. fc_distributoremail1 || '',
+                fc_distributoraddress: data.fc_distributoraddress || '',
                 fc_distributornationality: data.fc_distributornationality || '',
                 fc_distributorforex: data.fc_distributorforex || '',
                 fc_branchtype: data.fc_branchtype || '',
@@ -561,6 +569,7 @@ const DashboardMasterDistributor = () => {
                                 <th>Nama Distributor</th>
                                 <th>No. HP Distributor</th>
                                 <th>Email Distributor</th>
+                                <th>Alamat Distributor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <th>Kebangsaan Distributor</th>
                                 <th>Distributor Forex</th>
                                 <th>Tipe Bisnis Distributor</th>
@@ -595,6 +604,7 @@ const DashboardMasterDistributor = () => {
                                 <th>Nama Distributor</th>
                                 <th>No. HP Distributor</th>
                                 <th>Email Distributor</th>
+                                <th>Alamat Distributor</th>
                                 <th>Kebangsaan Distributor</th>
                                 <th>Distributor Forex</th>
                                 <th>Tipe Bisnis Distributor</th>
@@ -880,8 +890,8 @@ const DashboardMasterDistributor = () => {
                                             <div className="form-group">
                                                 <label htmlFor="fl_distributorreseller">Distributor Reseller</label>
                                                 <RadioButtons
-                                                    id="fl_distributorreseller"
-                                                    name="fl_distributorreseller"
+                                                    id="fl_distributorreseller_edit"
+                                                    name="fl_distributorreseller_edit"
                                                     value={inputData.fl_distributorreseller === 'T' ? 'T' : 'F'}
                                                     options1="Active"
                                                     options2="Non Active"
@@ -1120,6 +1130,28 @@ const DashboardMasterDistributor = () => {
                                 <div className="row">
                                     <div className="col-md-12">
                                         <div className="form-group" >
+                                                    <label htmlFor="fc_distributoraddress">Alamat Distributor</label>
+                                                    <textarea
+                                                        type="text"
+                                                        className="form-control"
+                                                        name="fc_distributoraddress"
+                                                        id="fc_distributoraddress"
+                                                        value={inputData.fc_distributoraddress}
+                                                        onChange={
+                                                            (e) => {
+                                                                setInputData ({
+                                                                    ...inputData,
+                                                                    fc_distributoraddress: e.target.value
+                                                                })
+                                                            }
+                                                        }
+                                                    ></textarea>
+                                            </div>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-12">
+                                        <div className="form-group" >
                                                     <label htmlFor="fv_distributordescription">Deskripsi</label>
                                                     <textarea
                                                         type="text"
@@ -1168,7 +1200,7 @@ const DashboardMasterDistributor = () => {
 
             <SweetAlertError
                     show={showError}
-                    message="Update distributor gagal!."
+                    message={showMessage}
                     onClose={handleErrorAlertClose}
             />
             <ModalDistributor id="addModalDistributor" />

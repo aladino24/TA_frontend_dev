@@ -18,9 +18,10 @@ const Pemesanan = () => {
                             </a>
                             <div id="collapseTwo" className="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                                 <div className="bg-white py-2 collapse-inner rounded">
-                                    <h6 className="collapse-header">Custom Components:</h6>
-                                    <a className="collapse-item" href="buttons.html">Buttons</a>
-                                    <a className="collapse-item" href="cards.html">Cards</a>
+                                    <h6 className="collapse-header">Menu: </h6>
+                                    <a className="collapse-item" href="buttons.html">Tambah Request</a>
+                                    <a className="collapse-item" href="cards.html">Daftar Request</a>
+                                    <a className="collapse-item" href="cards.html">Status Request</a>
                                 </div>
                             </div>
                         </li>
