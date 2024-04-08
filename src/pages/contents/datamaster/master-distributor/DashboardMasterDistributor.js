@@ -407,6 +407,16 @@ const DashboardMasterDistributor = () => {
             fc_distributorforex: selectedOption.value
         });
     }
+    
+    const handleLockTypeChange = (selectedOption) => {
+        setSelectedLockType(selectedOption);
+        if (selectedOption.label !== inputData.fn_distributorlockTrans) {
+            setInputData({
+                ...inputData,
+                fn_distributorlockTrans: selectedOption.label
+            });
+        }
+    }
 
     const handleEdit = async (e) => {
         e.preventDefault();
@@ -1123,7 +1133,7 @@ const DashboardMasterDistributor = () => {
                                                          name="fn_distributorlockTrans"
                                                             id="fn_distributorlockTrans"
                                                             value={selectedLockType}
-                                                            // onChange={handleLockTypeChange}
+                                                            onChange={handleLockTypeChange}
                                                             required
                                                     />
                                             </div>
