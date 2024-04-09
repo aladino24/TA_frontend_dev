@@ -4,17 +4,10 @@ import $ from "jquery";
 import Config from "../../config";
 import { useEffect } from "react";
 
-const Header = () => {
+const Header = ({ changeStyle }) => {
     const [userName, setUserName] = useState('');
-    const [style, setStyle] = useState("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
-    const changeStyle1 = () => {
-        if (style == "navbar-nav bg-gradient-primary sidebar sidebar-dark accordion")
-        {
-            setStyle("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled1");
-        }
-        else{
-            setStyle("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion")
-        }
+    const handleToggleSidebar = () => {
+      changeStyle(); // Panggil fungsi changeStyle dari props
     };
 
     useEffect(() => {
@@ -62,7 +55,7 @@ const Header = () => {
           window.location.href = "/login";
         }else{
           // close modal
-          $('#logoutModal').modal('hide');
+          // $('#logoutModal').modal('hide');
           //throw
           throw new Error(response.data.error);
         }
@@ -72,6 +65,8 @@ const Header = () => {
       }
   
     }
+
+    
   return (
     <div>
       {/*  <!-- Topbar --> */}
@@ -80,7 +75,7 @@ const Header = () => {
         <button
           id="sidebarToggleTop"
           className="btn btn-link d-md-none rounded-circle mr-3"
-          onClick={changeStyle1}
+          onClick={handleToggleSidebar}
         >
           <i className="fa fa-bars"></i>
         </button>
@@ -327,7 +322,7 @@ const Header = () => {
               </span>
               <img
                 className="img-profile rounded-circle"
-                src="img/undraw_profile.svg"
+                src={`${process.env.PUBLIC_URL}/img/undraw_profile.svg`}
               />
             </a>
             {/*  <!-- Dropdown - User Information --> */}

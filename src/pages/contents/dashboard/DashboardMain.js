@@ -1,8 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import SidebarMain from "../../sidebar/SidebarMain";
 import Header from "../../headers/Header";
 
 const DashboardMain = ({children}) => {
+    const [style, setStyle] = useState("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
+
+    const changeStyle = () => {
+        if (style === "navbar-nav bg-gradient-primary sidebar sidebar-dark accordion")
+        {
+            setStyle("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled");
+        }
+        else{
+            setStyle("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion")
+        }
+    };
     return (
           <div id="page-top">
 
@@ -10,7 +21,7 @@ const DashboardMain = ({children}) => {
                 <div id="wrapper">
 
                     {/*  <!-- Sidebar --> */}
-                    <SidebarMain/>
+                    <SidebarMain style={style} changeStyle={changeStyle} />
                     {/*  <!-- End of Sidebar --> */}
                   
                     {/*  <!-- Content Wrapper --> */}
@@ -19,7 +30,7 @@ const DashboardMain = ({children}) => {
                         {/*  <!-- Main Content --> */}
                         <div id="content">
 
-                            <Header />
+                        <Header changeStyle={changeStyle} />
                             
                            {children}
                         </div>

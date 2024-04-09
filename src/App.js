@@ -3,10 +3,12 @@ import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
 import Config from './config';
 import RoutesConfig from './routes';
+import Login from './Login';
 
 function App() {
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -68,7 +70,11 @@ function App() {
 
   return (
     <BrowserRouter>
+         {isLoggedIn ? (
         <RoutesConfig isLoggedIn={isLoggedIn} />
+      ) : (
+        <Login handleLogin={handleLogin} />
+      )}
     </BrowserRouter>
   );
 }

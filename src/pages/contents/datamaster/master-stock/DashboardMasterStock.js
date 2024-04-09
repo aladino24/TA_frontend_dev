@@ -81,191 +81,190 @@ const DashboardMasterStock = () => {
         }
     );
     
+    const fetchData = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            const axiosConfig = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            const response = await axios.get(Config.api.server2 + "master/stock", axiosConfig);
+            const responseData = response.data.data;
+            if ($.fn.DataTable.isDataTable("#dataTable")) {
+                // If it is initialized, destroy it before reinitializing
+                const existingTable = $(tableRef.current).DataTable();
+                existingTable.destroy();
+              }
 
-    useEffect(()=> {
-        const fetchData = async () => {
-            const token = localStorage.getItem('token');
-            try {
-                const axiosConfig = {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
+            const formattedData = responseData ? responseData.map((user, index) => ({
+                ...user,
+                no: index + 1,
+              })) : [];
+              
+              const table = $(tableRef.current).DataTable({
+                responsive: true,
+                processing: true,
+                serverSide: false, // Ubah menjadi true jika ingin implementasi server-side processing
+                data: formattedData,
+                columnDefs: [
+                  {
+                    // target all column
+                    targets: 43,
+                    width: "300px",
+                  },
+                ],
+                columns: [
+                    {data: "no"},{data: "fc_divisioncode"},
+                    {data: "branch.fv_description"},{data: "fc_stockcode"},
+                    {data: "fc_barcode"},{data: "fc_nameshort"},
+                    {data: 'fc_namelong'},
+                    {
+                        data: 'fc_hold',
+                        render: function(data, type, row) {
+                            if(data === 'T'){
+                                return `<span className="badge badge-success">Yes</span>`;
+                            }else{
+                                return `<span className="badge badge-danger">No</span>`;
+                            }
+                        }
                     },
-                };
-                const response = await axios.get(Config.api.server2 + "master/stock", axiosConfig);
-                const responseData = response.data.data;
-                if ($.fn.DataTable.isDataTable("#dataTable")) {
-                    // If it is initialized, destroy it before reinitializing
-                    const existingTable = $(tableRef.current).DataTable();
-                    existingTable.destroy();
-                  }
-
-                const formattedData = responseData ? responseData.map((user, index) => ({
-                    ...user,
-                    no: index + 1,
-                  })) : [];
-                  
-                  const table = $(tableRef.current).DataTable({
-                    responsive: true,
-                    processing: true,
-                    serverSide: false, // Ubah menjadi true jika ingin implementasi server-side processing
-                    data: formattedData,
-                    columnDefs: [
-                      {
-                        // target all column
-                        targets: 43,
-                        width: "300px",
-                      },
-                    ],
-                    columns: [
-                        {data: "no"},{data: "fc_divisioncode"},
-                        {data: "branch.fv_description"},{data: "fc_stockcode"},
-                        {data: "fc_barcode"},{data: "fc_nameshort"},
-                        {data: 'fc_namelong'},
-                        {
-                            data: 'fc_hold',
-                            render: function(data, type, row) {
-                                if(data === 'T'){
-                                    return `<span className="badge badge-success">Yes</span>`;
-                                }else{
-                                    return `<span className="badge badge-danger">No</span>`;
-                                }
+                    {
+                        data: 'fl_batch',
+                        render: function(data, type, row) {
+                            if(data === 'T'){
+                                return `<span className="badge badge-success">Yes</span>`;
+                            }else{
+                                return `<span className="badge badge-danger">No</span>`;
                             }
-                        },
-                        {
-                            data: 'fl_batch',
-                            render: function(data, type, row) {
-                                if(data === 'T'){
-                                    return `<span className="badge badge-success">Yes</span>`;
-                                }else{
-                                    return `<span className="badge badge-danger">No</span>`;
-                                }
+                        }
+                    },
+                    {
+                        data: 'fl_expired',
+                        render: function(data, type, row) {
+                            if(data === 'T'){
+                                return `<span className="badge badge-success">Yes</span>`;
+                            }else{
+                                return `<span className="badge badge-danger">No</span>`;
                             }
-                        },
-                        {
-                            data: 'fl_expired',
-                            render: function(data, type, row) {
-                                if(data === 'T'){
-                                    return `<span className="badge badge-success">Yes</span>`;
-                                }else{
-                                    return `<span className="badge badge-danger">No</span>`;
-                                }
+                        }
+                    },
+                    {
+                        data: "fl_serialnumber",
+                        render: function(data, type, row) {
+                            if(data === 'T'){
+                                return `<span className="badge badge-success">Yes</span>`;
+                            }else{
+                                return `<span className="badge badge-danger">No</span>`;
                             }
-                        },
-                        {
-                            data: "fl_serialnumber",
-                            render: function(data, type, row) {
-                                if(data === 'T'){
-                                    return `<span className="badge badge-success">Yes</span>`;
-                                }else{
-                                    return `<span className="badge badge-danger">No</span>`;
-                                }
+                        }
+                    },
+                    {
+                        data: "fl_catnumber",
+                        render: function(data, type, row) {
+                            if(data === 'T'){
+                                return `<span className="badge badge-success">Yes</span>`;
+                            }else{
+                                return `<span className="badge badge-danger">No</span>`;
                             }
-                        },
-                        {
-                            data: "fl_catnumber",
-                            render: function(data, type, row) {
-                                if(data === 'T'){
-                                    return `<span className="badge badge-success">Yes</span>`;
-                                }else{
-                                    return `<span className="badge badge-danger">No</span>`;
-                                }
+                        }
+                    },
+                    {data: "fc_catnumber"},
+                    {
+                        data: "fl_blacklist",
+                        render: function(data, type, row) {
+                            if(data === 'T'){
+                                return `<span className="badge badge-success">Yes</span>`;
+                            }else{
+                                return `<span className="badge badge-danger">No</span>`;
                             }
-                        },
-                        {data: "fc_catnumber"},
-                        {
-                            data: "fl_blacklist",
-                            render: function(data, type, row) {
-                                if(data === 'T'){
-                                    return `<span className="badge badge-success">Yes</span>`;
-                                }else{
-                                    return `<span className="badge badge-danger">No</span>`;
-                                }
+                        }
+                    },
+                    {
+                        data: "fl_taxtype",
+                        render: function(data, type, row) {
+                            if(data === 'T'){
+                                return `<span className="badge badge-success">Yes</span>`;
+                            }else{
+                                return `<span className="badge badge-danger">No</span>`;
                             }
-                        },
-                        {
-                            data: "fl_taxtype",
-                            render: function(data, type, row) {
-                                if(data === 'T'){
-                                    return `<span className="badge badge-success">Yes</span>`;
-                                }else{
-                                    return `<span className="badge badge-danger">No</span>`;
-                                }
+                        }
+                    },
+                    {
+                        data: "fl_repsupplier",
+                        render: function(data, type, row) {
+                            if(data === 'T'){
+                                return `<span className="badge badge-success">Yes</span>`;
+                            }else{
+                                return `<span className="badge badge-danger">No</span>`;
                             }
-                        },
-                        {
-                            data: "fl_repsupplier",
-                            render: function(data, type, row) {
-                                if(data === 'T'){
-                                    return `<span className="badge badge-success">Yes</span>`;
-                                }else{
-                                    return `<span className="badge badge-danger">No</span>`;
-                                }
+                        }
+                    },
+                    {data: "fc_brand"},{data: "fc_group"},
+                    {data: "fc_subgroup"},{data: "fc_typestock1"},
+                    {data: "fc_typestock2"},{data: "fc_namepack"},
+                    {data: "fn_reorderlevel"},{data: "fn_maxonhand"},
+                    {data: "fm_cogs"},{data: "fm_purchase"},
+                    {data: "fm_salesprice"},
+                    {
+                        data: "fl_disc_date",
+                        render: function(data, type, row) {
+                            if(data === 'T'){
+                                return `<span class="badge badge-success">Yes</span>`;
+                            }else{
+                                return `<span class="badge badge-danger">No</span>`;
                             }
-                        },
-                        {data: "fc_brand"},{data: "fc_group"},
-                        {data: "fc_subgroup"},{data: "fc_typestock1"},
-                        {data: "fc_typestock2"},{data: "fc_namepack"},
-                        {data: "fn_reorderlevel"},{data: "fn_maxonhand"},
-                        {data: "fm_cogs"},{data: "fm_purchase"},
-                        {data: "fm_salesprice"},
-                        {
-                            data: "fl_disc_date",
-                            render: function(data, type, row) {
-                                if(data === 'T'){
-                                    return `<span class="badge badge-success">Yes</span>`;
-                                }else{
-                                    return `<span class="badge badge-danger">No</span>`;
-                                }
+                        }
+                    },
+                    {
+                        data: "fd_disc_begin",
+                    },
+                    {data: "fd_disc_end"},
+                    {data: "fm_disc_rp"},{data: "fm_disc_pr"},
+                    { 
+                        data: "fl_disc_time",
+                        render: function(data, type, row) {
+                            if(data === 'T'){
+                                return `<span class="badge badge-success">Yes</span>`;
+                            }else{
+                                return `<span class="badge badge-danger">No</span>`;
                             }
-                        },
-                        {
-                            data: "fd_disc_begin",
-                        },
-                        {data: "fd_disc_end"},
-                        {data: "fm_disc_rp"},{data: "fm_disc_pr"},
-                        { 
-                            data: "fl_disc_time",
-                            render: function(data, type, row) {
-                                if(data === 'T'){
-                                    return `<span class="badge badge-success">Yes</span>`;
-                                }else{
-                                    return `<span class="badge badge-danger">No</span>`;
-                                }
-                            }
-                        },{data: "ft_disc_begin"},
-                        {data: "ft_disc_end"},{data: "fm_time_disc_rp"},
-                        {data: "fm_time_disc_pr"},{data: "fm_price_default"},
-                        {data: "fm_price_distributor"},{data: "fm_price_project"},
-                        {data: "fm_price_dealer"},{data: "fm_price_enduser"},
-                        {data: "fv_stockdescription"},{data: null},
-                    ],
-                    rowCallback: function(row, data) {
-                        const actionBtns = `
-                        <button class="btn btn-sm btn-warning" id="holdBtn">Hold</button>
-                        <button class="btn btn-sm btn-primary" id="editBtn">Edit</button>
-                        `;
-                        $("td:eq(43)", row).html(actionBtns);
-                    }
-                  },);
-
-                  $(tableRef.current).on("click", "#editBtn", function () {
-                    const rowData = table.row($(this).closest("tr")).data();
-                    // console.log(rowData);
-                    detailEditStock(rowData);
-                    //modal show
-                    window.$('#editModal').modal('show');
-                  });
-
-                if(response.data.success){
-                    // console.log(responseData);
-                }else{
-                    throw new Error(response.data.error);
+                        }
+                    },{data: "ft_disc_begin"},
+                    {data: "ft_disc_end"},{data: "fm_time_disc_rp"},
+                    {data: "fm_time_disc_pr"},{data: "fm_price_default"},
+                    {data: "fm_price_distributor"},{data: "fm_price_project"},
+                    {data: "fm_price_dealer"},{data: "fm_price_enduser"},
+                    {data: "fv_stockdescription"},{data: null},
+                ],
+                rowCallback: function(row, data) {
+                    const actionBtns = `
+                    <button class="btn btn-sm btn-warning" id="holdBtn">Hold</button>
+                    <button class="btn btn-sm btn-primary" id="editBtn">Edit</button>
+                    `;
+                    $("td:eq(43)", row).html(actionBtns);
                 }
-            } catch (error) {
-                console.log(error.message);
-            }
-        }
+              },);
 
+              $(tableRef.current).on("click", "#editBtn", function () {
+                const rowData = table.row($(this).closest("tr")).data();
+                // console.log(rowData);
+                detailEditStock(rowData);
+                //modal show
+                window.$('#editModal').modal('show');
+              });
+
+            if(response.data.success){
+                // console.log(responseData);
+            }else{
+                throw new Error(response.data.error);
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+    
+    useEffect(()=> {
         fetchData();
         return () => {
             // Hancurkan DataTable saat komponen dilepas

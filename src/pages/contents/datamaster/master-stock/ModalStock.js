@@ -86,90 +86,91 @@ const ModalStock = (props) => {
     // const handleBatchChangeCopy = (value) => {
     //     console.log(value);
     //   };
+
+    const fetchData = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const unityApiUrl = Config.api.server2 + 'get-unity';
+            const brandApiUrl = Config.api.server2 + 'get-brand';
+            const groupByBrandApiUrl = Config.api.server2 + 'stock-group-by-unity';
+            const typestock1ApiUrl = Config.api.server2 + 'get-data-where-field-id-get/TransaksiType/fc_trx/GOODSMATERY';
+            const typestock2ApiUrl = Config.api.server2 + 'get-data-where-field-id-get/TransaksiType/fc_trx/GOODSTRANS';
+
+            const [
+                getSessionDataResponse,
+                unityResponse,
+                brandResponse,
+                groupByBrandResponse, 
+                typestock1Response,
+                typestock2Response
+            ] = await Promise.all([
+                axios.get(Config.api.server1 + "check-token", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }),
+                axios.get(unityApiUrl),
+                axios.get(brandApiUrl),
+                axios.get(groupByBrandApiUrl, {
+                    params: {
+                        fc_brand: inputData.fc_brand,
+                    }
+                }),
+                axios.get(typestock1ApiUrl),
+                axios.get(typestock2ApiUrl),
+            ]);
+
+            const sessionBranchData = getSessionDataResponse.data.user.branch;
+            const sessionDivisionCodeData = getSessionDataResponse.data.user.divisioncode;
+            const unityData = unityResponse.data.data;
+            const brandData = brandResponse.data.data;
+            const groupByBrandData = groupByBrandResponse.data.data;
+            const typestock1Data = typestock1Response.data.data;
+            const typestock2Data = typestock2Response.data.data;
+
+            setInputData(prevInputData => ({
+                ...prevInputData,
+                fc_branch: sessionBranchData,
+            }));
+
+            setInputData(prevInputData => ({
+                ...prevInputData,
+                fc_divisioncode: sessionDivisionCodeData,
+            }));
+
+            const unityOptions = unityData.map((item) => ({
+                value: item.fc_kode,
+                label: item.fv_description,
+            }));
+            setNamepackOptions(unityOptions);
+
+            const brandOptions = brandData.map((item) => ({
+                value: item.fc_brand,
+                label: item.fc_brand,
+            }));
+            setBrandOptions(brandOptions);
+
+            const typestock1Options = typestock1Data.map(item => ({
+                value: item.fc_kode,
+                label: item.fv_description,
+            }));
+
+            setTypeStock1Options(typestock1Options);
+
+            const typestock2Options = typestock2Data.map(item => ({
+                value: item.fc_kode,
+                label: item.fv_description,
+            }));
+
+            setTypeStock2Options(typestock2Options);
+            // console.log(typestock2Data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
     
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const token = localStorage.getItem("token");
-                const unityApiUrl = Config.api.server2 + 'get-unity';
-                const brandApiUrl = Config.api.server2 + 'get-brand';
-                const groupByBrandApiUrl = Config.api.server2 + 'stock-group-by-unity';
-                const typestock1ApiUrl = Config.api.server2 + 'get-data-where-field-id-get/TransaksiType/fc_trx/GOODSMATERY';
-                const typestock2ApiUrl = Config.api.server2 + 'get-data-where-field-id-get/TransaksiType/fc_trx/GOODSTRANS';
-
-                const [
-                    getSessionDataResponse,
-                    unityResponse,
-                    brandResponse,
-                    groupByBrandResponse, 
-                    typestock1Response,
-                    typestock2Response
-                ] = await Promise.all([
-                    axios.get(Config.api.server1 + "check-token", {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }),
-                    axios.get(unityApiUrl),
-                    axios.get(brandApiUrl),
-                    axios.get(groupByBrandApiUrl, {
-                        params: {
-                            fc_brand: inputData.fc_brand,
-                        }
-                    }),
-                    axios.get(typestock1ApiUrl),
-                    axios.get(typestock2ApiUrl),
-                ]);
-
-                const sessionBranchData = getSessionDataResponse.data.user.branch;
-                const sessionDivisionCodeData = getSessionDataResponse.data.user.divisioncode;
-                const unityData = unityResponse.data.data;
-                const brandData = brandResponse.data.data;
-                const groupByBrandData = groupByBrandResponse.data.data;
-                const typestock1Data = typestock1Response.data.data;
-                const typestock2Data = typestock2Response.data.data;
-
-                setInputData(prevInputData => ({
-                    ...prevInputData,
-                    fc_branch: sessionBranchData,
-                }));
-
-                setInputData(prevInputData => ({
-                    ...prevInputData,
-                    fc_divisioncode: sessionDivisionCodeData,
-                }));
-
-                const unityOptions = unityData.map((item) => ({
-                    value: item.fc_kode,
-                    label: item.fv_description,
-                }));
-                setNamepackOptions(unityOptions);
-
-                const brandOptions = brandData.map((item) => ({
-                    value: item.fc_brand,
-                    label: item.fc_brand,
-                }));
-                setBrandOptions(brandOptions);
-
-                const typestock1Options = typestock1Data.map(item => ({
-                    value: item.fc_kode,
-                    label: item.fv_description,
-                }));
-
-                setTypeStock1Options(typestock1Options);
-
-                const typestock2Options = typestock2Data.map(item => ({
-                    value: item.fc_kode,
-                    label: item.fv_description,
-                }));
-
-                setTypeStock2Options(typestock2Options);
-                // console.log(typestock2Data);
-            } catch (error) {
-                console.error(error);
-            }
-        };
         fetchData();
 
     }, []);
