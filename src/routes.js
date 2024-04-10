@@ -9,6 +9,7 @@ import LandingPage from './pages/contents/landingpage/landingpage';
 import DashboardMasterBankAccMain from './pages/contents/datamaster/master-bank-acc/DashboardMasterBankAccMain';
 import DashboardMasterDistributorMain from './pages/contents/datamaster/master-distributor/DashboardMasterDistributorMain';
 import CreateRequestBarangMain from './pages/contents/request/create/CreateRequestBarangMain';
+import CreateRequestBarangDetailMain from './pages/contents/request/create/CreateRequestBarangDetailMain';
 
 const RoutesConfig = ({ isLoggedIn }) => (
   <Routes>
@@ -44,6 +45,10 @@ const RoutesConfig = ({ isLoggedIn }) => (
     <Route
      path='/request-barang/create'
         element={isLoggedIn ? <CreateRequestBarangMain /> : <Navigate to="/login" />}
+    />
+    <Route 
+        path='/request-barang/create/detail'
+        element={isLoggedIn ? <CreateRequestBarangDetailMain /> : <Navigate to="/login" />}
     />
   </Routes>
 );

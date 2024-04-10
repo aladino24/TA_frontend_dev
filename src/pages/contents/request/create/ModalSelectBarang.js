@@ -2,13 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import $, { data } from "jquery";
 import axios from "axios";
 import Config from "../../../../config";
+import { useNavigate } from 'react-router-dom';
 
 const ModalSelectBarang = (props) => {
   const tableRef = useRef(null);
   const { id, selectedRowData } = props;
+  let navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
+   const fetchData = async () => {
       try {
         const fc_distributorcode = selectedRowData.fc_distributorcode
           ? btoa(selectedRowData.fc_distributorcode)
@@ -56,26 +57,35 @@ const ModalSelectBarang = (props) => {
             { data: "stock.fc_typestock1" },
             { data: "fc_batch" },
             {
+              data: "stock.fm_price_distributor",
+              render: $.fn.dataTable.render.number(",", ".", 0, "Rp "),
+            },
+            {
               data: null,
             },
           ],
           rowCallback: function (row, data) {
             const actionBtns = `
-                  <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#selectBarang" id="selectButton">
+                  <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#selectButton" id="selectButton">
                       <i class="fas fa-shopping-cart"></i>
                   </button>
                   `;
-            $("td:eq(8)", row).html(actionBtns);
+            $("td:eq(9)", row).html(actionBtns);
 
             $(tableRef.current).on("click", "#selectButton", function () {
-              //modal show
-              window.$("#selectBarang").modal("show");
+              const rowData = table.row($(this).closest("tr")).data();
+              // route to new component
+              // close modal
+              window.$(`#${id}`).modal('hide');
+              navigate('/request-barang/create/detail', { state: { data: rowData } });
             });
           },
         });
       } catch (error) {}
     };
 
+
+  useEffect(() => {
     fetchData();
 
     return () => {
@@ -131,6 +141,7 @@ const ModalSelectBarang = (props) => {
                       <th>Sub Group</th>
                       <th>Tipe Stock</th>
                       <th>Batch</th>
+                      <th>Harga</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -144,6 +155,7 @@ const ModalSelectBarang = (props) => {
                       <th>Sub Group</th>
                       <th>Tipe Stock</th>
                       <th>Batch</th>
+                      <th>Harga</th>
                       <th>Actions</th>
                     </tr>
                   </tfoot>
