@@ -4,6 +4,7 @@ import axios from 'axios';
 import Config from './config';
 import RoutesConfig from './routes';
 import Login from './Login';
+import LandingPage from './pages/contents/landingpage/landingpage';
 
 function App() {
   const [isLoggedIn, setLoggedIn] = useState(false);
@@ -71,8 +72,13 @@ function App() {
   return (
     <BrowserRouter>
          {isLoggedIn ? (
-        <RoutesConfig isLoggedIn={isLoggedIn} />
-      ) : (
+        <RoutesConfig isLoggedIn={isLoggedIn} handleLogin={handleLogin} />
+      ) : 
+      // apakah mengakses route "/"
+      window.location.pathname === "/" ? (
+        <LandingPage/>
+      ) :
+      (
         <Login handleLogin={handleLogin} />
       )}
     </BrowserRouter>
