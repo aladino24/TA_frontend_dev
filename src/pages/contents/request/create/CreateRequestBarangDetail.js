@@ -3,39 +3,54 @@ import { useLocation } from "react-router-dom";
 import Select from 'react-select'
 import Config from "../../../../config";
 import axios from "axios";
+import { fn } from "jquery";
 
 const CreateRequestBarangDetail = () => {
   const location = useLocation();
   const data = location.state.data;
   const [bankOptions, setBankOptions] = useState([]);
-
-  const paymentMethodCodeOptions = [
-    { value: '1', label: '1' },
-    { value: '2', label: '2' },
-    { value: '3', label: '3' },
-  ];
-
+  const [paymentMethodCodeOptions, setPaymentMethodCodeOptions] = useState([]);
+  const [selectedDeskripsiBayar, setSelectedDeskripsiBayar] = useState("");
+  const [inputData, setInputData] = useState({
+    fc_barcode: data.stock.fc_stockcode,
+    fn_quantity: '',
+    fc_paymentmethod_code: '',
+  });
 
 
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const requestBarangApiUrl = Config.api.server3 + "master/bank-name";
-      
+      const paymentMethodCodeApiUrl = Config.api.server3 + "master/payment-method-code";
+      const banknameApiUrl = Config.api.server3 + "master/bank-name";
       
       const [
+        paymentMethodCodeResponse,
         bankResponse
       ] = await Promise.all([
-        axios.get(requestBarangApiUrl, {
+        axios.get(paymentMethodCodeApiUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+        axios.get(banknameApiUrl, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
       ]);
 
+      const paymentMethodCodeData = paymentMethodCodeResponse.data.data;
+      const formattedPaymentMethodCodeData = paymentMethodCodeData.map((paymentMethodCode) => ({
+        value: paymentMethodCode.fv_description,
+        label: paymentMethodCode.fc_kode,
+      }));
+
+      setPaymentMethodCodeOptions(formattedPaymentMethodCodeData);
+
       const bankData = bankResponse.data.data;
       const formattedBankData = bankData.map((bank) => ({
-        value: bank.fv_description,
+        value: bank.fc_kode,
         label: bank.fv_description,
       }));
 
@@ -221,8 +236,16 @@ const CreateRequestBarangDetail = () => {
                       <div className="form-group">
                         <label htmlFor="paymentmethod_code">Kode Metode Pembayaran</label>
                         <Select 
+                          name="fc_paymentmethod_code"
                           options={paymentMethodCodeOptions}
-                          onChange={() => {}}
+                          onChange={(event) => {
+                            const selectedPaymentMethodCode = paymentMethodCodeOptions.find((paymentMethodCode) => paymentMethodCode.label === event.label);
+                            setSelectedDeskripsiBayar(selectedPaymentMethodCode.value);
+                            setInputData({
+                              ...inputData,
+                              fc_paymentmethod_code: event.value,
+                            });
+                          }}
                         />
                       </div>
                     </div>
@@ -233,7 +256,7 @@ const CreateRequestBarangDetail = () => {
                           type="text"
                           className="form-control"
                           id="deskripsi_bayar"
-                          onChange={() => {}}
+                          value={selectedDeskripsiBayar}
                           readOnly
                         />
                       </div>
