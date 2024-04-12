@@ -10,6 +10,8 @@ import DashboardMasterBankAccMain from './pages/contents/datamaster/master-bank-
 import DashboardMasterDistributorMain from './pages/contents/datamaster/master-distributor/DashboardMasterDistributorMain';
 import CreateRequestBarangMain from './pages/contents/request/create/CreateRequestBarangMain';
 import CreateRequestBarangDetailMain from './pages/contents/request/create/CreateRequestBarangDetailMain';
+import DaftarRequestBarang from './pages/contents/request/daftar-request/DaftarRequestBarang';
+import DaftarRequestBarangMain from './pages/contents/request/daftar-request/DaftarRequestBarangMain';
 
 const RoutesConfig = ({ isLoggedIn }) => (
   <Routes>
@@ -49,6 +51,10 @@ const RoutesConfig = ({ isLoggedIn }) => (
     <Route 
         path='/request-barang/create/detail'
         element={isLoggedIn ? <CreateRequestBarangDetailMain /> : <Navigate to="/login" />}
+    />
+    <Route 
+     path='/request-barang/list'
+        element={isLoggedIn ? <DaftarRequestBarangMain /> : <Navigate to="/login" />}
     />
   </Routes>
 );

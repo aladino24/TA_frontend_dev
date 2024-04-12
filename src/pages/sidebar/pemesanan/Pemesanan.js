@@ -21,8 +21,8 @@ const Pemesanan = () => {
                                 <div className="bg-white py-2 collapse-inner rounded">
                                     <h6 className="collapse-header">Menu: </h6>
                                     <Link className="collapse-item" to="/request-barang/create">Tambah Request</Link>
-                                    <a className="collapse-item" href="cards.html">Daftar Request</a>
-                                    <a className="collapse-item" href="cards.html">Status Request</a>
+                                    <Link className="collapse-item" to="/request-barang/list">Daftar Request</Link>
+                                    <a className="collapse-item" href="cards.html">Penerimaan Barang</a>
                                 </div>
                             </div>
                         </li>
