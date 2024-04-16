@@ -32,8 +32,8 @@ const CreateRequestBarang = () => {
               }
 
 
-            const formattedData = responseData ? responseData.map((distributor, index) => ({
-                ...distributor,
+            const formattedData = responseData ? responseData.map((requestData, index) => ({
+                ...requestData,
                 no: index + 1,
               })) : [];
 

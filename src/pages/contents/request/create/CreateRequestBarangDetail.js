@@ -25,7 +25,6 @@ const CreateRequestBarangDetail = () => {
     fc_operator: '',
     fc_membercode: '',
     fc_barcode: data.fc_barcode,
-    fn_quantity: '',
     fc_paymentmethod: '',
     fc_ordercode: '',
     fc_bankpayment: '',
@@ -144,6 +143,7 @@ const CreateRequestBarangDetail = () => {
         setShowError(true);
         setShowLoading(false);
       }
+      // console.log(inputData);
 
     } catch (error) {
       setShowError(true);
@@ -331,20 +331,22 @@ const CreateRequestBarangDetail = () => {
                     </div>
                   </div>
                   <div className="form-group">
-                    <label htmlFor="fn_quantity">Quantity</label>
+                    <label htmlFor="quantity">Quantity</label>
                     <input
                       type="number"
                       className="form-control"
-                      defaultValue="0"
                       id="fn_quantity"
+                      defaultValue={0}
+                      name="fn_quantity"
                       onChange={
                         (event) => {
                           setInputData({
                             ...inputData,
-                            fn_quantity: event.target.value,
-                          });
+                            fn_quantity: event.target.value
+                          })
                         }
                       }
+                      required
                     />
                   </div>
                   <div className="row">
@@ -390,6 +392,7 @@ const CreateRequestBarangDetail = () => {
                           });
                         }
                       }
+                      required
                     />
                   </div>
                   <div className="form-group">
