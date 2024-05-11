@@ -22,13 +22,13 @@ const Pemesanan = () => {
                                     <h6 className="collapse-header">Menu: </h6>
                                     <Link className="collapse-item" to="/request-barang/create">Tambah Request</Link>
                                     <Link className="collapse-item" to="/request-barang/list">Daftar Request</Link>
-                                    <a className="collapse-item" href="cards.html">Penerimaan Barang</a>
+                                    <Link className="collapse-item" to="/request-barang/accept">Penerimaan Barang</Link>
                                 </div>
                             </div>
                         </li>
 
                         {/* <!-- Nav Item - Utilities Collapse Menu --> */}
-                        <li className="nav-item">
+                        {/* <li className="nav-item">
                             <a className="nav-link collapsed" href="#" data-toggle="collapse" data-target="#utilities-pemesanan"
                                 aria-expanded="true" aria-controls="utilities-pemesanan">
                                 <i className="fas fa-fw fa-wrench"></i>
@@ -44,7 +44,7 @@ const Pemesanan = () => {
                                     <a className="collapse-item" href="utilities-other.html">Other</a>
                                 </div>
                             </div>
-                        </li>
+                        </li> */}
         </div>
     );
 }

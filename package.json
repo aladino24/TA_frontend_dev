@@ -12,6 +12,7 @@
     "datatables.net": "^1.13.8",
     "datatables.net-bs4": "^1.13.8",
     "jquery": "^3.7.1",
+    "primereact": "^10.6.5",
     "react": "^18.2.0",
     "react-bootstrap-sweetalert": "^5.2.0",
     "react-dom": "^18.2.0",
@@ -43,5 +44,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.3"
   }
 }

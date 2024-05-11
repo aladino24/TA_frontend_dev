@@ -56,6 +56,7 @@ const ModalSelectBarang = (props) => {
             { data: "stock.fc_subgroup" },
             { data: "stock.fc_typestock1" },
             { data: "fc_batch" },
+            { data: "fd_expired" },
             {
               data: "stock.fm_price_distributor",
               render: $.fn.dataTable.render.number(",", ".", 0, "Rp "),
@@ -70,7 +71,7 @@ const ModalSelectBarang = (props) => {
                       <i class="fas fa-shopping-cart"></i>
                   </button>
                   `;
-            $("td:eq(9)", row).html(actionBtns);
+            $("td:eq(10)", row).html(actionBtns);
 
             $(tableRef.current).on("click", "#selectButton", function () {
               const rowData = table.row($(this).closest("tr")).data();
@@ -141,6 +142,7 @@ const ModalSelectBarang = (props) => {
                       <th>Sub Group</th>
                       <th>Tipe Stock</th>
                       <th>Batch</th>
+                      <th>Tgl.Expired</th>
                       <th>Harga</th>
                       <th>Actions</th>
                     </tr>
@@ -155,6 +157,7 @@ const ModalSelectBarang = (props) => {
                       <th>Sub Group</th>
                       <th>Tipe Stock</th>
                       <th>Batch</th>
+                      <th>Tgl Expired</th>
                       <th>Harga</th>
                       <th>Actions</th>
                     </tr>

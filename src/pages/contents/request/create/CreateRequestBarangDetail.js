@@ -24,6 +24,7 @@ const CreateRequestBarangDetail = () => {
     fc_branch: '',
     fc_operator: '',
     fc_membercode: '',
+    fc_warehousecode: data.fc_warehousecode,
     fc_barcode: data.fc_barcode,
     fc_paymentmethod: '',
     fc_ordercode: '',
@@ -31,7 +32,7 @@ const CreateRequestBarangDetail = () => {
     fm_price: data.stock.fm_price_distributor,
   });
 
-
+  // console.log(data);
     // Fungsi untuk menghasilkan nomor dokumen
     const generateDocumentNumber = () => {
       const today = new Date();
@@ -325,6 +326,21 @@ const CreateRequestBarangDetail = () => {
                           id="fm_price_distributor"
                           value={data.stock.fm_price_distributor.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
                           onChange={() => {}}
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-12">
+                      <div className="form-group">
+                        <label htmlFor="fd_expired">Expired Date</label>
+                        <input
+                          type="date"
+                          className="form-control"
+                          id="fd_expired"
+                          name="fd_expired"
+                          value={data.fd_expired}
                           readOnly
                         />
                       </div>

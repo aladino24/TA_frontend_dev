@@ -26,10 +26,10 @@ const DashboardContent = () => {
                 <div className="row no-gutters align-items-center">
                   <div className="col mr-2">
                     <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                      Earnings (Monthly)
+                      Persediaan Barang
                     </div>
                     <div className="h5 mb-0 font-weight-bold text-gray-800">
-                      $40,000
+                      1200
                     </div>
                   </div>
                   <div className="col-auto">
@@ -47,10 +47,10 @@ const DashboardContent = () => {
                 <div className="row no-gutters align-items-center">
                   <div className="col mr-2">
                     <div className="text-xs font-weight-bold text-success text-uppercase mb-1">
-                      Earnings (Annual)
+                      Pemakaian
                     </div>
                     <div className="h5 mb-0 font-weight-bold text-gray-800">
-                      $215,000
+                      2000
                     </div>
                   </div>
                   <div className="col-auto">
@@ -68,20 +68,12 @@ const DashboardContent = () => {
                 <div className="row no-gutters align-items-center">
                   <div className="col mr-2">
                     <div className="text-xs font-weight-bold text-info text-uppercase mb-1">
-                      Tasks
+                      Barang Diterima
                     </div>
                     <div className="row no-gutters align-items-center">
                       <div className="col-auto">
                         <div className="h5 mb-0 mr-3 font-weight-bold text-gray-800">
-                          50%
-                        </div>
-                      </div>
-                      <div className="col">
-                        <div className="progress progress-sm mr-2">
-                          <div
-                            className="progress-bar bg-info a1"
-                            role="progressbar"
-                          ></div>
+                          10
                         </div>
                       </div>
                     </div>
@@ -101,7 +93,7 @@ const DashboardContent = () => {
                 <div className="row no-gutters align-items-center">
                   <div className="col mr-2">
                     <div className="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                      Pending Requests
+                      Requests
                     </div>
                     <div className="h5 mb-0 font-weight-bold text-gray-800">
                       18
@@ -125,7 +117,7 @@ const DashboardContent = () => {
               {/*  <!-- Card Header - Dropdown --> */}
               <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 className="m-0 font-weight-bold text-primary">
-                  Earnings Overview
+                  Grafik Analisis
                 </h6>
                 <div className="dropdown no-arrow">
                   <a

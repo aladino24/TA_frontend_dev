@@ -12,6 +12,8 @@ import CreateRequestBarangMain from './pages/contents/request/create/CreateReque
 import CreateRequestBarangDetailMain from './pages/contents/request/create/CreateRequestBarangDetailMain';
 import DaftarRequestBarang from './pages/contents/request/daftar-request/DaftarRequestBarang';
 import DaftarRequestBarangMain from './pages/contents/request/daftar-request/DaftarRequestBarangMain';
+import PenerimaanBarangMain from './pages/contents/request/penerimaan-barang/PenerimaanBarangMain';
+import PersediaanBarangMain from './pages/contents/persediaan-barang/PersediaanBarangMain';
 
 const RoutesConfig = ({ isLoggedIn }) => (
   <Routes>
@@ -55,6 +57,14 @@ const RoutesConfig = ({ isLoggedIn }) => (
     <Route 
      path='/request-barang/list'
         element={isLoggedIn ? <DaftarRequestBarangMain /> : <Navigate to="/login" />}
+    />
+    <Route 
+      path='/request-barang/accept'
+      element={isLoggedIn ? <PenerimaanBarangMain /> : <Navigate to="/login" />}
+    />
+    <Route
+       path='/persediaan-barang'
+       element={isLoggedIn ? <PersediaanBarangMain /> : <Navigate to="/login" />}
     />
   </Routes>
 );
