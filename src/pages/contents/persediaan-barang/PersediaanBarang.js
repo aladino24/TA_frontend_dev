@@ -11,9 +11,12 @@ import { useEffect } from "react";
 import axios from "axios";
 import Config from "../../../config";
 import { Button } from "primereact/button";
+import ModalPersediaanBarang from "./ModalPersediaanBarang";
 
 const PersediaanBarang = () => {
     const [data, setData] = useState([]);
+    const [selectedRowData, setSelectedRowData] = useState(null);
+    const [showModal, setShowModal] = useState(false)
 
     useEffect(() => {
         fetchData();
@@ -51,15 +54,20 @@ const PersediaanBarang = () => {
 
     const renderActionButtons = (rowData) => {
         return (
-            <Button label="Detail" severity="info" className="pl-3 pr-3 rounded-lg" />
+            <Button label="Detail" severity="info" className="pl-3 pr-3 rounded-lg" onClick={() => handleDetailClick(rowData)} />
         );
+    };
+
+    const handleDetailClick = (rowData) => {
+        setSelectedRowData(rowData);
+        window.$('#selectStock').modal('show');
     };
     
 
     const header = renderHeader();
 
     return (
-       
+       <>
         <div className="App">
             <div className="container-fluid">
                 <DataTable value={data} header={header} paginator rows={20} showGridlines  sortMode='multiple'  size={'large'} tableStyle={{ minWidth: '90rem', height:'50rem',border: '1px solid black'  }} >
@@ -71,10 +79,12 @@ const PersediaanBarang = () => {
                     <Column field="stock.fc_subgroup" header="Sub Group" align={"center"} sortable/>
                     <Column field="stock.fc_typestock1" header="Tipe Stock" align={"center"} sortable/>
                     <Column field="fn_quantity" header="Qty" align={"center"} sortable/>
-                    <Column header="Action" align={"center"} body={renderActionButtons} />
+                    <Column header="Action" align={"center"} body={(rowData) => renderActionButtons(rowData)} />
                 </DataTable>
             </div>
         </div>
+        {selectedRowData && <ModalPersediaanBarang id="selectStock" selectedRowData={selectedRowData} />}
+        </>
     );
 }
 
