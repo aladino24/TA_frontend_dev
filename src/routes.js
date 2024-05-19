@@ -14,6 +14,9 @@ import DaftarRequestBarang from './pages/contents/request/daftar-request/DaftarR
 import DaftarRequestBarangMain from './pages/contents/request/daftar-request/DaftarRequestBarangMain';
 import PenerimaanBarangMain from './pages/contents/request/penerimaan-barang/PenerimaanBarangMain';
 import PersediaanBarangMain from './pages/contents/persediaan-barang/PersediaanBarangMain';
+import PemakaianBarangMain from './pages/contents/pemakaian-barang/PemakaianBarangMain';
+import PemakaianBarangMaster from './pages/contents/pemakaian-barang/PemakaianBarangMaster';
+import PemakaianBarangDetail from './pages/contents/pemakaian-barang/PemakaianBarangDetail';
 
 const RoutesConfig = ({ isLoggedIn }) => (
   <Routes>
@@ -66,6 +69,10 @@ const RoutesConfig = ({ isLoggedIn }) => (
        path='/persediaan-barang'
        element={isLoggedIn ? <PersediaanBarangMain /> : <Navigate to="/login" />}
     />
+     <Route path="/pemakaian-barang/*" element={isLoggedIn ? <PemakaianBarangMain /> : <Navigate to="/login" />}>
+        <Route path="detail" element={<PemakaianBarangDetail />} />
+        <Route path="master" element={<PemakaianBarangMaster />} />
+      </Route>
   </Routes>
 );
 

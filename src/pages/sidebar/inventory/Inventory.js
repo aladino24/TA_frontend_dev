@@ -27,9 +27,10 @@ const Inventory = () => {
 
                         {/* <!-- Nav Item - Charts --> */}
                         <li className="nav-item">
-                            <a className="nav-link" href="charts.html">
-                                <i className="fas fa-fw fa-chart-area"></i>
-                                <span>Pemakaian</span></a>
+                            <Link className="nav-link" to="/pemakaian-barang">
+                             <i class="fas fa-fw fa-search"></i>
+                                <span>Pemakaian</span>
+                            </Link>
                         </li>
 
                         {/*  <!-- Nav Item - Tables --> */}

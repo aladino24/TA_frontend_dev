@@ -1,7 +1,35 @@
-import React from "react";
+import axios from "axios";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
+import React, { useEffect, useState } from "react";
+import Config from "../../../config";
 
 const ModalPersediaanBarang = (props) => {
     const { id, selectedRowData} = props;
+    const [data, setData] = useState([]);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        const token = localStorage.getItem('token');
+        const axiosConfig = {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
+          try {
+              const response = await axios.get(Config.api.server2 + "persediaan-barang/datatables_detail_inventory/" + btoa(selectedRowData.stock.fc_stockcode), axiosConfig);
+              const responseData = response.data.data;
+              console.log(responseData);
+              setData(responseData); 
+          } catch (error) {
+              console.error('Error fetching data:', error);
+          }
+      };
+
+      if (selectedRowData && selectedRowData.stock && selectedRowData.stock.fc_stockcode) {
+          fetchData();
+      }
+  }, [selectedRowData]);
     return (
         <div
         className="modal fade"
@@ -31,45 +59,13 @@ const ModalPersediaanBarang = (props) => {
             </div>
             <div className="modal-body">
               <div className="card-body">
-                <div className="table-responsive">
-                  <table
-                    className="table table-bordered mt-2"
-                    id="dataTable"
-                    width="100%"
-                    cellSpacing="0"
-                  >
-                    <thead className="bg-primary text-light">
-                      <tr>
-                        <th>No</th>
-                        <th>Kode Barang</th>
-                        <th>Nama Barang</th>
-                        <th>Sebutan</th>
-                        <th>Brand</th>
-                        <th>Sub Group</th>
-                        <th>Tipe Stock</th>
-                        <th>Batch</th>
-                        <th>Tgl.Expired</th>
-                        <th>Harga</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tfoot className="bg-primary text-light">
-                      <tr>
-                        <th>No</th>
-                        <th>Kode Barang</th>
-                        <th>Nama Barang</th>
-                        <th>Sebutan</th>
-                        <th>Brand</th>
-                        <th>Sub Group</th>
-                        <th>Tipe Stock</th>
-                        <th>Batch</th>
-                        <th>Tgl Expired</th>
-                        <th>Harga</th>
-                        <th>Actions</th>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
+                <DataTable value={data} paginator rows={20} showGridlines  sortMode='multiple'   tableStyle={{border: '1px solid black'  }}>
+                  <Column field="DT_RowIndex" header="No" align={'center'}/>
+                  <Column field="stock.fc_stockcode" header="Kode Barang" align={'center'}/>
+                  <Column field="fd_expired" header="Expired Date" align={'center'}/>
+                  <Column field="fc_batch" header="Batch" align={'center'}/>
+                  <Column field="fn_quantity" header="Qty" align={'center'}/>
+                </DataTable>
               </div>
             </div>
             <div className="modal-footer">
