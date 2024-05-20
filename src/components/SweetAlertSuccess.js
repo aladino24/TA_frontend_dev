@@ -1,13 +1,13 @@
 import React from "react";
 import SweetAlert from "react-bootstrap-sweetalert";
 
-const SweetAlertSuccess = ({ show, message, onClose}) => {
+const SweetAlertSuccess = ({ show, message, onConfirm}) => {
     return (
         <SweetAlert
             success
             show={show}
             title="Success!"
-            onConfirm={onClose}
+            onConfirm={onConfirm}
             confirmBtnText="OK"
         >
             {message}

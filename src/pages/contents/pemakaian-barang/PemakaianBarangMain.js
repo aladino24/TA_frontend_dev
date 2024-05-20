@@ -1,26 +1,46 @@
-import React, { useEffect } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { Route, Routes, useNavigate, Navigate } from "react-router-dom";
+import Config from "../../../config";
 import DashboardMain from "../dashboard/DashboardMain";
 import PemakaianBarangDetail from "./PemakaianBarangDetail";
 import PemakaianBarangMaster from "./PemakaianBarangMaster";
+import SweetAlertLoading from "../../../components/SweetAlertLoading";
 
 const PemakaianBarangMain = () => {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const [isSuccess, setIsSuccess] = useState(null);
+    const [responseData, setResponseData] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
+            const token = localStorage.getItem('token');
+            const axiosConfig = {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            };
             try {
-                const response = await fetch("http://127.0.0.1:8001/api/pemakaian-barang/status-usage-master");
-                const data = await response.json();
+                const response = await axios.get(
+                    Config.api.server2 + "pemakaian-barang/status-usage-master",
+                    axiosConfig
+                );
+                const data = response.data;
+
+                setIsSuccess(data.success);
+                setResponseData(data);
 
                 if (data.success) {
-                    navigate("/pemakaian-barang/detail");
+                    navigate("/pemakaian-barang/detail", { state: { responseData: data } });
                 } else {
                     navigate("/pemakaian-barang/master");
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
-                // Handle the error as needed, e.g., navigate to an error page or show an error message
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -29,10 +49,13 @@ const PemakaianBarangMain = () => {
 
     return (
         <DashboardMain>
-            <Routes>
-                <Route path="/detail" element={<PemakaianBarangDetail />} />
-                <Route path="/master" element={<PemakaianBarangMaster />} />
-            </Routes>
+            <SweetAlertLoading show={loading} />
+            {!loading && (
+                <Routes>
+                    <Route path="/detail" element={isSuccess ? <PemakaianBarangDetail /> : <Navigate to="/pemakaian-barang/master" />} />
+                    <Route path="/master" element={!isSuccess ? <PemakaianBarangMaster /> : <Navigate to="/pemakaian-barang/detail" />} />
+                </Routes>
+            )}
         </DashboardMain>
     );
 }

@@ -2,6 +2,9 @@ import React from "react";
 import SweetAlert from "react-bootstrap-sweetalert";
 
 const SweetAlertLoading = ({show}) => {
+    const onConfirm = () => {
+        console.log("Default onConfirm function");
+    };
     return (
         <SweetAlert
             show={show}
@@ -15,6 +18,7 @@ const SweetAlertLoading = ({show}) => {
             showCancel={false}
             customClass=""
             closeOnClickOutside={false}
+            onConfirm={onConfirm}
         >
             Please wait...
         </SweetAlert>
