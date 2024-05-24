@@ -20,7 +20,7 @@ const PemakaianBarangDetail = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [showAlertSuccess, setShowAlertSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [barcodeData, setBarcodeData] = useState(""); // State to hold the scanned barcode data
+    const [detailData, setDetailData] = useState(""); // State to hold the scanned barcode data
     const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
 
     const [formValues, setFormValues] = useState({
@@ -34,7 +34,7 @@ const PemakaianBarangDetail = () => {
     });
 
     useEffect(() => {
-        setBarcodeData("032903791900000000000000000000000000000965296001000000031122023");
+        setDetailData();
         if (responseValue) {
             setFormValues({
                 fc_patient_id: responseValue.patient.fc_patient_id || "",
@@ -54,7 +54,6 @@ const PemakaianBarangDetail = () => {
 
             const onScanSuccess = (decodedText) => {
                 audio.play();
-                setBarcodeData(decodedText); 
                 document.getElementById('result').value = decodedText;
             };
 
@@ -94,8 +93,33 @@ const PemakaianBarangDetail = () => {
         setIsCameraAccessGranted(true);
     };
 
-    const clickModalBarcode = () => {
-        setIsModalOpen(true); // Open the modal
+    const clickModalBarcode = async() => {
+        setLoading(true);
+        const barcodeValue = document.getElementById('result').value;
+        const encodedBarcode = btoa(barcodeValue);
+
+        // config
+        const token = localStorage.getItem('token');
+        const axiosConfig = {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        };
+
+        try {
+            const response = await axios.get(
+                `${Config.api.server2}pemakaian-barang/detail-barang/${encodedBarcode}`, 
+                axiosConfig
+            );
+            setLoading(false);
+            setDetailData(response.data.data); // assuming the data structure contains a `data` property
+            setIsModalOpen(true); // Open the modal
+        } catch (error) {
+            setLoading(false);
+            setErrorMessage("Failed to fetch barcode details");
+            setShowErrorAlert(true);
+        }
     };
 
     const handleDelete = () => {
@@ -297,10 +321,13 @@ const PemakaianBarangDetail = () => {
                                         <thead>
                                             <tr>
                                                 <th>No</th>
+                                                <th>Kode Barang</th>
                                                 <th>Nama Barang</th>
-                                                <th>Jumlah</th>
                                                 <th>Satuan</th>
-                                                <th>Keterangan</th>
+                                                <th>Harga</th>
+                                                <th>Qty</th>
+                                                <th>Total</th>
+                                                <th>Catatan</th>
                                                 <th>Aksi</th>
                                             </tr>
                                         </thead>
@@ -337,11 +364,7 @@ const PemakaianBarangDetail = () => {
                 onConfirm={handleCloseAlertError}
              />
 
-            <BarcodeDetailModal
-                isOpen={isModalOpen}
-                onRequestClose={() => setIsModalOpen(false)}
-                barcodeData={barcodeData}
-            />
+            {isModalOpen && <BarcodeDetailModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} data={detailData} />}
         </div>
     );
 }
