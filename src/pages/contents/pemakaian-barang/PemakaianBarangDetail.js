@@ -13,7 +13,6 @@ import BarcodeDetailModal from './components/BarcodeDetailModal'; // Import the 
 const PemakaianBarangDetail = () => {
     const location = useLocation();
     const responseValue = location.state?.responseData?.data;
-
     const [isCameraAccessGranted, setIsCameraAccessGranted] = useState(false);
     const [showConfirmationAlert, setShowConfirmationAlert] = useState(false);
     const [showErrorAlert, setShowErrorAlert] = useState(false);
@@ -113,7 +112,11 @@ const PemakaianBarangDetail = () => {
                 axiosConfig
             );
             setLoading(false);
-            setDetailData(response.data.data); // assuming the data structure contains a `data` property
+            const data = response.data.data;
+            setDetailData({
+                ...data,
+                fi_usage_id: responseValue.fi_usage_id,
+            }); 
             setIsModalOpen(true); // Open the modal
         } catch (error) {
             setLoading(false);
