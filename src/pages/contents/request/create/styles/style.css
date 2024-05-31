@@ -5,3 +5,42 @@
 .dataTables_length {
     float: left;
 }
+
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .card-header-action {
+    margin-left: auto;
+  }
+  
+  .collapse-toggle {
+    width: 30px; /* Adjust the size as needed */
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  
+  .card-header h4 {
+    margin-bottom: 0;
+  }
+  
+  .container {
+    margin-top: 20px; /* Adjust the spacing as needed */
+  }
+
+  .full-width-container {
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 5px 20px;
+    margin-bottom: 20px;
+    background-color: white; /* Add white background */
+    border-radius: 8px; /* Add rounded borders */
+  }
+  
+  

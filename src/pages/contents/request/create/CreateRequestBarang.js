@@ -1,185 +1,296 @@
-import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
-import Config from "../../../../config";
-import $, { data } from "jquery";
+import React, { useState } from "react";
+import moment from "moment";
 import "./styles/style.css";
-import ModalSelectBarang from "./ModalSelectBarang";
 
 const CreateRequestBarang = () => {
-    const tableRef = useRef(null);
-    const [selectedRowData, setSelectedRowData] = useState(null);
+  const [supplierCode, setSupplierCode] = useState("");
+  const [statusPkp, setStatusPkp] = useState("");
+  const user = {
+    fc_branch: "branchCode", // Replace with actual data
+    fc_username: "username" // Replace with actual data
+  };
 
-    const fetchData = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const axiosConfig = {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            };
+  const handleSupplierClick = () => {
+    console.log("Supplier modal clicked");
+  };
 
-            const response = await axios.get(
-                Config.api.server3 + "master/datatables-distributor",
-                axiosConfig
-            );
-
-            const responseData = response.data.data;
-            if ($.fn.DataTable.isDataTable("#dataTable")) {
-                // If it is initialized, destroy it before reinitializing
-                const existingTable = $(tableRef.current).DataTable();
-                existingTable.destroy();
-              }
-
-
-            const formattedData = responseData ? responseData.map((requestData, index) => ({
-                ...requestData,
-                no: index + 1,
-              })) : [];
-
-              const table = $(tableRef.current).DataTable({
-                responsive: true,
-                processing: true,
-                serverSide: false, // Ubah menjadi true jika ingin implementasi server-side processing
-                data: formattedData,
-                columnDefs: [
-                ],
-                columns: [
-                    {data: "no"},
-                    {data: "fc_divisioncode"},
-                    {data: "branch.fv_description"},
-                    {data: "fc_distributorcode"},
-                    {data: "fc_distributorname1"},
-                    {
-                        data: null,
-                    }
-                ],
-                rowCallback: function(row, data) {
-                    const actionBtns = `
-                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#selectBarang" id="selectButton">
-                        <i class="fas fa-shopping-cart"></i>
-                    </button>
-                    `;
-                    $("td:eq(5)", row).html(actionBtns);
-
-                    $(tableRef.current).on("click", "#selectButton", function () {
-                        const rowData = table.row($(this).closest("tr")).data();
-                        setSelectedRowData(rowData);
-                        //modal show
-                        window.$('#selectBarang').modal('show');
-                      });
-                },
-                
-                });
-        } catch (error) {
-            
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-        return () => {
-            // Hancurkan DataTable saat komponen dilepas
-            const existingTable = $(tableRef.current).DataTable();
-            existingTable.destroy();
-          };
-    }, []);
-
-
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Form submitted");
+  };
 
   return (
     <>
       <div className="container-fluid">
-        <div className="d-sm-flex align-items-center mb-2">
-          <h1 className="h3 mb-0 text-gray-800">Buat Request</h1>
+        <div className="full-width-container">
+          <h3>Request Barang</h3>
         </div>
-
         <div className="row">
-          {/*   <!-- Area Chart --> */}
-          <div className="col-xl-12 col-lg-12">
-            <div className="card shadow mb-4">
-              {/*  <!-- Card Header - Dropdown --> */}
-              <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 className="m-0 font-weight-bold text-primary">
-                  Daftar Gudang Distributor
-                </h6>
-                <div className="dropdown no-arrow">
-                  <a
-                    className="dropdown-toggle"
-                    href="#"
-                    role="button"
-                    id="dropdownMenuLink"
-                    data-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
+          <div className="col-12 col-md-4 col-lg-4">
+            <div className="card">
+              <div className="card-header d-flex justify-between">
+                <h4>Informasi Umum</h4>
+                <div className="card-header-action">
+                  <button
+                    className="btn btn-icon btn-info"
+                    data-toggle="collapse"
+                    data-target="#mycard-collapse"
+                    aria-expanded="true"
+                    aria-controls="mycard-collapse"
                   >
-                    <i className="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                  </a>
-                  <div
-                    className="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                    aria-labelledby="dropdownMenuLink"
-                  >
-                    <div className="dropdown-header">Dropdown Header:</div>
-                    <a className="dropdown-item" href="#">
-                      Action
-                    </a>
-                    <a className="dropdown-item" href="#">
-                      Another action
-                    </a>
-                    <div className="dropdown-divider"></div>
-                    <a className="dropdown-item" href="#">
-                      Something else here
-                    </a>
-                  </div>
+                    <i className="fas fa-minus"></i>
+                  </button>
                 </div>
               </div>
-              {/*  <!-- Card Body --> */}
-
-             <div className="card-body">
-                <div className="table-responsive">
-                <table
-                className="table table-bordered mt-2"
-                ref={tableRef}
-                id="dataTable"
-                width="100%"
-                cellSpacing="0"
-             >
-                    <thead className="bg-primary text-light">
-                    <tr>
-                        <th>No</th>
-                        <th>Division</th>
-                        <th>Cabang</th>
-                        <th>Kode Distributor</th>
-                        <th>Nama Gudang Distributor</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                    <tfoot>
-                    <tr>
-                    <th>No</th>
-                        <th>Division</th>
-                        <th>Cabang</th>
-                        <th>Kode Distributor</th>
-                        <th>Nama Gudang Distributor</th>
-                        <th>Action</th>
-                    </tr>
-                    </tfoot>
-                </table>
+              <input type="text" id="fc_branch" value={user.fc_branch} hidden />
+              <form
+                id="form_submit"
+                action="/apps/purchase-order/store-update"
+                method="POST"
+                autoComplete="off"
+                onSubmit={handleSubmit}
+              >
+                <div className="collapse show" id="mycard-collapse">
+                  <div className="card-body">
+                    <div className="row">
+                      <div className="col-12 col-md-12 col-lg-12">
+                        <div className="form-group">
+                          <label>Tanggal: {moment().format("DD/MM/YYYY")}</label>
+                        </div>
+                      </div>
+                      <div className="col-12 col-md-12 col-lg-6">
+                        <div className="form-group">
+                          <label>Operator</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name=""
+                            id=""
+                            value={user.fc_username}
+                            readOnly
+                          />
+                        </div>
+                      </div>
+                      <div className="col-12 col-md-6 col-lg-6">
+                        <div className="form-group">
+                          <label>PO Type</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="fc_potype"
+                            name="fc_potype"
+                            value="PO Beli"
+                            readOnly
+                          />
+                        </div>
+                      </div>
+                      <div className="col-12 col-md-6 col-lg-6">
+                        <div className="form-group required">
+                          <label>Supplier Code</label>
+                          <div className="input-group mb-3">
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="fc_suppliercode"
+                              name="fc_suppliercode"
+                              value={supplierCode}
+                              readOnly
+                            />
+                            <div className="input-group-append">
+                              <button
+                                className="btn btn-primary"
+                                type="button"
+                                onClick={handleSupplierClick}
+                              >
+                                <i className="fa fa-search"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-12 col-md-6 col-lg-6">
+                        <div className="form-group">
+                          <label>Status PKP</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="status_pkp"
+                            name="fc_status_pkp"
+                            value={statusPkp}
+                            readOnly
+                          />
+                        </div>
+                      </div>
+                      <div className="col-12 col-md-12 col-lg-12 text-right">
+                        <button type="submit" className="btn btn-success">
+                          Save Changes
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-             </div>
-
-
-        
-
-
+              </form>
             </div>
           </div>
 
-  
+          <div className="col-12 col-md-8 col-lg-8">
+            <div className="card">
+              <div className="card-header">
+                <h4>Detail Supplier</h4>
+                <div className="card-header-action">
+                  <button
+                    className="btn btn-icon btn-info"
+                    data-toggle="collapse"
+                    data-target="#mycard-collapse2"
+                    aria-expanded="true"
+                    aria-controls="mycard-collapse2"
+                  >
+                    <i className="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div className="collapse show" id="mycard-collapse2">
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-4 col-md-4 col-lg-4">
+                      <div className="form-group">
+                        <label>NPWP</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fc_supplierNPWP"
+                          id="fc_supplierNPWP"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                    <div className="col-4 col-md-4 col-lg-4">
+                      <div className="form-group">
+                        <label>Tipe Cabang</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fc_branchtype"
+                          id="fc_branchtype"
+                          readOnly
+                          hidden
+                        />
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fc_branchtype_desc"
+                          id="fc_branchtype_desc"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                    <div className="col-4 col-md-4 col-lg-4">
+                      <div className="form-group">
+                        <label>Tipe Bisnis</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fc_suppliertypebusiness"
+                          id="fc_suppliertypebusiness"
+                          readOnly
+                          hidden
+                        />
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fc_suppliertypebusiness_desc"
+                          id="fc_suppliertypebusiness_desc"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                    <div className="col-4 col-md-4 col-lg-4">
+                      <div className="form-group">
+                        <label>Nama</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fc_suppliername1"
+                          id="fc_suppliername1"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                    <div className="col-4 col-md-4 col-lg-4">
+                      <div className="form-group">
+                        <label>Telepon</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fc_supplierphone1"
+                          id="fc_supplierphone1"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                    <div className="col-4 col-md-4 col-lg-4">
+                      <div className="form-group">
+                        <label>Masa Hutang</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fn_supplierAgingAR"
+                          id="fn_supplierAgingAR"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                    <div className="col-4 col-md-4 col-lg-4">
+                      <div className="form-group">
+                        <label>Legal Status</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fc_supplierlegalstatus"
+                          id="fc_supplierlegalstatus"
+                          readOnly
+                          hidden
+                        />
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fc_supplierlegalstatus_desc"
+                          id="fc_supplierlegalstatus_desc"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                    <div className="col-4 col-md-4 col-lg-4">
+                      <div className="form-group">
+                        <label>Alamat</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fc_supplier_npwpaddress1"
+                          id="fc_supplier_npwpaddress1"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                    <div className="col-4 col-md-4 col-lg-4">
+                      <div className="form-group">
+                        <label>Hutang</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fm_supplierAR"
+                          id="fm_supplierAR"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <ModalSelectBarang id="selectBarang" selectedRowData={selectedRowData}/>
     </>
   );
 };
