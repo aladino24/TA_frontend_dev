@@ -9,6 +9,15 @@ import SweetAlertLoading from "../../../components/SweetAlertLoading";
 import SweetAlertSuccess from "../../../components/SweetAlertSuccess";
 import SweetAlertError from "../../../components/SweetAlertError";
 import BarcodeDetailModal from './components/BarcodeDetailModal'; // Import the modal component
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+import "primereact/resources/primereact.min.css";
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
+import { InputText } from "primereact/inputtext";
+import { Button } from "primereact/button";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
+
 
 const PemakaianBarangDetail = () => {
     const location = useLocation();
@@ -19,8 +28,9 @@ const PemakaianBarangDetail = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [showAlertSuccess, setShowAlertSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [detailData, setDetailData] = useState(""); // State to hold the scanned barcode data
-    const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
+    const [detailData, setDetailData] = useState(""); 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [usageDetailData, setUsageDetailData] = useState([]);
 
     const [formValues, setFormValues] = useState({
         fc_patient_id: "",
@@ -33,6 +43,7 @@ const PemakaianBarangDetail = () => {
     });
 
     useEffect(() => {
+        // console.log(responseValue);
         setDetailData();
         if (responseValue) {
             setFormValues({
@@ -170,6 +181,55 @@ const PemakaianBarangDetail = () => {
         }
     }
 
+    const fetchUsageDetail = async() => {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const axiosConfig = {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        };
+        try {
+            const response = await axios.get(
+                Config.api.server2 + "pemakaian-barang/datatables-usage-detail/" + responseValue.fi_usage_id,
+                axiosConfig
+            );
+
+            const  responseData = response.data;
+            setUsageDetailData(responseData.data);
+            setLoading(false);
+           
+        } catch (error) {
+            setErrorMessage("Error: " + error.message);
+            setShowErrorAlert(true);
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        fetchUsageDetail();
+    }, []);
+
+    const handleDeleteDetail = () => {
+
+    }
+
+    const totalBodyTemplate = (rowData) => {
+        return (rowData.invstore.stock.fm_price_default * rowData.fn_quantity_used).toLocaleString();
+    }
+
+    const actionBodyTemplate = (rowData) => {
+        return (
+            <Button 
+                label="Delete" 
+                icon="pi pi-trash" 
+                className="custom-rounded-button p-button-danger pl-2 pr-2"  
+                onClick={() => handleDeleteDetail(rowData)} 
+            />
+        );
+    };
+    
     const handleCancelConfirmation = () => {
         setShowConfirmationAlert(false);
     };
@@ -320,24 +380,17 @@ const PemakaianBarangDetail = () => {
                                 {/* Tabel detail penggunaan */}
                                 <h4 className="card-title">Detail Pemakaian Barang</h4>
                                 <div className="table-responsive">
-                                    <table className="table table-bordered" id="dataTable" width="100%" cellSpacing="0">
-                                        <thead>
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Kode Barang</th>
-                                                <th>Nama Barang</th>
-                                                <th>Satuan</th>
-                                                <th>Harga</th>
-                                                <th>Qty</th>
-                                                <th>Total</th>
-                                                <th>Catatan</th>
-                                                <th>Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {/* Add table rows here */}
-                                        </tbody>
-                                    </table>
+                                    <DataTable value={usageDetailData} paginator rows={10} rowsPerPageOptions={[5, 10, 20]}>
+                                        <Column field="DT_RowIndex" header="No" />
+                                        <Column field="fc_stockcode" header="Kode Barang" />
+                                        <Column field="invstore.stock.fc_namelong" header="Nama Barang" />
+                                        <Column field="invstore.stock.fc_namepack" header="Satuan" />
+                                        <Column field="invstore.stock.fm_price_default" header="Harga" />
+                                        <Column field="fn_quantity_used" header="Qty" />
+                                        <Column field={totalBodyTemplate} header="Total" />
+                                        <Column field="" header="Catatan" />
+                                        <Column body={actionBodyTemplate} header="Aksi" />
+                                    </DataTable>
                                 </div>
                             </div>
                          </div>
@@ -367,7 +420,7 @@ const PemakaianBarangDetail = () => {
                 onConfirm={handleCloseAlertError}
              />
 
-            {isModalOpen && <BarcodeDetailModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} data={detailData} />}
+            {isModalOpen && <BarcodeDetailModal isOpen={isModalOpen} onUpdate={fetchUsageDetail} onRequestClose={() => setIsModalOpen(false)} data={detailData} />}
         </div>
     );
 }

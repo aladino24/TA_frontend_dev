@@ -4,7 +4,7 @@ import Config from '../../../../config';
 import SweetAlertLoading from '../../../../components/SweetAlertLoading';
 import SweetAlertError from '../../../../components/SweetAlertError';
 
-const BarcodeDetailModal = ({ isOpen, onRequestClose, data }) => {
+const BarcodeDetailModal = ({ isOpen,onUpdate, onRequestClose, data }) => {
     const [quantityUsed, setQuantityUsed] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -41,7 +41,7 @@ const BarcodeDetailModal = ({ isOpen, onRequestClose, data }) => {
                 console.log('Success:', response.data);
                 setLoading(false);
                 onRequestClose();
-                window.location.reload(); // Reload the page on success
+                onUpdate();
             } else {
                 console.error('Error:', response.data);
                 setLoading(false);
