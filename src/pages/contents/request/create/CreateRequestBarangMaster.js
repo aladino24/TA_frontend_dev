@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import moment from "moment";
 import "./styles/style.css";
 
-const CreateRequestBarang = () => {
+const CreateRequestBarangMaster = () => {
   const [supplierCode, setSupplierCode] = useState("");
   const [statusPkp, setStatusPkp] = useState("");
   const user = {
@@ -289,10 +289,12 @@ const CreateRequestBarang = () => {
               </div>
             </div>
           </div>
+
+          
         </div>
       </div>
     </>
   );
 };
 
-export default CreateRequestBarang;
+export default CreateRequestBarangMaster;

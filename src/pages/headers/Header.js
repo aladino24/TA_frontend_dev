@@ -157,7 +157,7 @@ const Header = ({ changeStyle }) => {
               className="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
               aria-labelledby="alertsDropdown"
             >
-              <h6 className="dropdown-header">Alerts Center</h6>
+              <h6 className="dropdown-header">Notification</h6>
               <a className="dropdown-item d-flex align-items-center" href="#">
                 <div className="mr-3">
                   <div className="icon-circle bg-primary">

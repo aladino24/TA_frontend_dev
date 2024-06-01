@@ -1,14 +1,16 @@
 import React from "react";
 import DashboardMain from "../../dashboard/DashboardMain";
 import { Route, Routes } from "react-router-dom";
-import CreateRequestBarang from "./CreateRequestBarang";
+import CreateRequestBarangMaster from "./CreateRequestBarangMaster";
+import CreateRequestBarangDetail from "./CreateRequestBarangDetail";
 
 const CreateRequestBarangMain = () => {
     return (
         <>
           <DashboardMain>
               <Routes>
-                    <Route path="/" element={<CreateRequestBarang />} />
+                    <Route path="/master" element={<CreateRequestBarangMaster />} />
+                    <Route path="/detail" element={<CreateRequestBarangDetail />} />
               </Routes>
           </DashboardMain>
         </>

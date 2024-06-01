@@ -5,30 +5,30 @@ import { Link } from "react-router-dom";
 const Pemesanan = () => {
     return (
         <div>
-                               {/*   <!-- Heading --> */}
-                               <div className="sidebar-heading">
-                            Pemesanan
-                        </div>
+            {/*   <!-- Heading --> */}
+            <div className="sidebar-heading">
+                Pemesanan
+            </div>
 
-                        {/*  <!-- Nav Item - Pages Collapse Menu --> */}
-                        <li className="nav-item">
-                            <a className="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-                                aria-expanded="true" aria-controls="collapseTwo">
-                                <i className="fa fa-shopping-basket"></i>
-                                <span>Request Barang</span>
-                            </a>
-                            <div id="collapseTwo" className="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                                <div className="bg-white py-2 collapse-inner rounded">
-                                    <h6 className="collapse-header">Menu: </h6>
-                                    <Link className="collapse-item" to="/request-barang/create">Tambah Request</Link>
-                                    <Link className="collapse-item" to="/request-barang/list">Daftar Request</Link>
-                                    <Link className="collapse-item" to="/request-barang/accept">Penerimaan Barang</Link>
-                                </div>
-                            </div>
-                        </li>
+            {/*  <!-- Nav Item - Pages Collapse Menu --> */}
+            <li className="nav-item">
+                <a className="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i className="fa fa-shopping-basket"></i>
+                    <span>Request Barang</span>
+                </a>
+                <div id="collapseTwo" className="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div className="bg-white py-2 collapse-inner rounded">
+                        <h6 className="collapse-header">Menu: </h6>
+                        <Link className="collapse-item" to="/request-barang/create/master">Tambah Request</Link>
+                        <Link className="collapse-item" to="/request-barang/list">Daftar Request</Link>
+                        <Link className="collapse-item" to="/request-barang/accept">Penerimaan Barang</Link>
+                    </div>
+                </div>
+            </li>
 
-                        {/* <!-- Nav Item - Utilities Collapse Menu --> */}
-                        {/* <li className="nav-item">
+            {/* <!-- Nav Item - Utilities Collapse Menu --> */}
+            {/* <li className="nav-item">
                             <a className="nav-link collapsed" href="#" data-toggle="collapse" data-target="#utilities-pemesanan"
                                 aria-expanded="true" aria-controls="utilities-pemesanan">
                                 <i className="fas fa-fw fa-wrench"></i>

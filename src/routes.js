@@ -17,6 +17,8 @@ import PersediaanBarangMain from './pages/contents/persediaan-barang/PersediaanB
 import PemakaianBarangMain from './pages/contents/pemakaian-barang/PemakaianBarangMain';
 import PemakaianBarangMaster from './pages/contents/pemakaian-barang/PemakaianBarangMaster';
 import PemakaianBarangDetail from './pages/contents/pemakaian-barang/PemakaianBarangDetail';
+import CreateRequestBarangDetail from './pages/contents/request/create/CreateRequestBarangDetail';
+import CreateRequestBarangMaster from './pages/contents/request/create/CreateRequestBarangMaster';
 
 const RoutesConfig = ({ isLoggedIn }) => (
   <Routes>
@@ -49,17 +51,17 @@ const RoutesConfig = ({ isLoggedIn }) => (
       path="/master-distributor"
       element={isLoggedIn ? <DashboardMasterDistributorMain /> : <Navigate to="/login" />}
     />
-    <Route
-     path='/request-barang/create'
-        element={isLoggedIn ? <CreateRequestBarangMain /> : <Navigate to="/login" />}
-    />
+    <Route path='/request-barang/create/*' element={isLoggedIn ? <CreateRequestBarangMain /> : <Navigate to="/login" />}>
+      <Route path='master' element={<CreateRequestBarangMaster />} />
+      <Route path='detail' element={<CreateRequestBarangDetail />} />
+    </Route>
     <Route 
         path='/request-barang/create/detail'
         element={isLoggedIn ? <CreateRequestBarangDetailMain /> : <Navigate to="/login" />}
     />
     <Route 
-     path='/request-barang/list'
-        element={isLoggedIn ? <DaftarRequestBarangMain /> : <Navigate to="/login" />}
+       path='/request-barang/list'
+      element={isLoggedIn ? <DaftarRequestBarangMain /> : <Navigate to="/login" />}
     />
     <Route 
       path='/request-barang/accept'
