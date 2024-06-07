@@ -3,23 +3,24 @@ import axios from 'axios';
 import Config from '../../../../config';
 import SweetAlertLoading from '../../../../components/SweetAlertLoading';
 import SweetAlertError from '../../../../components/SweetAlertError';
+import SweetAlertSuccess from '../../../../components/SweetAlertSuccess';
 
-const BarcodeDetailModal = ({ isOpen,onUpdate, onRequestClose, data }) => {
-    const [quantityUsed, setQuantityUsed] = useState('');
+const BarcodeDetailModal = ({ isOpen, onUpdate, onRequestClose, data}) => {
+    const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [messageSuccess, setMessageSuccess] = useState('');
     const [showError, setShowError] = useState(false);
 
     const handleSubmit = async (event) => {
-        
         event.preventDefault();
-        // console.log(data)
-        setLoading(true);  
+        setLoading(true);
         const postData = {
-            fi_usage_id: data.fi_usage_id,
             fc_stockcode: data.fc_stockcode,
             fc_barcode: data.fc_barcode,
-            fn_quantity_used: quantityUsed,
+            fc_warehousecode: data.fc_warehousecode,
+            fv_description: description,
         };
 
         const token = localStorage.getItem('token');
@@ -32,16 +33,22 @@ const BarcodeDetailModal = ({ isOpen,onUpdate, onRequestClose, data }) => {
 
         try {
             const response = await axios.post(
-                Config.api.server2 + "pemakaian-barang/usage-detail", 
+                Config.api.server2 + "pemakaian-barang/scanqr",
                 postData,
-                axiosConfig 
+                axiosConfig
             );
 
             if (response.data.success) {
                 console.log('Success:', response.data);
                 setLoading(false);
-                onRequestClose();
-                onUpdate();
+                setMessageSuccess(response.data.message);
+                setShowSuccess(true);
+
+                // timeout 3 detik
+                setTimeout(() => {
+                    onRequestClose();
+                    onUpdate();
+                }, 3000);
             } else {
                 console.error('Error:', response.data);
                 setLoading(false);
@@ -59,10 +66,15 @@ const BarcodeDetailModal = ({ isOpen,onUpdate, onRequestClose, data }) => {
     return (
         <div>
             <SweetAlertLoading show={loading} />
-            <SweetAlertError 
-                show={showError} 
-                message={error} 
-                onConfirm={() => setShowError(false)} 
+            <SweetAlertError
+                show={showError}
+                message={error}
+                onConfirm={() => setShowError(false)}
+            />
+            <SweetAlertSuccess
+                show={showSuccess}
+                message={messageSuccess}
+                onConfirm={() => setShowSuccess(false)}
             />
             <div className={`modal fade ${isOpen ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: isOpen ? 'block' : 'none' }}>
                 <div className="modal-dialog modal-lg" role="document">
@@ -98,15 +110,8 @@ const BarcodeDetailModal = ({ isOpen,onUpdate, onRequestClose, data }) => {
                                     </div>
                                     <div className="form-row">
                                         <div className="form-group col-md-5">
-                                            <label htmlFor="fn_quantity_used" className="form-label">Qty</label>
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                id="fn_quantity_used"
-                                                value={quantityUsed}
-                                                onChange={(e) => setQuantityUsed(e.target.value)}
-                                                required
-                                            />
+                                            <label htmlFor="fv_description" className="form-label">Catatan</label>
+                                            <textarea className="form-control" id="fv_description" value={description} onChange={(e) => setDescription(e.target.value)} />
                                         </div>
                                     </div>
                                 </div>

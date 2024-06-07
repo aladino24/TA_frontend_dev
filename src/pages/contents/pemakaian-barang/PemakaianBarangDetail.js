@@ -27,6 +27,7 @@ const PemakaianBarangDetail = () => {
     const [showErrorAlert, setShowErrorAlert] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [showAlertSuccess, setShowAlertSuccess] = useState(false);
+    const [showMessageSuccess, setShowMessageSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const [detailData, setDetailData] = useState(""); 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,7 +44,6 @@ const PemakaianBarangDetail = () => {
     });
 
     useEffect(() => {
-        // console.log(responseValue);
         setDetailData();
         if (responseValue) {
             setFormValues({
@@ -65,6 +65,7 @@ const PemakaianBarangDetail = () => {
             const onScanSuccess = (decodedText) => {
                 audio.play();
                 document.getElementById('result').value = decodedText;
+                clickModalBarcode(decodedText);
             };
 
             const onScanFailure = (error) => {
@@ -124,10 +125,7 @@ const PemakaianBarangDetail = () => {
             );
             setLoading(false);
             const data = response.data.data;
-            setDetailData({
-                ...data,
-                fi_usage_id: responseValue.fi_usage_id,
-            }); 
+            setDetailData(data); 
             setIsModalOpen(true); // Open the modal
         } catch (error) {
             setLoading(false);
@@ -160,6 +158,9 @@ const PemakaianBarangDetail = () => {
             const responseData = response.data;
 
             if (response.status === 201) {
+                setShowMessageSuccess(
+                    responseData.message
+                );
                 setShowAlertSuccess(true);
                 setTimeout(() => {
                     window.location.href = "/pemakaian-barang";
@@ -182,7 +183,7 @@ const PemakaianBarangDetail = () => {
     }
 
     const fetchUsageDetail = async() => {
-        setLoading(true);
+        // setLoading(true);
         const token = localStorage.getItem('token');
         const axiosConfig = {
             headers: {
@@ -192,18 +193,14 @@ const PemakaianBarangDetail = () => {
         };
         try {
             const response = await axios.get(
-                Config.api.server2 + "pemakaian-barang/datatables-usage-detail/" + responseValue.fi_usage_id,
+                `${Config.api.server2}pemakaian-barang/new-scanqr`,
                 axiosConfig
             );
-
-            const  responseData = response.data;
-            setUsageDetailData(responseData.data);
-            setLoading(false);
-           
+            // setUsageDetailData(response.data.data);
+            const dataResponse = response.data.data;
+            setUsageDetailData(dataResponse);
         } catch (error) {
-            setErrorMessage("Error: " + error.message);
-            setShowErrorAlert(true);
-            setLoading(false);
+       
         }
     }
 
@@ -249,101 +246,7 @@ const PemakaianBarangDetail = () => {
             </div>
             <div className="section-body">
                 <div className="row">
-                    <div className="col-12 col-md-12 col-lg-12 mb-4">
-                        <div className="card">
-                            <div className="card-body">
-                                <h4 className="card-title">Informasi Pengguna atau Pasien</h4>
-                        
-                                    <div className="row">
-                                        <div className="form-group col-6">
-                                            <label htmlFor="fc_patient_name">Nama <span className="text-danger">*</span></label>
-                                            <input 
-                                                type="text" 
-                                                className="form-control" 
-                                                id="fc_patient_name" 
-                                                name="fc_patient_name" 
-                                                value={formValues.fc_patient_name}
-                                                readOnly
-                                                required 
-                                            />
-                                        </div>
-                                        <div className="form-group col-6">
-                                            <label htmlFor="fn_patient_age">Umur</label>
-                                            <input 
-                                                type="number" 
-                                                className="form-control" 
-                                                id="fn_patient_age" 
-                                                name="fn_patient_age"
-                                                readOnly
-                                                value={formValues.fn_patient_age}
-                                                placeholder="Umur" 
-                                            />
-                                        </div>
-                                    </div>
-                                   <div className="row">
-                                        <div className="form-group col-6">
-                                            <label htmlFor="fc_patient_gender">Jenis Kelamin</label>
-                                            <select 
-                                                className="form-control" 
-                                                id="fc_patient_gender" 
-                                                name="fc_patient_gender" 
-                                                value={formValues.fc_patient_gender}
-                                                required 
-                                                disabled
-                                            >
-                                                <option value="">Pilih Jenis Kelamin</option>
-                                                <option value="Laki-laki">Laki-laki</option>
-                                                <option value="Perempuan">Perempuan</option>
-                                            </select>
-                                        </div>
-                                        <div className="form-group col-6">
-                                            <label htmlFor="fc_patient_phone">Kontak <span className="text-danger">*</span></label>
-                                            <input 
-                                                type="text" 
-                                                className="form-control" 
-                                                id="fc_patient_phone" 
-                                                name="fc_patient_phone" 
-                                                placeholder="Kontak" 
-                                                value={formValues.fc_patient_phone}
-                                                readOnly
-                                                required 
-                                            />
-                                        </div>
-                                   </div>
-                                   <div className="row">
-                                        <div className="form-group col-12">
-                                            <label htmlFor="fc_patient_address">Alamat <span className="text-danger">*</span></label>
-                                            <input 
-                                                type="text" 
-                                                className="form-control" 
-                                                id="fc_patient_address" 
-                                                name="fc_patient_address" 
-                                                placeholder="Alamat" 
-                                                readOnly
-                                                value={formValues.fc_patient_address}
-                                                required 
-                                            />
-                                        </div>
-                                   </div>
-                                   <div className="row">
-                                        <div className="form-group col-12">
-                                            <label htmlFor="fv_description">Catatan</label>
-                                            <textarea 
-                                                className="form-control" 
-                                                id="fv_description" 
-                                                name="fv_description" 
-                                                placeholder="Catatan" 
-                                                readOnly
-                                                value={formValues.fv_description}
-                                            />
-                                        </div>
-                                   </div>
-                                   {/* Button Submit */}
-                                    <button type="button" onClick={() => handleDelete()} className="btn btn-danger">Cancel Pemakaian</button>
-   
-                            </div>
-                        </div>
-                    </div>
+                  
                     <div className="col-12 col-md-12 col-lg-12 mb-4">
                         <div className="card">
                             <div className="card-body text-center">
@@ -363,7 +266,7 @@ const PemakaianBarangDetail = () => {
                                 <div className="form-group required">
                                     <label>Hasil Scan</label>
                                     <div className="input-group">
-                                        <input type="text" className="form-control" value="032903791900000000000000000000000000000965296001000000031122023" id="result" name="fc_barcode" readOnly />
+                                        <input type="text" className="form-control"  id="result" name="fc_barcode" readOnly />
                                         <div className="input-group-append">
                                             <button className="btn btn-primary" onClick={clickModalBarcode} type="button" id="detail">
                                                 <i className="fa fa-eye"></i> Detail
@@ -378,18 +281,17 @@ const PemakaianBarangDetail = () => {
                         <div className="card">
                             <div className="card-body">
                                 {/* Tabel detail penggunaan */}
-                                <h4 className="card-title">Detail Pemakaian Barang</h4>
+                                <h4 className="card-title">Pemakaian Barang Terbaru</h4>
                                 <div className="table-responsive">
-                                    <DataTable value={usageDetailData} paginator rows={10} rowsPerPageOptions={[5, 10, 20]}>
-                                        <Column field="DT_RowIndex" header="No" />
-                                        <Column field="fc_stockcode" header="Kode Barang" />
-                                        <Column field="invstore.stock.fc_namelong" header="Nama Barang" />
-                                        <Column field="invstore.stock.fc_namepack" header="Satuan" />
-                                        <Column field="invstore.stock.fm_price_default" header="Harga" />
-                                        <Column field="fn_quantity_used" header="Qty" />
-                                        <Column field={totalBodyTemplate} header="Total" />
-                                        <Column field="" header="Catatan" />
-                                        <Column body={actionBodyTemplate} header="Aksi" />
+                                    <DataTable value={usageDetailData} paginator rows={10} showGridlines rowsPerPageOptions={[5, 10, 20]}>
+                                        <Column field="DT_RowIndex" align={"center"} header="No" />
+                                        <Column field="fc_scanqrno" align={"center"} header="Kode Pemakaian" />
+                                        <Column field="invstore.stock.fc_stockcode" align={"center"} header="Katalog" />
+                                        <Column field="invstore.stock.fc_namelong" align={"center"} header="Nama Barang" />
+                                        <Column field="fd_scanqrdate" align={"center"} header="Tgl Pemakaian" />
+                                        <Column field="invstore.fc_batch" align={"center"} header="Batch" />
+                                        <Column field="invstore.fd_expired" align={"center"} header="Expired Date" />
+                                        <Column field="fv_description" align={"center"} header="Catatan" />
                                     </DataTable>
                                 </div>
                             </div>
@@ -410,7 +312,7 @@ const PemakaianBarangDetail = () => {
 
             <SweetAlertSuccess
                show={showAlertSuccess}
-               message="Data has been successfully deleted!"
+               message={showMessageSuccess}
                 onConfirm={handleCloseAlertSuccess}
              />
 

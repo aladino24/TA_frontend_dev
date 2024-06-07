@@ -20,7 +20,8 @@ const Inventory = () => {
                             <div id="collapsePages" className="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                                 <div className="bg-white py-2 collapse-inner rounded">
                                      <Link className="collapse-item" to="/persediaan-barang">Persediaan Barang</Link>
-                                    <a className="collapse-item" href="register.html">Stock Opname</a>
+                                    {/* <a className="collapse-item" href="register.html">Stock Opname</a> */}
+                                    <Link className="collapse-item" to="/stock-opname/master">Stock Opname </Link>
                                 </div>
                             </div>
                         </li>
@@ -28,7 +29,7 @@ const Inventory = () => {
                         {/* <!-- Nav Item - Charts --> */}
                         <li className="nav-item">
                             <Link className="nav-link" to="/pemakaian-barang">
-                             <i class="fas fa-fw fa-search"></i>
+                             <i className="fas fa-fw fa-search"></i>
                                 <span>Pemakaian</span>
                             </Link>
                         </li>

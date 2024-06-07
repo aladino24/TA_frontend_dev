@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import DashboardMain from "../dashboard/DashboardMain";
+import DashboardMain from "../../dashboard/DashboardMain";
 import PersediaanBarang from "./PersediaanBarang";
 
 const PersediaanBarangMain = () => {

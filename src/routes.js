@@ -13,12 +13,15 @@ import CreateRequestBarangDetailMain from './pages/contents/request/create/Creat
 import DaftarRequestBarang from './pages/contents/request/daftar-request/DaftarRequestBarang';
 import DaftarRequestBarangMain from './pages/contents/request/daftar-request/DaftarRequestBarangMain';
 import PenerimaanBarangMain from './pages/contents/request/penerimaan-barang/PenerimaanBarangMain';
-import PersediaanBarangMain from './pages/contents/persediaan-barang/PersediaanBarangMain';
+import PersediaanBarangMain from './pages/contents/persediaan-barang/inventory/PersediaanBarangMain';
 import PemakaianBarangMain from './pages/contents/pemakaian-barang/PemakaianBarangMain';
 import PemakaianBarangMaster from './pages/contents/pemakaian-barang/PemakaianBarangMaster';
 import PemakaianBarangDetail from './pages/contents/pemakaian-barang/PemakaianBarangDetail';
 import CreateRequestBarangDetail from './pages/contents/request/create/CreateRequestBarangDetail';
 import CreateRequestBarangMaster from './pages/contents/request/create/CreateRequestBarangMaster';
+import StockOpnameMain from './pages/contents/persediaan-barang/stock-opname/StockOpnameMain';
+import StockOpnameMaster from './pages/contents/persediaan-barang/stock-opname/StockOpnameMaster';
+import StockOpnameDetail from './pages/contents/persediaan-barang/stock-opname/StockOpnameDetail';
 
 const RoutesConfig = ({ isLoggedIn }) => (
   <Routes>
@@ -71,10 +74,13 @@ const RoutesConfig = ({ isLoggedIn }) => (
        path='/persediaan-barang'
        element={isLoggedIn ? <PersediaanBarangMain /> : <Navigate to="/login" />}
     />
-     <Route path="/pemakaian-barang/*" element={isLoggedIn ? <PemakaianBarangMain /> : <Navigate to="/login" />}>
-        <Route path="detail" element={<PemakaianBarangDetail />} />
-        <Route path="master" element={<PemakaianBarangMaster />} />
-      </Route>
+
+    <Route path='/stock-opname/*' element={isLoggedIn ? <StockOpnameMain /> : <Navigate to="/login" />}>
+      <Route path='master' element={<StockOpnameMaster />} />
+      <Route path='detail' element={<StockOpnameDetail />}/>
+    </Route>
+
+     <Route path="/pemakaian-barang" element={isLoggedIn ? <PemakaianBarangMain /> : <Navigate to="/login" />}/>
   </Routes>
 );
 

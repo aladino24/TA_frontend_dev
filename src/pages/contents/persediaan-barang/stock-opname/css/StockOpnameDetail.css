@@ -1,0 +1,8 @@
+.full-width-container {
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 5px 20px;
+    margin-bottom: 20px;
+    background-color: white; /* Add white background */
+    border-radius: 8px; /* Add rounded borders */
+  }

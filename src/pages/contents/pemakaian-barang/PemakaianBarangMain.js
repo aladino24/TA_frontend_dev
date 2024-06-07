@@ -13,49 +13,52 @@ const PemakaianBarangMain = () => {
     const [isSuccess, setIsSuccess] = useState(null);
     const [responseData, setResponseData] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const token = localStorage.getItem('token');
-            const axiosConfig = {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            try {
-                const response = await axios.get(
-                    Config.api.server2 + "pemakaian-barang/status-usage-master",
-                    axiosConfig
-                );
-                const data = response.data;
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         const token = localStorage.getItem('token');
+    //         const axiosConfig = {
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //                 Authorization: `Bearer ${token}`,
+    //             },
+    //         };
+    //         try {
+    //             const response = await axios.get(
+    //                 Config.api.server2 + "pemakaian-barang/status-usage-master",
+    //                 axiosConfig
+    //             );
+    //             const data = response.data;
 
-                setIsSuccess(data.success);
-                setResponseData(data);
+    //             setIsSuccess(data.success);
+    //             setResponseData(data);
 
-                if (data.success) {
-                    navigate("/pemakaian-barang/detail", { state: { responseData: data } });
-                } else {
-                    navigate("/pemakaian-barang/master");
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    //             if (data.success) {
+    //                 navigate("/pemakaian-barang/detail", { state: { responseData: data } });
+    //             } else {
+    //                 navigate("/pemakaian-barang/master");
+    //             }
+    //         } catch (error) {
+    //             console.error("Error fetching data:", error);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
 
-        fetchData();
-    }, [navigate]);
+    //     fetchData();
+    // }, [navigate]);
 
     return (
         <DashboardMain>
-            <SweetAlertLoading show={loading} />
-            {!loading && (
+            {/* <SweetAlertLoading show={loading} /> */}
+            {/* {!loading && (
                 <Routes>
                     <Route path="/detail" element={isSuccess ? <PemakaianBarangDetail /> : <Navigate to="/pemakaian-barang/master" />} />
                     <Route path="/master" element={!isSuccess ? <PemakaianBarangMaster /> : <Navigate to="/pemakaian-barang/detail" />} />
                 </Routes>
-            )}
+            )} */}
+            <Routes>
+                    <Route path="/" element={<PemakaianBarangDetail />} />
+            </Routes>
         </DashboardMain>
     );
 }

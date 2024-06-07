@@ -7,10 +7,10 @@ import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
 import axios from "axios";
-import Config from "../../../config";
+import Config from "../../../../config";
 import { Button } from "primereact/button";
 import ModalPersediaanBarang from "./ModalPersediaanBarang";
-import SweetAlertLoading from "../../../components/SweetAlertLoading";
+import SweetAlertLoading from "../../../../components/SweetAlertLoading";
 import "./css/PersediaanBarang.css";  // Import custom CSS file
 
 const PersediaanBarang = () => {
@@ -46,10 +46,21 @@ const PersediaanBarang = () => {
         return (
             <div className="d-flex justify-content-between p-2">
                 <h4>Daftar Persediaan Barang</h4>
-                <IconField iconPosition="left">
-                    <InputIcon className="pi pi-search" />
-                    <InputText placeholder="Keyword Search" />
-                </IconField>
+                <div className="input-group" style={{ maxWidth: '300px' }}>
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Keyword Search"
+                        aria-label="Keyword Search"
+                        aria-describedby="basic-addon2"
+                        onChange={(e) => {}}
+                    />
+                    <div className="input-group-append">
+                        <span className="input-group-text" id="basic-addon2">
+                            <i className="pi pi-search"></i>
+                        </span>
+                    </div>
+                </div>
             </div>
         );
     };
