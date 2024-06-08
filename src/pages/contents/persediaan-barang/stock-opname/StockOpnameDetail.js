@@ -14,6 +14,9 @@ import SweetAlertLoading from "../../../../components/SweetAlertLoading";
 import StockOpnamePersediaanModal from "./components/StockOpnamePersediaanModal";
 import CreateStockOpnameModal from "./components/CreateStockOpnameModal";
 import { useLocation } from "react-router-dom";
+import SweetAlertConfirmationYesOrNo from "../../../../components/SweetAlertConfirmationYesOrNo";
+import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
+import SweetAlertError from "../../../../components/SweetAlertError";
 const StockOpnameDetail = () => {
     const location = useLocation();
     const responseValue = location.state?.responseData?.data;
@@ -28,6 +31,10 @@ const StockOpnameDetail = () => {
     const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
     const [masterData, setMasterData] = useState([]);
     const [daysElapsed, setDaysElapsed] = useState(0);
+    const [showConfirmationAlert, setShowConfirmationAlert] = useState(false);
+    const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [showAlertSuccess, setShowAlertSuccess] = useState(false);
 
     const fetchMasterData = async () => {
         setLoading(true);
@@ -105,6 +112,63 @@ const StockOpnameDetail = () => {
 
     const toggleDetailOpname = () => {
         setIsDetailOpname(!isDetailOpname);
+    }
+
+    const handleDelete = () =>{
+        setShowConfirmationAlert(true);
+    }
+
+    const confirmDelete = async() => {
+        setShowConfirmationAlert(false);
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const axiosConfig = {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        };
+
+        try {
+            const response = await axios.delete(
+                Config.api.server2 + "stock-opname/delete-temp-stockopname",
+                axiosConfig
+            );
+
+            const responseData = response.data;
+
+            if (response.status === 201) {
+                setShowAlertSuccess(true);
+                setTimeout(() => {
+                    window.location.href = "/stock-opname";
+                }, 2000)
+            }else{
+                setErrorMessage("Error: " + responseData.message);
+                setShowErrorAlert(true);
+                setLoading(false);
+            }
+        } catch (error) {
+            setErrorMessage("Error: " + error.message);
+            setShowErrorAlert(true);
+            setLoading(false);
+        }finally{
+            setLoading(false);
+            setTimeout(() => {
+                setShowAlertSuccess(false);
+            }, 2000);
+        }
+    }
+
+    const handleCancelConfirmation = () => {
+        setShowConfirmationAlert(false);
+    };
+
+    const handleCloseAlertSuccess = () => {
+        setShowAlertSuccess(false);
+    }
+
+    const handleCloseAlertError = () => {
+        setShowErrorAlert(false);
     }
 
     // console.log(responseValue);
@@ -267,7 +331,11 @@ const StockOpnameDetail = () => {
                                                 </div>
                                             </div>
                                             <div className="col-12 col-md-12 col-lg-12 text-right">
-                                                <button type="submit" className="btn btn-danger">
+                                                <button 
+                                                    type="button" 
+                                                    className="btn btn-danger"
+                                                    onClick={() => handleDelete()}
+                                                >
                                                     Cancel Stockopname
                                                 </button>
                                             </div>
@@ -403,6 +471,26 @@ const StockOpnameDetail = () => {
             <CreateStockOpnameModal isOpen={isModalCreateOpen} onHide={() => setIsModalCreateOpen(false)} />
             <StockOpnamePersediaanModal isOpen={isModalPersediaanOpen} products={products} onHide={() => setIsModalPersediaanOpen(false)} />
             <SweetAlertLoading show={loading} />
+
+            <SweetAlertConfirmationYesOrNo 
+                 show={showConfirmationAlert}
+                 message="Do you want to delete this data?"
+                 content="Yes"
+                 onCancel={handleCancelConfirmation}
+                 onConfirm={confirmDelete}
+            />
+
+            <SweetAlertSuccess
+               show={showAlertSuccess}
+               message="Data has been successfully deleted!"
+                onConfirm={handleCloseAlertSuccess}
+             />
+
+            <SweetAlertError
+                message={errorMessage}
+                show={showErrorAlert}
+                onConfirm={handleCloseAlertError}
+             />
         </>
     );
 }

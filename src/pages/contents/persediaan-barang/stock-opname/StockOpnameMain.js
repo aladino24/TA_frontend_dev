@@ -52,8 +52,8 @@ const StockOpnameMain = () => {
             <SweetAlertLoading show={loading} />
             {!loading &&( 
             <Routes>
-                <Route path="/master" element={isSuccess ? <StockOpnameMaster /> : <Navigate to="/stock-opname/detail" />} />
                 <Route path="/detail" element={isSuccess ? <StockOpnameDetail /> : <Navigate to="/stock-opname/master" />}/>
+                <Route path="/master" element={isSuccess ? <StockOpnameMaster /> : <Navigate to="/stock-opname/detail" />} />
             </Routes>
             )}
         </DashboardMain>
