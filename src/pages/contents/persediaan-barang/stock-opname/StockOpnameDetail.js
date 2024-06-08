@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import moment from "moment";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -13,14 +13,48 @@ import axios from "axios";
 import SweetAlertLoading from "../../../../components/SweetAlertLoading";
 import StockOpnamePersediaanModal from "./components/StockOpnamePersediaanModal";
 import CreateStockOpnameModal from "./components/CreateStockOpnameModal";
+import { useLocation } from "react-router-dom";
 const StockOpnameDetail = () => {
-    const [startDate, setStartDate] = useState(null);
+    const location = useLocation();
+    const responseValue = location.state?.responseData?.data;
+    const initialDate = responseValue?.fd_stockopname_start ? moment(responseValue.fd_stockopname_start, "YYYY-MM-DD HH:mm:ss").toDate() : null;
+    
+    const [startDate, setStartDate] = useState(initialDate);
     const [isInformasiUmumOpen, setIsInformasiUmumOpen] = useState(false);
     const [isDetailOpname, setIsDetailOpname] = useState(false);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isModalPersediaanOpen, setIsModalPersediaanOpen] = useState(false);
     const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
+    const [masterData, setMasterData] = useState([]);
+    const [daysElapsed, setDaysElapsed] = useState(0);
+
+    const fetchMasterData = async () => {
+        setLoading(true);
+
+        const token = localStorage.getItem('token');
+        const axiosConfig = {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        };
+        try {
+            const response = await axios.get(
+               Config.api.server2 + 'stock-opname/master',
+               axiosConfig
+            );
+
+            const responseData = response.data.data
+            if (response.status === 200) {
+                setMasterData(responseData);
+            }
+        } catch (error) {
+            console.error("Error fetching master data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchPersediaan = async () => {
         setLoading(true);
@@ -55,6 +89,16 @@ const StockOpnameDetail = () => {
         }
     };
 
+    useEffect(() => {
+        fetchMasterData();
+        if (responseValue?.fd_stockopname_start) {
+            const start = moment(responseValue.fd_stockopname_start, "YYYY-MM-DD HH:mm:ss");
+            const today = moment();
+            const daysDiff = today.diff(start, 'days');
+            setDaysElapsed(daysDiff);
+        }
+    }, [responseValue]);
+
     const toggleInformasiUmum = () => {
         setIsInformasiUmumOpen(!isInformasiUmumOpen);
     };
@@ -63,6 +107,7 @@ const StockOpnameDetail = () => {
         setIsDetailOpname(!isDetailOpname);
     }
 
+    // console.log(responseValue);
  
     const renderHeader = () => {
         return (
@@ -122,6 +167,8 @@ const StockOpnameDetail = () => {
 
     const header = renderHeader();
 
+    // console.log(responseValue);
+
     return (
         <>
             <div className="container-fluid">
@@ -167,9 +214,9 @@ const StockOpnameDetail = () => {
                                                     <input
                                                         type="text"
                                                         className="form-control"
-                                                        name=""
-                                                        id=""
-                                                        value=""
+                                                        name="fc_userid"
+                                                        id="fc_userid"
+                                                        value={responseValue.fc_userid}
                                                         readOnly
                                                     />
                                                 </div>
@@ -198,31 +245,30 @@ const StockOpnameDetail = () => {
                                                         </div>
                                                         <DatePicker
                                                             selected={startDate}
-                                                            onChange={(date) => setStartDate(date)}
                                                             dateFormat="dd-MM-yyyy"
                                                             className="form-control datepicker-custom-width"
                                                             placeholderText="Pilih tanggal"
-                                                            required
+                                                            readOnly
                                                         />
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="col-12 col-md-6 col-lg-6">
                                                 <div className="form-group">
-                                                    <label>Gudang</label>
+                                                    <label>Sebagai Customer</label>
                                                     <input
                                                         type="text"
                                                         className="form-control"
                                                         id="status_pkp"
                                                         name="fc_status_pkp"
-                                                        value=""
+                                                        value={responseValue.fc_membercode}
                                                         readOnly
                                                     />
                                                 </div>
                                             </div>
                                             <div className="col-12 col-md-12 col-lg-12 text-right">
-                                                <button type="submit" className="btn btn-success">
-                                                    Save Changes
+                                                <button type="submit" className="btn btn-danger">
+                                                    Cancel Stockopname
                                                 </button>
                                             </div>
                                         </div>
@@ -256,8 +302,7 @@ const StockOpnameDetail = () => {
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    name="fc_supplierNPWP"
-                                                    id="fc_supplierNPWP"
+                                                    value={masterData.jumlah_stock}
                                                     readOnly
                                                 />
                                             </div>
@@ -268,8 +313,7 @@ const StockOpnameDetail = () => {
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    name="fc_branchtype_desc"
-                                                    id="fc_branchtype_desc"
+                                                    value={`Gudang ${masterData.membername}`}
                                                     readOnly
                                                 />
                                             </div>
@@ -282,8 +326,7 @@ const StockOpnameDetail = () => {
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    name="fc_warehouseaddress"
-                                                    id="fc_warehouseaddress"
+                                                    value={masterData.member_address}
                                                     readOnly
                                                 />
                                             </div>
@@ -296,8 +339,7 @@ const StockOpnameDetail = () => {
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    id="fc_warehousepos"
-                                                    name="fc_warehousepos"
+                                                    value='INTERNAL'
                                                     readOnly
                                                 />
                                             </div>
@@ -306,7 +348,14 @@ const StockOpnameDetail = () => {
                                             <div className="form-group">
                                                 <label>Telah Berlangsung</label>
                                                 <div className="input-group" data-date-format="dd-mm-yyyy">
-                                                    <input type="number" id="" className="form-control" name="" value="0" readOnly />
+                                                    <input 
+                                                        type="number" 
+                                                        id="" 
+                                                        className="form-control" 
+                                                        name="" 
+                                                        value={daysElapsed}
+                                                        readOnly 
+                                                    />
                                                     <div className="input-group-prepend">
                                                         <div className="input-group-text">
                                                             Hari
@@ -323,7 +372,7 @@ const StockOpnameDetail = () => {
                                                         {
                                                             fontSize: 'large'
                                                         }
-                                                    } value=" " id="" name="">0/0 Stock</h5>
+                                                    }>{masterData.stock_teropname}/{masterData.jumlah_stock} Stock</h5>
                                                 </div>
                                             </div>
                                         </div>
