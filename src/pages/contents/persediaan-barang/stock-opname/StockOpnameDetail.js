@@ -15,25 +15,30 @@ import StockOpnamePersediaanModal from "./components/StockOpnamePersediaanModal"
 import CreateStockOpnameModal from "./components/CreateStockOpnameModal";
 import { useLocation } from "react-router-dom";
 import SweetAlertConfirmationYesOrNo from "../../../../components/SweetAlertConfirmationYesOrNo";
+import SweetAlertSubmitConfirmation from "../../../../components/SweetAlertSubmitConfirmation";
 import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
 import SweetAlertError from "../../../../components/SweetAlertError";
+import { Button } from "primereact/button";
 const StockOpnameDetail = () => {
     const location = useLocation();
     const responseValue = location.state?.responseData?.data;
     const initialDate = responseValue?.fd_stockopname_start ? moment(responseValue.fd_stockopname_start, "YYYY-MM-DD HH:mm:ss").toDate() : null;
-    
+
     const [startDate, setStartDate] = useState(initialDate);
     const [isInformasiUmumOpen, setIsInformasiUmumOpen] = useState(false);
     const [isDetailOpname, setIsDetailOpname] = useState(false);
     const [products, setProducts] = useState([]);
+    const [productOpnameDetail, setProductOpnameDetail] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isModalPersediaanOpen, setIsModalPersediaanOpen] = useState(false);
     const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
     const [masterData, setMasterData] = useState([]);
     const [daysElapsed, setDaysElapsed] = useState(0);
     const [showConfirmationAlert, setShowConfirmationAlert] = useState(false);
+    const [showSubmitConfirmationAlert, setShowSubmitConfirmationAlert] = useState(false);
     const [showErrorAlert, setShowErrorAlert] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
     const [showAlertSuccess, setShowAlertSuccess] = useState(false);
 
     const fetchMasterData = async () => {
@@ -48,8 +53,8 @@ const StockOpnameDetail = () => {
         };
         try {
             const response = await axios.get(
-               Config.api.server2 + 'stock-opname/master',
-               axiosConfig
+                Config.api.server2 + 'stock-opname/master',
+                axiosConfig
             );
 
             const responseData = response.data.data
@@ -96,8 +101,36 @@ const StockOpnameDetail = () => {
         }
     };
 
+    const fetchStockOpnameDetails = async () => {
+        setLoading(true);
+
+        const token = localStorage.getItem('token');
+        const axiosConfig = {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        };
+        try {
+            const response = await axios.get(
+                `${Config.api.server2}stock-opname/stockopname-detail`,
+                axiosConfig
+            );
+
+            const responseData = response.data.data;
+            if (response.status === 200) {
+                setProductOpnameDetail(responseData);
+            }
+        } catch (error) {
+            console.error("Error fetching stock opname details:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchMasterData();
+        fetchStockOpnameDetails();
         if (responseValue?.fd_stockopname_start) {
             const start = moment(responseValue.fd_stockopname_start, "YYYY-MM-DD HH:mm:ss");
             const today = moment();
@@ -114,11 +147,11 @@ const StockOpnameDetail = () => {
         setIsDetailOpname(!isDetailOpname);
     }
 
-    const handleDelete = () =>{
+    const handleDelete = () => {
         setShowConfirmationAlert(true);
     }
 
-    const confirmDelete = async() => {
+    const confirmDelete = async () => {
         setShowConfirmationAlert(false);
         setLoading(true);
         const token = localStorage.getItem('token');
@@ -138,11 +171,12 @@ const StockOpnameDetail = () => {
             const responseData = response.data;
 
             if (response.status === 201) {
+                setSuccessMessage(responseData.message);
                 setShowAlertSuccess(true);
                 setTimeout(() => {
                     window.location.href = "/stock-opname";
                 }, 2000)
-            }else{
+            } else {
                 setErrorMessage("Error: " + responseData.message);
                 setShowErrorAlert(true);
                 setLoading(false);
@@ -151,7 +185,7 @@ const StockOpnameDetail = () => {
             setErrorMessage("Error: " + error.message);
             setShowErrorAlert(true);
             setLoading(false);
-        }finally{
+        } finally {
             setLoading(false);
             setTimeout(() => {
                 setShowAlertSuccess(false);
@@ -159,11 +193,58 @@ const StockOpnameDetail = () => {
         }
     }
 
+    const onDelete = async (rowData) => {
+        const { fn_rownum } = rowData;
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const axiosConfig = {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        };
+
+        try {
+            const response = await axios.delete(
+                `${Config.api.server2}stock-opname/stockopname-detail/${fn_rownum}`,
+                axiosConfig
+            );
+
+            const responseData = response.data;
+            if (responseData.success) {
+                fetchStockOpnameDetails().then(() => {
+                    setLoading(false);
+                }).catch((error) => {
+                    console.error("Error fetching stock opname details:", error);
+                    setLoading(false); // Ensure loading state is reset even if there is an error
+                });
+            }
+        } catch (error) {
+            console.error("Error deleting stock opname detail:", error);
+            setLoading(false);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const actionBodyTemplate = (rowData) => {
+        return (
+            <Button
+                type="button"
+                icon="pi pi-trash"
+                className="rounded p-button-danger"
+                onClick={(e) => onDelete(rowData)}
+            />
+        );
+    };
+
     const handleCancelConfirmation = () => {
         setShowConfirmationAlert(false);
+        setShowSubmitConfirmationAlert(false);
     };
 
     const handleCloseAlertSuccess = () => {
+        setSuccessMessage('');
         setShowAlertSuccess(false);
     }
 
@@ -171,8 +252,48 @@ const StockOpnameDetail = () => {
         setShowErrorAlert(false);
     }
 
+    const submitConfirmation = () =>{
+        setShowSubmitConfirmationAlert(true);
+    }
+
+    const handleSubmit = async() => {
+        setShowSubmitConfirmationAlert(false);
+        setLoading(true);
+
+        const token = localStorage.getItem('token');
+        const axiosConfig = {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        };
+
+        try {
+            const response = await axios.post(
+                `${Config.api.server2}stock-opname/submit-stockopname`,
+                {},
+                axiosConfig
+            )
+
+            const responseData = response.data;
+            if(responseData.success){
+                setSuccessMessage(responseData.message)
+                setShowAlertSuccess(true);
+                setTimeout(() => {
+                    window.location.href = "/stock-opname";
+                }, 1000)
+            }
+        } catch (error) {
+            setErrorMessage("Error: " + error.message);
+            setShowErrorAlert(true);
+            setLoading(false);
+        }finally{
+            setLoading(false);
+        }
+    }
+
     // console.log(responseValue);
- 
+
     const renderHeader = () => {
         return (
             <div className="container-fluid">
@@ -184,18 +305,18 @@ const StockOpnameDetail = () => {
                             style={{ height: '30px', padding: '0 10px' }}
                             onClick={() => {
                                 fetchPersediaan()
-                                .then(() => {
-                                    setIsModalPersediaanOpen(true);
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                });
+                                    .then(() => {
+                                        setIsModalPersediaanOpen(true);
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+                                    });
                             }}
                         >
                             <i className="fas fa-box"></i> Cek Persediaan
                         </button>
-                        <button 
-                            className="btn btn-success mr-2" 
+                        <button
+                            className="btn btn-success mr-2"
                             style={{ height: '30px', padding: '0 10px' }}
                             onClick={() => {
                                 setIsModalCreateOpen(true);
@@ -210,26 +331,30 @@ const StockOpnameDetail = () => {
                         {/* Add content here if needed */}
                     </div>
                     <div className="input-group" style={{ maxWidth: '200px' }}>
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Keyword Search"
-                        aria-label="Keyword Search"
-                        aria-describedby="basic-addon2"
-                        onChange={(e) => {}}
-                    />
-                    <div className="input-group-append">
-                        <span className="input-group-text" id="basic-addon2">
-                            <i className="pi pi-search"></i>
-                        </span>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Keyword Search"
+                            aria-label="Keyword Search"
+                            aria-describedby="basic-addon2"
+                            onChange={(e) => { }}
+                        />
+                        <div className="input-group-append">
+                            <span className="input-group-text" id="basic-addon2">
+                                <i className="pi pi-search"></i>
+                            </span>
+                        </div>
                     </div>
-                </div>
                 </div>
             </div>
         );
     }
 
     const header = renderHeader();
+
+    const rowNumberTemplate = (rowData, column) => {
+        return column.rowIndex + 1;
+    };
 
     // console.log(responseValue);
 
@@ -256,8 +381,6 @@ const StockOpnameDetail = () => {
                                     </button>
                                 </div>
                             </div>
-                            <input type="text" id="fc_branch" value="" hidden />
-                            <input type="text" id="fc_branch" value="" hidden />
                             <form
                                 id="form_submit"
                                 action="/apps/purchase-order/store-update"
@@ -280,7 +403,7 @@ const StockOpnameDetail = () => {
                                                         className="form-control"
                                                         name="fc_userid"
                                                         id="fc_userid"
-                                                        value={responseValue.fc_userid}
+                                                        value={responseValue ? responseValue.fc_userid : ""}
                                                         readOnly
                                                     />
                                                 </div>
@@ -293,7 +416,7 @@ const StockOpnameDetail = () => {
                                                         className="form-control"
                                                         id="fc_potype"
                                                         name="fc_potype"
-                                                        value="PO Beli"
+                                                        value="DAILY"
                                                         readOnly
                                                     />
                                                 </div>
@@ -325,14 +448,14 @@ const StockOpnameDetail = () => {
                                                         className="form-control"
                                                         id="status_pkp"
                                                         name="fc_status_pkp"
-                                                        value={responseValue.fc_membercode}
+                                                        value={responseValue ? responseValue.fc_membercode : ""}
                                                         readOnly
                                                     />
                                                 </div>
                                             </div>
                                             <div className="col-12 col-md-12 col-lg-12 text-right">
-                                                <button 
-                                                    type="button" 
+                                                <button
+                                                    type="button"
                                                     className="btn btn-danger"
                                                     onClick={() => handleDelete()}
                                                 >
@@ -370,7 +493,7 @@ const StockOpnameDetail = () => {
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    value={masterData.jumlah_stock}
+                                                    value={masterData?.jumlah_stock || ''}
                                                     readOnly
                                                 />
                                             </div>
@@ -381,7 +504,7 @@ const StockOpnameDetail = () => {
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    value={`Gudang ${masterData.membername}`}
+                                                    value={`Gudang ${masterData?.membername || ''}`}
                                                     readOnly
                                                 />
                                             </div>
@@ -394,7 +517,7 @@ const StockOpnameDetail = () => {
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    value={masterData.member_address}
+                                                    value={masterData?.member_address || ''}
                                                     readOnly
                                                 />
                                             </div>
@@ -416,13 +539,13 @@ const StockOpnameDetail = () => {
                                             <div className="form-group">
                                                 <label>Telah Berlangsung</label>
                                                 <div className="input-group" data-date-format="dd-mm-yyyy">
-                                                    <input 
-                                                        type="number" 
-                                                        id="" 
-                                                        className="form-control" 
-                                                        name="" 
+                                                    <input
+                                                        type="number"
+                                                        id=""
+                                                        className="form-control"
+                                                        name=""
                                                         value={daysElapsed}
-                                                        readOnly 
+                                                        readOnly
                                                     />
                                                     <div className="input-group-prepend">
                                                         <div className="input-group-text">
@@ -451,46 +574,75 @@ const StockOpnameDetail = () => {
                     </div>
                 </div>
 
-                <div className="row mt-4">
+                <div className="row mt-4 mb-4">
                     <div className="col-12 col-md-12 col-lg-12">
                         <div className="card">
-                            <DataTable value={[]} header={header} paginator rows={5} rowsPerPageOptions={[5, 10, 25, 50]} showGridlines>
-                                <Column align={'center'} field="id" header="No"></Column>
-                                <Column align={'center'} field="fc_barcode" header="Kode Barang"></Column>
-                                <Column align={'center'} field="fc_namelong" header="Nama Barang"></Column>
-                                <Column align={'center'} field="fc_namepack" header="Satuan"></Column>
-                                <Column align={'center'} field="fc_batch" header="Batch"></Column>
-                                <Column align={'center'} field="fd_expired" header="Exp.Date"></Column>
+                            <DataTable value={productOpnameDetail} header={header} paginator rows={5} rowsPerPageOptions={[5, 10, 25, 50]} showGridlines>
+                                <Column align={'center'} body={rowNumberTemplate} field="id" header="No"></Column>
+                                <Column align={'center'} field="invstore.stock.fc_stockcode" header="Kode Barang"></Column>
+                                <Column align={'center'} field="invstore.stock.fc_namelong" header="Nama Barang"></Column>
+                                <Column align={'center'} field="invstore.stock.fc_namepack" header="Satuan"></Column>
+                                <Column align={'center'} field="invstore.fc_batch" header="Batch"></Column>
+                                <Column align={'center'} field="invstore.fd_expired" header="Exp.Date"></Column>
                                 <Column align={'center'} field="fn_quantity" header="Qty"></Column>
-                                <Column align={'center'} field="" header="Action"></Column>
+                                <Column align={'center'} field={actionBodyTemplate} header="Action"></Column>
                             </DataTable>
                         </div>
                     </div>
                 </div>
+
+                {/* Button Submit */}
+                <div className="row mt-4 mb-4">
+                    <div className="col-12 col-md-12 col-lg-12">
+                        <div className="d-flex justify-content-end">
+                            <Button
+                                type="button"
+                                icon="pi pi-check"
+                                className="rounded p-button-success pl-2 pr-2"
+                                label="Submit Stock Opname"
+                                iconPos="left"
+                                onClick={submitConfirmation}
+                                style={{ gap: '0.5rem' }}
+                            />
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <CreateStockOpnameModal isOpen={isModalCreateOpen} onHide={() => setIsModalCreateOpen(false)} />
+            <CreateStockOpnameModal isOpen={isModalCreateOpen} onHide={() => setIsModalCreateOpen(false)}
+                fetchMasterData={fetchMasterData}
+                refreshData={fetchStockOpnameDetails}
+            />
             <StockOpnamePersediaanModal isOpen={isModalPersediaanOpen} products={products} onHide={() => setIsModalPersediaanOpen(false)} />
             <SweetAlertLoading show={loading} />
 
-            <SweetAlertConfirmationYesOrNo 
-                 show={showConfirmationAlert}
-                 message="Do you want to delete this data?"
-                 content="Yes"
-                 onCancel={handleCancelConfirmation}
-                 onConfirm={confirmDelete}
+            <SweetAlertConfirmationYesOrNo
+                show={showConfirmationAlert}
+                message="Do you want to delete this data?"
+                content="Yes"
+                onCancel={handleCancelConfirmation}
+                onConfirm={confirmDelete}
+            />
+
+            <SweetAlertSubmitConfirmation
+                show={showSubmitConfirmationAlert}
+                message="Do you want to Submit this data?"
+                content="Yes"
+                onCancel={handleCancelConfirmation}
+                onConfirm={handleSubmit}
             />
 
             <SweetAlertSuccess
-               show={showAlertSuccess}
-               message="Data has been successfully deleted!"
+                show={showAlertSuccess}
+                message="Data has been successfully deleted!"
                 onConfirm={handleCloseAlertSuccess}
-             />
+            />
 
             <SweetAlertError
                 message={errorMessage}
                 show={showErrorAlert}
                 onConfirm={handleCloseAlertError}
-             />
+            />
         </>
     );
 }

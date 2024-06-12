@@ -104,7 +104,7 @@ const Header = ({ changeStyle }) => {
           <li className="nav-item dropdown no-arrow d-sm-none">
             <a
               className="nav-link dropdown-toggle"
-              href="#"
+              href=""
               id="searchDropdown"
               role="button"
               data-toggle="dropdown"
@@ -141,7 +141,7 @@ const Header = ({ changeStyle }) => {
           <li className="nav-item dropdown no-arrow mx-1">
             <a
               className="nav-link dropdown-toggle"
-              href="#"
+              href=""
               id="alertsDropdown"
               role="button"
               data-toggle="dropdown"
@@ -207,7 +207,7 @@ const Header = ({ changeStyle }) => {
           <li className="nav-item dropdown no-arrow mx-1">
             <a
               className="nav-link dropdown-toggle"
-              href="#"
+              href=""
               id="messagesDropdown"
               role="button"
               data-toggle="dropdown"

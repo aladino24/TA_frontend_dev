@@ -8,58 +8,288 @@ import "primereact/resources/primereact.min.css";
 import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
 import { IconField } from "primereact/iconfield";
+import { useLocation } from "react-router-dom";
+import { Dialog } from "primereact/dialog";
+import BarangDialog from "./Components/BarangDialog";
+import axios from "axios";
+import Config from "../../../../config";
+import SweetAlertLoading from "../../../../components/SweetAlertLoading";
+import { Button } from "primereact/button";
+import { useNavigate } from "react-router-dom";
+import SweetAlertSubmitConfirmation from "../../../../components/SweetAlertSubmitConfirmation";
+import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
+import SweetAlertError from "../../../../components/SweetAlertError";
 
 const CreateRequestBarangDetail = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const responseValue = location.state?.responseData?.data;
   const [supplierCode, setSupplierCode] = useState("");
   const [statusPkp, setStatusPkp] = useState("");
   const [isInformasiUmumOpen, setIsInformasiUmumOpen] = useState(false);
   const [isDetailSupplier, setDetailSupplier] = useState(false);
   const [products, setProducts] = useState([]);
+  const [isDialogVisible, setIsDialogVisible] = useState(false);
+  const [barangData, setBarangData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [qtyValue, setQtyValue] = useState("");
+  const [salesPrice, setSalesPrice] = useState(0);
+  const [barcode, setBarcode] = useState("");
+  const [stockcode, setStockcode] = useState("");
+  const [namepack, setNamepack] = useState("");
+  const [catatan, setCatatan] = useState("");
+  const [soMasterData, setSoMasterData] = useState([]);
+  const [jumlahItem, setJumlahItem] = useState("");
+  const [brutto, setBrutto] = useState("");
+  const [stockData, setStockData] = useState([]);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
+
+  const fetchExistRequestSo = async () => {
+    setLoading(true);
+    const token = localStorage.getItem('token');
+    const axiosConfig = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  
+    try {
+      const response = await axios.get(
+        Config.api.server3 + 'exist-request-so-master',
+        axiosConfig
+      );
+  
+      const responseSoData = response.data.data;
+      const responseSoDetail = responseSoData.requestsodetail || [];
+  
+      if (response.data.success) {
+        setLoading(false);
+        setProducts(responseSoDetail || []);
+        setSoMasterData(responseSoData);
+        setJumlahItem(responseSoData.fn_sodetail || "");
+        setBrutto(responseSoData.fm_brutto || "");
+      } else {
+        setLoading(false);
+        navigate('/request-barang/create/master')
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching master data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+
+
+  // console.log(responseValue)
     useEffect(() => {
-        const exampleData = [
-            { no: 1, kodeBarang: 'A001', namaProduk: 'Produk A', satuan: 'pcs', harga: 10000, disc: 5, qty: 10, total: 95000, kedatangan: '2024-06-01', catatan: 'Baik' },
-            { no: 2, kodeBarang: 'A002', namaProduk: 'Produk B', satuan: 'pcs', harga: 20000, disc: 10, qty: 5, total: 90000, kedatangan: '2024-06-02', catatan: 'Rusak' },
-        ];
-        setProducts(exampleData);
+      fetchExistRequestSo();
     }, []);
 
-  const user = {
-    fc_branch: "branchCode", // Replace with actual data
-    fc_username: "username", // Replace with actual data
+  const handleDialogHide = (selectedItem) => {
+    setIsDialogVisible(false);
+    if (selectedItem) {
+      setSalesPrice(Number(selectedItem.fm_sales));
+      setBarcode(selectedItem.fc_barcode);
+      setStockcode(selectedItem.fc_stockcode);
+      setNamepack(selectedItem.fc_namepack);
+      setStockData(selectedItem);
+    }
   };
 
-  const handleSupplierClick = () => {
-    console.log("Supplier modal clicked");
-  };
-
-  const handleSubmit = (e) => {
+  const handleInsertDetail = async (e) => {
     e.preventDefault();
-    console.log("Form submitted");
+    setLoading(true)
+    const data = {
+        fc_stockcode: stockcode,
+        fc_barcode: barcode,
+        fc_namepack: namepack,
+        fn_qty: qtyValue,
+        fm_price: salesPrice,
+        ft_description: catatan,
+        stock: stockData
+    };
+
+    const token = localStorage.getItem('token');
+    const axiosConfig = {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    };
+
+    try {
+        const response = await axios.post(
+            `${Config.api.server3}create-request-so-detail`,
+            data,  
+            axiosConfig
+        );
+        if(response.data.success){
+          fetchExistRequestSo();
+          setLoading(false)
+        }
+    } catch (error) {
+      setLoading(false)
+        // handle error response
+        console.error('Detail item gagal ditambahkan:', error.response.data);
+    } finally{
+      setLoading(false)
+    }
+};
+
+// handleconfirm submit
+  const handleConfirmSubmit = () => {
+    setShowConfirmation(true);
+  }
+
+  const handleSubmitRequest = async() => {
+    setShowConfirmation(false);
+    setLoading(true);
+    const token = localStorage.getItem('token');
+        const axiosConfig = {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        };
+    try {
+      const response = await axios.post(
+        `${Config.api.server3}submit-request-so-order`,
+        {},
+        axiosConfig
+      );
+      if(response.data.success){
+        setLoading(false);
+        setSuccessMessage(response.data.message);
+        setShowSuccess(true);
+      }
+    } catch (error) {
+      setLoading(false);
+      setErrorMessage(error);
+    }finally{
+      setLoading(false);
+    }
+  };
+
+  const handleCancelSubmit = () => {
+    setShowConfirmation(false);
+  };
+
+  const handleAlertConfirm = () => {
+    setShowSuccess(false);
+    setShowError(false);
+    window.location.reload();
   };
 
   const toggleInformasiUmum = () => {
     setIsInformasiUmumOpen(!isInformasiUmumOpen);
   };
 
-  const toggleDetailSupplier = () => {
-    setDetailSupplier(!isDetailSupplier);
+  const handleKodeBarangClick = async () => {
+    setLoading(true);
+    const token = localStorage.getItem("token");
+    const axiosConfig = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  
+    try {
+      const response = await axios.get(
+        `${Config.api.server3}external-stock`,
+        axiosConfig
+      );
+      const responseData = response.data.data;
+      setBarangData(responseData);
+      setIsDialogVisible(true);
+    } catch (error) {
+      console.error("Error fetching stock data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteRow = async(rowData) => {
+    setLoading(true);
+    // console.log(rowData);
+    const token = localStorage.getItem("token");
+    const axiosConfig = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    try {
+      const response = await axios.delete(
+        `${Config.api.server3}delete-request-so-detail/${rowData}`,
+        axiosConfig
+      );
+
+      const resposeData = response.data;
+
+      if(resposeData.success){
+        fetchExistRequestSo();
+       setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error delete stock data:", error);
+    }finally{
+      setLoading(false);
+    }
   }
+
+
+  const rowIndexTemplate = (rowData, column) => {
+    return column.rowIndex + 1;
+  };
+  
 
   
   const renderHeader = () => {
     return (
         <div className="d-flex justify-content-between p-2">
             <h4>Daftar Detail Barang</h4>
-            <IconField iconPosition="left">
-                <InputIcon className="pi pi-search" />
-                <InputText placeholder="Keyword Search" />
-            </IconField>
+            <div className="input-group" style={{ maxWidth: '200px' }}>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Keyword Search"
+                            aria-label="Keyword Search"
+                            aria-describedby="basic-addon2"
+                            onChange={(e) => { }}
+                        />
+                        <div className="input-group-append">
+                            <span className="input-group-text" id="basic-addon2">
+                                <i className="pi pi-search"></i>
+                            </span>
+                        </div>
+                    </div>
         </div>
     );
 };
 
+
 const header = renderHeader();
+
+const deleteIconTemplate = (rowData) => {
+  return (
+      <Button 
+          icon="pi pi-trash" 
+          className="rounded p-button-danger"
+          onClick={() => handleDeleteRow(rowData.fn_rownum)} 
+      />
+  );
+};
 
 
   return (
@@ -69,7 +299,7 @@ const header = renderHeader();
           <h3>Request Barang</h3>
         </div>
         <div className="row">
-        <div className="col-12 col-md-4 col-lg-4">
+        <div className="col-12 col-md-12 col-lg-12">
             <div className="card">
               <div className="card-header d-flex justify-between">
                 <h4>Informasi Umum</h4>
@@ -84,17 +314,11 @@ const header = renderHeader();
                   </button>
                 </div>
               </div>
-              <input type="text" id="fc_branch" value={user.fc_branch} hidden />
-              <form
-                id="form_submit"
-                action="/apps/purchase-order/store-update"
-                method="POST"
-                autoComplete="off"
-                onSubmit={handleSubmit}
-              >
+              {/* <input type="text" id="fc_branch" value={user ? user.fc_branch : ""}  hidden /> */}
+              <form>
                 <div className={`collapse ${isInformasiUmumOpen ? "show" : ""}`} id="mycard-collapse">
                   <div className="card-body">
-                    <div className="row">
+                  <div className="row">
                       <div className="col-12 col-md-12 col-lg-12">
                         <div className="form-group">
                           <label>Tanggal: {moment().format("DD/MM/YYYY")}</label>
@@ -106,39 +330,39 @@ const header = renderHeader();
                           <input
                             type="text"
                             className="form-control"
-                            name=""
-                            id=""
-                            value={user.fc_username}
+                            name="fc_userid"
+                            id="fc_userid"
+                            value={soMasterData ? soMasterData.created_by : ""}
                             readOnly
                           />
                         </div>
                       </div>
                       <div className="col-12 col-md-6 col-lg-6">
                         <div className="form-group">
-                          <label>PO Type</label>
+                          <label>Request Type</label>
                           <input
                             type="text"
                             className="form-control"
-                            id="fc_potype"
-                            name="fc_potype"
-                            value="PO Beli"
+                            id="fc_sotype"
+                            name="fc_sotype"
+                            value="GROSIR"
                             readOnly
                           />
                         </div>
                       </div>
                       <div className="col-12 col-md-6 col-lg-6">
                         <div className="form-group required">
-                          <label>Supplier Code</label>
+                          <label>Membercode</label>
                           <div className="input-group mb-3">
                             <input
                               type="text"
                               className="form-control"
-                              id="fc_suppliercode"
-                              name="fc_suppliercode"
-                              value={supplierCode}
+                              id="fc_membercode"
+                              name="fc_membercode"
+                              value={soMasterData ? soMasterData.fc_membercode : ""}
                               readOnly
                             />
-                            <div className="input-group-append">
+                            {/* <div className="input-group-append">
                               <button
                                 className="btn btn-primary"
                                 type="button"
@@ -146,26 +370,65 @@ const header = renderHeader();
                               >
                                 <i className="fa fa-search"></i>
                               </button>
-                            </div>
+                            </div> */}
                           </div>
                         </div>
                       </div>
                       <div className="col-12 col-md-6 col-lg-6">
                         <div className="form-group">
-                          <label>Status PKP</label>
+                          <label>Jumlah Item</label>
                           <input
                             type="text"
                             className="form-control"
-                            id="status_pkp"
-                            name="fc_status_pkp"
-                            value={statusPkp}
+                            id="fn_sodetail"
+                            name="fn_sodetail"
+                            value={soMasterData ? soMasterData.fn_sodetail : ""}
                             readOnly
                           />
                         </div>
                       </div>
+                      <div className="col-12 col-md-6 col-lg-6">
+                          <div className="form-group">
+                            <label>Tanggal Expired</label>
+                            <input
+                              type="date"
+                              className="form-control"
+                              id="fd_soexpired"
+                              name="fd_soexpired"
+                              value={soMasterData && soMasterData.fd_soexpired ? soMasterData.fd_soexpired.split(' ')[0] : ""}
+                              readOnly
+                          />
+                          </div>
+                      </div>
+                      <div className="col-12 col-md-6 col-lg-6">
+                          <div className="form-group">
+                            <label>Deskripsi</label>
+                            <textarea
+                              className="form-control"
+                              id="fv_description"
+                              name="fv_description"
+                              rows="1"
+                              value={soMasterData ? soMasterData.ft_description : ""}
+                              readOnly
+                            ></textarea>
+                          </div>
+                      </div>
+                      <div className="col-12 col-md-7 col-lg-7">
+                          <div className="form-group">
+                            <label>Alamat Pengiriman</label>
+                            <textarea
+                              className="form-control"
+                              id="fv_member_address_loading"
+                              name="fv_member_address_loading"
+                              rows="2"
+                              value={soMasterData ? soMasterData.fv_member_address_loading : ""}
+                              readOnly
+                            ></textarea>
+                          </div>
+                      </div>
                       <div className="col-12 col-md-12 col-lg-12 text-right">
-                        <button type="submit" className="btn btn-success">
-                          Save Changes
+                        <button type="submit" className="btn btn-danger">
+                          Cancel Request
                         </button>
                       </div>
                     </div>
@@ -174,173 +437,12 @@ const header = renderHeader();
               </form>
             </div>
           </div>
-
-          <div className="col-12 col-md-8 col-lg-8">
-            <div className="card">
-              <div className="card-header">
-                <h4>Detail Supplier</h4>
-                <div className="card-header-action">
-                  <button
-                    className="btn btn-icon btn-info"
-                    onClick={toggleDetailSupplier}
-                    aria-expanded={isDetailSupplier}
-                    aria-controls="mycard-collapse2"
-                  >
-                     <i className={`fas fa-${isDetailSupplier ? "minus" : "plus"}`}></i>
-                  </button>
-                </div>
-              </div>
-              <div className={`collapse ${isDetailSupplier ? "show" : ""}`} id="mycard-collapse2">
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-4 col-md-4 col-lg-4">
-                      <div className="form-group">
-                        <label>NPWP</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="fc_supplierNPWP"
-                          id="fc_supplierNPWP"
-                          readOnly
-                        />
-                      </div>
-                    </div>
-                    <div className="col-4 col-md-4 col-lg-4">
-                      <div className="form-group">
-                        <label>Tipe Cabang</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="fc_branchtype"
-                          id="fc_branchtype"
-                          readOnly
-                          hidden
-                        />
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="fc_branchtype_desc"
-                          id="fc_branchtype_desc"
-                          readOnly
-                        />
-                      </div>
-                    </div>
-                    <div className="col-4 col-md-4 col-lg-4">
-                      <div className="form-group">
-                        <label>Tipe Bisnis</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="fc_suppliertypebusiness"
-                          id="fc_suppliertypebusiness"
-                          readOnly
-                          hidden
-                        />
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="fc_suppliertypebusiness_desc"
-                          id="fc_suppliertypebusiness_desc"
-                          readOnly
-                        />
-                      </div>
-                    </div>
-                    <div className="col-4 col-md-4 col-lg-4">
-                      <div className="form-group">
-                        <label>Nama</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="fc_suppliername1"
-                          id="fc_suppliername1"
-                          readOnly
-                        />
-                      </div>
-                    </div>
-                    <div className="col-4 col-md-4 col-lg-4">
-                      <div className="form-group">
-                        <label>Telepon</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="fc_supplierphone1"
-                          id="fc_supplierphone1"
-                          readOnly
-                        />
-                      </div>
-                    </div>
-                    <div className="col-4 col-md-4 col-lg-4">
-                      <div className="form-group">
-                        <label>Masa Hutang</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="fn_supplierAgingAR"
-                          id="fn_supplierAgingAR"
-                          readOnly
-                        />
-                      </div>
-                    </div>
-                    <div className="col-4 col-md-4 col-lg-4">
-                      <div className="form-group">
-                        <label>Legal Status</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="fc_supplierlegalstatus"
-                          id="fc_supplierlegalstatus"
-                          readOnly
-                          hidden
-                        />
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="fc_supplierlegalstatus_desc"
-                          id="fc_supplierlegalstatus_desc"
-                          readOnly
-                        />
-                      </div>
-                    </div>
-                    <div className="col-4 col-md-4 col-lg-4">
-                      <div className="form-group">
-                        <label>Alamat</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="fc_supplier_npwpaddress1"
-                          id="fc_supplier_npwpaddress1"
-                          readOnly
-                        />
-                      </div>
-                    </div>
-                    <div className="col-4 col-md-4 col-lg-4">
-                      <div className="form-group">
-                        <label>Alamat Pengiriman</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="fc_supplieraddress1"
-                          id="fc_supplieraddress1"
-                          readOnly
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
         <div className="row mt-4 mb-4">
           <div className="col-12 col-md-12 col-lg-6">
             <div className="card">
               <div className="card-body" style={{ paddingTop: "30px!important" }}>
-                <form
-                  id="form_submit_custom"
-                  action="/apps/sales-order/detail/store-update"
-                  method="POST"
-                  autoComplete="off"
-                >
+                <form onSubmit={handleInsertDetail} id={'item-stock'}>
                   <div className="row">
                     <div className="col-12 col-md-6 col-lg-6">
                       <div className="form-group">
@@ -351,17 +453,19 @@ const header = renderHeader();
                             className="form-control"
                             id="fc_barcode"
                             name="fc_barcode"
+                            onChange={() => {}}
+                            value={barcode}
                             readOnly
                           />
                           <div className="input-group-append">
-                            <button className="btn btn-primary" type="button" onClick="">
+                            <button className="btn btn-primary" type="button" onClick={handleKodeBarangClick}>
                               <i className="fa fa-search"></i>
                             </button>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div className="col-12 col-md-6 col-lg-3">
+                    <div className="col-12 col-md-6 col-lg-6">
                       <label>Qty</label>
                       <div className="form-group">
                         <input
@@ -371,23 +475,10 @@ const header = renderHeader();
                             (e.target.value = e.target.value && Math.abs(e.target.value) >= 0 ? Math.abs(e.target.value) : null)
                           }
                           className="form-control"
-                          name=""
-                          id=""
-                        />
-                      </div>
-                    </div>
-                    <div className="col-12 col-md-6 col-lg-3">
-                      <label>Bonus</label>
-                      <div className="form-group">
-                        <input
-                          type="number"
-                          min="0"
-                          onInput={(e) =>
-                            (e.target.value = e.target.value && Math.abs(e.target.value) >= 0 ? Math.abs(e.target.value) : null)
-                          }
-                          className="form-control"
-                          name=""
-                          id=""
+                          name="fn_qty"
+                          id="fn_qty"
+                          value={qtyValue} 
+                           onChange={(e) => setQtyValue(e.target.value)} 
                         />
                       </div>
                     </div>
@@ -399,25 +490,33 @@ const header = renderHeader();
                             <div className="input-group-text">Rp.</div>
                           </div>
                           <input
-                            type="text"
-                            className="form-control format-rp"
-                            name=""
-                            id=""
-                            required
+                            type="number"
+                            className="form-control"
+                            name="fm_sales"
+                            id="fm_sales"
+                            value={salesPrice}
+                            readOnly
                           />
                         </div>
                       </div>
                     </div>
                     <div className="col-12 col-md-6 col-lg-7">
                       <div className="form-group">
-                        <label>Deskripsi</label>
+                        <label>Catatan</label>
                         <div className="input-group">
-                          <input type="text" className="form-control" fdprocessedid="hgh1fp" name="" />
+                          <input 
+                            type="text" 
+                            className="form-control" 
+                            fdprocessedid="hgh1fp" 
+                            name="fv_description" 
+                            id="fv_description"
+                            onChange={(e) => setCatatan(e.target.value)}
+                          />
                         </div>
                       </div>
                     </div>
                     <div className="col-12 col-md-12 col-lg-12 text-right">
-                      <button className="btn btn-success">Add Item</button>
+                      <button className="btn btn-warning">Add Item</button>
                     </div>
                   </div>
                 </form>
@@ -435,7 +534,7 @@ const header = renderHeader();
                   <div className="flex-row-item" style={{ marginRight: "30px" }}>
                     <div className="d-flex" style={{ gap: "5px", whiteSpace: "pre" }}>
                       <p className="text-secondary flex-row-item" style={{ fontSize: "medium" }}>Item</p>
-                      <p className="text-success flex-row-item text-right" style={{ fontSize: "medium" }} id="count_item">0,00</p>
+                      <p className="text-success flex-row-item text-right" style={{ fontSize: "medium" }} id="count_item">{jumlahItem ? jumlahItem : "0,00"}</p>
                     </div>
                     <div className="d-flex">
                       <p className="flex-row-item"></p>
@@ -444,14 +543,6 @@ const header = renderHeader();
                     <div className="d-flex" style={{ gap: "5px", whiteSpace: "pre" }}>
                       <p className="text-secondary flex-row-item" style={{ fontSize: "medium" }}>Disc. Total</p>
                       <p className="text-success flex-row-item text-right" style={{ fontSize: "medium" }} id="fm_so_disc">0,00</p>
-                    </div>
-                    <div className="d-flex">
-                      <p className="flex-row-item"></p>
-                      <p className="flex-row-item text-right"></p>
-                    </div>
-                    <div className="d-flex" style={{ gap: "5px", whiteSpace: "pre" }}>
-                      <p className="text-secondary flex-row-item" style={{ fontSize: "medium" }}>Total</p>
-                      <p className="text-success flex-row-item text-right" style={{ fontSize: "medium" }} id="total_harga">0,00</p>
                     </div>
                   </div>
                   <div className="flex-row-item">
@@ -464,8 +555,8 @@ const header = renderHeader();
                       <p className="flex-row-item text-right"></p>
                     </div>
                     <div className="d-flex" style={{ gap: "5px", whiteSpace: "pre" }}>
-                      <p className="text-secondary flex-row-item" style={{ fontSize: "medium" }}>Pajak</p>
-                      <p className="text-success flex-row-item text-right" style={{ fontSize: "medium" }} id="fm_tax">0,00</p>
+                      <p className="text-secondary flex-row-item" style={{ fontSize: "medium" }}>Total</p>
+                      <p className="text-success flex-row-item text-right" style={{ fontSize: "medium" }} id="fm_tax">{brutto ? brutto : "0,00"}</p>
                     </div>
                     <div className="d-flex">
                       <p className="flex-row-item"></p>
@@ -473,7 +564,7 @@ const header = renderHeader();
                     </div>
                     <div className="d-flex" style={{ gap: "5px", whiteSpace: "pre" }}>
                       <p className="text-secondary flex-row-item" style={{ fontWeight: "bold", fontSize: "medium" }}>GRAND</p>
-                      <p className="text-success flex-row-item text-right" style={{ fontWeight: "bold", fontSize: "medium" }} id="grand_total">Rp. 0,00</p>
+                      <p className="text-success flex-row-item text-right" style={{ fontWeight: "bold", fontSize: "medium" }} id="grand_total">Rp. {brutto}</p>
                     </div>
                   </div>
                 </div>
@@ -485,30 +576,62 @@ const header = renderHeader();
           <div className="row">
             <div className="col-12 col-md-12 col-lg-12">
               <div className="card">
-              <DataTable 
-                header={header} 
-                value={products} 
-                style={
-                  {padding: '10px'}
-                }
+              <DataTable
+                header={header}
+                value={products}
+                style={{ padding: '10px' }}
                 showGridlines
+                emptyMessage={<div style={{ textAlign: 'center' }}>No available options</div>}
               >
-                        <Column field="no" header="No" align={'center'} />
-                        <Column field="kodeBarang" header="Kode Barang" align={'center'}/>
-                        <Column field="namaProduk" header="Nama Produk" align={'center'}/>
-                        <Column field="satuan" header="Satuan" align={'center'}/>
-                        <Column field="harga" header="Harga" align={'center'}/>
-                        <Column field="disc" header="Disc" align={'center'}/>
-                        <Column field="qty" header="Qty" align={'center'}/>
-                        <Column field="total" header="Total" align={'center'}/>
-                        <Column field="kedatangan" header="Kedatangan" align={'center'}/>
-                        <Column field="catatan" header="Catatan" align={'center'}/>
-                        <Column field="action" header="Action" align={'center'}/>
-                    </DataTable>
+                <Column field="no" header="No" body={rowIndexTemplate} align={'center'} />
+                <Column field="fc_stockcode" header="Kode Barang" align={'center'} />
+                <Column field="stock.fv_namestock" header="Nama Produk" align={'center'} />
+                <Column field="stock.fc_namepack" header="Satuan" align={'center'} />
+                <Column field="stock.fm_sales" header="Harga" align={'center'} />
+                <Column field="fn_qty" header="Qty" align={'center'} />
+                <Column field="fm_value" header="Total" align={'center'} />
+                <Column field="ft_description" header="Catatan" align={'center'} />
+                <Column body={deleteIconTemplate} align={'center'} />
+              </DataTable>
               </div>
             </div>
           </div>
+
+          {/* Button submit */}
+          <div className="row mt-4">
+            <div className="col-12 col-md-12 col-lg-12 d-flex justify-content-end">
+              <button className="btn btn-success" onClick={handleConfirmSubmit}>
+                Submit Request
+              </button>
+            </div>
+          </div>
       </div>
+      <BarangDialog
+        isVisible={isDialogVisible}
+        onHide={handleDialogHide}
+        data={barangData}
+      />
+
+      <SweetAlertSubmitConfirmation
+        show={showConfirmation}
+        message="Apakah kamu yakin submit request?"
+        content="Yes, submit"
+        onConfirm={handleSubmitRequest}
+        onCancel={handleCancelSubmit}
+      />
+
+      <SweetAlertSuccess
+        show={showSuccess}
+        message={successMessage}
+        onConfirm={handleAlertConfirm}
+      />
+      <SweetAlertError
+        show={showError}
+        message={errorMessage}
+        onConfirm={handleAlertConfirm}
+      />
+      
+      <SweetAlertLoading show={loading} />
     </>
   );
 };

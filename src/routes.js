@@ -58,10 +58,10 @@ const RoutesConfig = ({ isLoggedIn }) => (
       <Route path='master' element={<CreateRequestBarangMaster />} />
       <Route path='detail' element={<CreateRequestBarangDetail />} />
     </Route>
-    <Route 
+    {/* <Route 
         path='/request-barang/create/detail'
         element={isLoggedIn ? <CreateRequestBarangDetailMain /> : <Navigate to="/login" />}
-    />
+    /> */}
     <Route 
        path='/request-barang/list'
       element={isLoggedIn ? <DaftarRequestBarangMain /> : <Navigate to="/login" />}
@@ -75,10 +75,12 @@ const RoutesConfig = ({ isLoggedIn }) => (
        element={isLoggedIn ? <PersediaanBarangMain /> : <Navigate to="/login" />}
     />
 
-    <Route path='/stock-opname/*' element={isLoggedIn ? <StockOpnameMain /> : <Navigate to="/login" />}>
+    {/* <Route path='/stock-opname/*' element={isLoggedIn ? <StockOpnameMain /> : <Navigate to="/login" />}>
       <Route path='master' element={<StockOpnameMaster />} />
       <Route path='detail' element={<StockOpnameDetail />}/>
-    </Route>
+    </Route> */}
+
+    <Route path='/stock-opname/*' element={isLoggedIn ? <StockOpnameMain /> : <Navigate to="/login" />} />
 
      <Route path="/pemakaian-barang" element={isLoggedIn ? <PemakaianBarangMain /> : <Navigate to="/login" />}/>
   </Routes>

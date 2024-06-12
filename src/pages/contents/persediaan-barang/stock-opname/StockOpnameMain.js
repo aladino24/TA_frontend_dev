@@ -14,47 +14,48 @@ const StockOpnameMain = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async() => {
+        const fetchData = async () => {
             const token = localStorage.getItem('token');
             const axiosConfig = {
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization" : `Bearer ${token}`,
+                    "Authorization": `Bearer ${token}`,
                 },
             }
 
             try {
                 const response = await axios.get(
-                    Config.api.server2 + 'stock-opname/exist-stockopname-master',
+                    `${Config.api.server2}stock-opname/exist-stockopname-master`,
                     axiosConfig
-                )
+                );
 
                 const data = response.data;
                 setIsSuccess(data.success);
                 setResponseData(data);
 
-                if(data.success){
+                if (data.success) {
                     navigate('/stock-opname/detail', { state: { responseData: data } });
-                }else{
+                } else {
                     navigate('/stock-opname/master')
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
-            }finally{
+            } finally {
                 setLoading(false);
             }
         }
 
         fetchData();
     }, [navigate]);
+
     return (
         <DashboardMain>
             <SweetAlertLoading show={loading} />
-            {!loading &&( 
-            <Routes>
-                <Route path="/detail" element={isSuccess ? <StockOpnameDetail /> : <Navigate to="/stock-opname/master" />}/>
-                <Route path="/master" element={isSuccess ? <StockOpnameMaster /> : <Navigate to="/stock-opname/detail" />} />
-            </Routes>
+            {!loading && (
+                <Routes>
+                    <Route path="/detail" element={isSuccess ? <StockOpnameDetail /> : <Navigate to="/stock-opname/master" />} />
+                    <Route path="/master" element={!isSuccess ? <StockOpnameMaster /> : <Navigate to="/stock-opname/detail" />} />
+                </Routes>
             )}
         </DashboardMain>
     );

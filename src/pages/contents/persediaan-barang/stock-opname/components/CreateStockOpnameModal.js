@@ -5,15 +5,21 @@ import { DataTable } from "primereact/datatable";
 import axios from "axios";
 import Config from "../../../../../config";
 import SweetAlertLoading from "../../../../../components/SweetAlertLoading"; // Adjust the import path as needed
+import SweetAlertSuccess from "../../../../../components/SweetAlertSuccess"; // Adjust the import path as needed
+import SweetAlertError from "../../../../../components/SweetAlertError"; // Adjust the import path as needed
 import 'primeicons/primeicons.css';
 import { Button } from "primereact/button";
 import { InputNumber } from "primereact/inputnumber";
 
-const CreateStockOpnameModal = ({ isOpen, onHide }) => {
+const CreateStockOpnameModal = ({ isOpen, onHide, fetchMasterData, refreshData }) => {
     const [dataInventory, setDataInventory] = useState([]);
     const [filteredDataInventory, setFilteredDataInventory] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [globalFilter, setGlobalFilter] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
         if (isOpen) {
@@ -108,10 +114,42 @@ const CreateStockOpnameModal = ({ isOpen, onHide }) => {
     };
 
     const allowEdit = (rowData) => {
-        return rowData.name !== 'Blue Band';
+        return rowData.stock !== null;
     };
 
-    const actionBodyTemplate = () => {
+    const sendSelectedStock = async (rowData) => {
+        setIsSubmitting(true);
+        try {
+            const token = localStorage.getItem('token');
+            const axiosConfig = {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            const response = await axios.post(
+                `${Config.api.server2}stock-opname/detail/select-stock`,
+                rowData,
+                axiosConfig
+            );
+            if (response.status === 200) {
+                onHide();
+                setShowSuccess(true);
+                fetchMasterData();
+                refreshData();
+            } else {
+                setErrorMessage(response.data.message || "An error occurred");
+                setShowError(true);
+            }
+        } catch (error) {
+            setErrorMessage(error.message);
+            setShowError(true);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const actionBodyTemplate = (rowData) => {
         return (
             <Button
                 type="button"
@@ -119,14 +157,14 @@ const CreateStockOpnameModal = ({ isOpen, onHide }) => {
                 className="rounded pl-2 pr-2"
                 severity="success"
                 raised
-                onClick={() => console.log('Edit')}
+                onClick={() => sendSelectedStock(rowData)}
             />
         );
     };
 
     return (
         <div className="card flex justify-content-center">
-            {isLoading ? (
+            {isLoading || isSubmitting ? (
                 <SweetAlertLoading show={true} />
             ) : (
                 <Dialog
@@ -157,6 +195,19 @@ const CreateStockOpnameModal = ({ isOpen, onHide }) => {
                     </DataTable>
                 </Dialog>
             )}
+            <SweetAlertSuccess
+                show={showSuccess}
+                message="Stock selected successfully!"
+                onConfirm={() => {
+                    setShowSuccess(false);
+                    onHide();
+                }}
+            />
+            <SweetAlertError
+                show={showError}
+                message={errorMessage}
+                onConfirm={() => setShowError(false)}
+            />
         </div>
     );
 };
