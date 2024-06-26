@@ -167,6 +167,8 @@ const PersediaanBarang = () => {
                         value={filteredData}
                         header={header}
                         // footer={footer}
+                        columnResizeMode="expand" 
+                        resizableColumns 
                         paginator
                         rows={20}
                         showGridlines

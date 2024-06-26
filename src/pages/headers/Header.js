@@ -164,14 +164,14 @@ const Header = ({ changeStyle }) => {
                     <i className="fas fa-file-alt text-white"></i>
                   </div>
                 </div>
-                <div>
+                {/* <div>
                   <div className="small text-gray-500">December 12, 2019</div>
                   <span className="font-weight-bold">
                     A new monthly report is ready to download!
                   </span>
-                </div>
+                </div> */}
               </a>
-              <a className="dropdown-item d-flex align-items-center" href="#">
+              {/* <a className="dropdown-item d-flex align-items-center" href="#">
                 <div className="mr-3">
                   <div className="icon-circle bg-success">
                     <i className="fas fa-donate text-white"></i>
@@ -181,18 +181,18 @@ const Header = ({ changeStyle }) => {
                   <div className="small text-gray-500">December 7, 2019</div>
                   $290.29 has been deposited into your account!
                 </div>
-              </a>
+              </a> */}
               <a className="dropdown-item d-flex align-items-center" href="#">
                 <div className="mr-3">
                   <div className="icon-circle bg-warning">
                     <i className="fas fa-exclamation-triangle text-white"></i>
                   </div>
                 </div>
-                <div>
+                {/* <div>
                   <div className="small text-gray-z500">December 2, 2019</div>
                   Spending Alert: We've noticed unusually high spending for your
                   account.
-                </div>
+                </div> */}
               </a>
               <a
                 className="dropdown-item text-center small text-gray-500"

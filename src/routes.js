@@ -22,6 +22,8 @@ import CreateRequestBarangMaster from './pages/contents/request/create/CreateReq
 import StockOpnameMain from './pages/contents/persediaan-barang/stock-opname/StockOpnameMain';
 import StockOpnameMaster from './pages/contents/persediaan-barang/stock-opname/StockOpnameMaster';
 import StockOpnameDetail from './pages/contents/persediaan-barang/stock-opname/StockOpnameDetail';
+import DaftarRequestBarangDetail from './pages/contents/request/daftar-request/DaftarRequestBarangDetail';
+import DaftarRequestBarangDetailMain from './pages/contents/request/daftar-request/DaftarRequestBarangDetailMain';
 
 const RoutesConfig = ({ isLoggedIn }) => (
   <Routes>
@@ -65,6 +67,10 @@ const RoutesConfig = ({ isLoggedIn }) => (
     <Route 
        path='/request-barang/list'
       element={isLoggedIn ? <DaftarRequestBarangMain /> : <Navigate to="/login" />}
+    />
+    <Route 
+      path='/request-barang/detail/:fc_sono'
+      element={isLoggedIn ? <DaftarRequestBarangDetailMain /> : <Navigate to="/login" />}
     />
     <Route 
       path='/request-barang/accept'

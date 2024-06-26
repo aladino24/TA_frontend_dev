@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import SweetAlertSubmitConfirmation from "../../../../components/SweetAlertSubmitConfirmation";
 import SweetAlertSuccess from "../../../../components/SweetAlertSuccess";
 import SweetAlertError from "../../../../components/SweetAlertError";
+import SweetAlertConfirmationYesOrNo from "../../../../components/SweetAlertConfirmationYesOrNo";
 
 const CreateRequestBarangDetail = () => {
   const location = useLocation();
@@ -43,6 +44,7 @@ const CreateRequestBarangDetail = () => {
   const [brutto, setBrutto] = useState("");
   const [stockData, setStockData] = useState([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showConfirmationYesOrNo, setShowConfirmationYesOrNo] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -248,6 +250,52 @@ const CreateRequestBarangDetail = () => {
     }
   }
 
+  const handleConfirmDeleteRequest = () =>{
+    setShowConfirmationYesOrNo(true);
+  }
+
+  const handleDeleteRequestMaster = async () => {
+    setShowConfirmationYesOrNo(false);
+    setLoading(true);
+  
+    const token = localStorage.getItem("token");
+    const axiosConfig = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  
+    try {
+      const response = await axios.delete(
+        `${Config.api.server3}delete-request-so`,
+        axiosConfig
+      );
+  
+      if (response.data.success) {
+        setSuccessMessage(response.data.message);
+        setShowSuccess(true);
+        
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000); // 2 seconds delay
+      } else {
+        setErrorMessage(response.data.message || "Request failed");
+        setShowError(true);
+      }
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || error.message || "An error occurred");
+      setShowError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+  const handleCancelDeleteRequestMaster = () => {
+    setShowConfirmationYesOrNo(false);
+  }
+
 
   const rowIndexTemplate = (rowData, column) => {
     return column.rowIndex + 1;
@@ -314,8 +362,6 @@ const deleteIconTemplate = (rowData) => {
                   </button>
                 </div>
               </div>
-              {/* <input type="text" id="fc_branch" value={user ? user.fc_branch : ""}  hidden /> */}
-              <form>
                 <div className={`collapse ${isInformasiUmumOpen ? "show" : ""}`} id="mycard-collapse">
                   <div className="card-body">
                   <div className="row">
@@ -427,14 +473,13 @@ const deleteIconTemplate = (rowData) => {
                           </div>
                       </div>
                       <div className="col-12 col-md-12 col-lg-12 text-right">
-                        <button type="submit" className="btn btn-danger">
+                        <button type="button" onClick={handleConfirmDeleteRequest} className="btn btn-danger">
                           Cancel Request
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
-              </form>
             </div>
           </div>
         </div>
@@ -564,7 +609,7 @@ const deleteIconTemplate = (rowData) => {
                     </div>
                     <div className="d-flex" style={{ gap: "5px", whiteSpace: "pre" }}>
                       <p className="text-secondary flex-row-item" style={{ fontWeight: "bold", fontSize: "medium" }}>GRAND</p>
-                      <p className="text-success flex-row-item text-right" style={{ fontWeight: "bold", fontSize: "medium" }} id="grand_total">Rp. {brutto}</p>
+                      <p className="text-success flex-row-item text-right" style={{ fontWeight: "bold", fontSize: "medium" }} id="grand_total">Rp. {brutto ? brutto : "0,00"}</p>
                     </div>
                   </div>
                 </div>
@@ -611,6 +656,13 @@ const deleteIconTemplate = (rowData) => {
         onHide={handleDialogHide}
         data={barangData}
       />
+
+      <SweetAlertConfirmationYesOrNo 
+        show={showConfirmationYesOrNo}
+        message="Apakah kamu yakin ingin batalkan request?"
+        onConfirm={handleDeleteRequestMaster}
+        onCancel={handleCancelDeleteRequestMaster}
+       />
 
       <SweetAlertSubmitConfirmation
         show={showConfirmation}

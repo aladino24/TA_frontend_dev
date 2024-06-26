@@ -35,11 +35,11 @@ const Inventory = () => {
                         </li>
 
                         {/*  <!-- Nav Item - Tables --> */}
-                        <li className="nav-item">
+                        {/* <li className="nav-item">
                             <a className="nav-link" href="tables.html">
                                 <i className="fas fa-fw fa-table"></i>
                                 <span>Reporting</span></a>
-                        </li>
+                        </li> */}
         </div>
     );
 
