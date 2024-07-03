@@ -24,7 +24,7 @@ const SidebarMain = ({style,changeStyle}) => {
 
                 {/*  <!-- Nav Item - Dashboard --> */}
                 <li className="nav-item active">
-                    <a className="nav-link" href="index.html">
+                    <a className="nav-link" href="/dashboard">
                         <i className="fas fa-fw fa-tachometer-alt"></i>
                         <span>Dashboard</span></a>
                 </li>
